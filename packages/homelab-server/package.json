@@ -1,0 +1,17 @@
+{
+  "name": "homelab-server",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Effect-ts Bun HTTP Server implementation for homelab services",
+  "scripts": {
+    "dev": "bun --watch src/main.ts",
+    "start": "bun src/main.ts"
+  },
+  "dependencies": {
+    "@effect/platform": "latest",
+    "@effect/platform-bun": "latest",
+    "effect": "latest",
+    "homelab-api": "workspace:*"
+  }
+}
