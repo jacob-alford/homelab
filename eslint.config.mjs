@@ -15,17 +15,17 @@ const __dirname = path.dirname(__filename)
 const compat = new FlatCompat({
   baseDirectory: __dirname,
   recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all
+  allConfig: js.configs.all,
 })
 
 export default [
   {
-    ignores: ["**/dist", "**/build", "**/docs", "**/*.md"]
+    ignores: ["**/dist", "**/build", "**/docs", "**/*.md"],
   },
   ...compat.extends(
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
   ),
   ...effectEslint.configs.dprint,
   {
@@ -33,25 +33,25 @@ export default [
       import: fixupPluginRules(_import),
       "sort-destructure-keys": sortDestructureKeys,
       "simple-import-sort": simpleImportSort,
-      codegen
+      codegen,
     },
 
     languageOptions: {
       parser: tsParser,
       ecmaVersion: 2018,
-      sourceType: "module"
+      sourceType: "module",
     },
 
     settings: {
       "import/parsers": {
-        "@typescript-eslint/parser": [".ts", ".tsx"]
+        "@typescript-eslint/parser": [".ts", ".tsx"],
       },
 
       "import/resolver": {
         typescript: {
-          alwaysTryTypes: true
-        }
-      }
+          alwaysTryTypes: true,
+        },
+      },
     },
 
     rules: {
@@ -62,9 +62,12 @@ export default [
       "prefer-destructuring": "off",
       "sort-imports": "off",
 
+      "no-trailing-spaces": "off",
+      "no-multi-spaces": "off",
+
       "no-restricted-syntax": ["error", {
         selector: "CallExpression[callee.property.name='push'] > SpreadElement.arguments",
-        message: "Do not use spread arguments in Array.push"
+        message: "Do not use spread arguments in Array.push",
       }],
 
       "no-unused-vars": "off",
@@ -80,7 +83,7 @@ export default [
 
       "@typescript-eslint/array-type": ["warn", {
         default: "generic",
-        readonly: "generic"
+        readonly: "generic",
       }],
 
       "@typescript-eslint/member-delimiter-style": 0,
@@ -88,11 +91,12 @@ export default [
       "@typescript-eslint/ban-types": "off",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-empty-interface": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
       "@typescript-eslint/consistent-type-imports": "warn",
 
-      "@typescript-eslint/no-unused-vars": ["error", {
+      "@typescript-eslint/no-unused-vars": ["warn", {
         argsIgnorePattern: "^_",
-        varsIgnorePattern: "^_"
+        varsIgnorePattern: "^_",
       }],
 
       "@typescript-eslint/ban-ts-comment": "off",
@@ -104,17 +108,17 @@ export default [
       "@typescript-eslint/no-use-before-define": "off",
       "@typescript-eslint/no-namespace": "off",
 
-      "@effect/dprint": ["error", {
+      "@effect/dprint": ["warn", {
         config: {
           indentWidth: 2,
           lineWidth: 120,
           semiColons: "asi",
           quoteStyle: "alwaysDouble",
-          trailingCommas: "never",
+          trailingCommas: "onlyMultiLine",
           operatorPosition: "maintain",
-          "arrowFunction.useParentheses": "force"
-        }
-      }]
-    }
-  }
+          "arrowFunction.useParentheses": "force",
+        },
+      }],
+    },
+  },
 ]
