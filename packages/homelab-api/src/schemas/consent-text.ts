@@ -1,6 +1,5 @@
 import { Schema } from "effect"
 
-export const ConsentText = Schema.Struct({
+export const ConsentTextSchema = Schema.Struct({
   default: Schema.NonEmptyString,
 })
-
