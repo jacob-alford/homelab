@@ -1,5 +1,8 @@
 import { describe, expect, it } from "@effect/vitest"
-import { Effect, Layer } from "effect"
+import { Arbitrary, Console, Effect, FastCheck, Layer } from "effect"
+import { constFalse, constTrue } from "effect/Function"
+import { XMLParser } from "fast-xml-parser"
+import { WifiPayloadFullSchema } from "../src/schemas/wifi-payload-full.js"
 import { AppleMdmXmlPrintingConfig, AppleMdmXmlPrintingLive } from "../src/services/xml-printing-provider-apple-mdm.js"
 import { XmlPrintingError, XmlPrintingService } from "../src/services/xml-printing-service.js"
 
@@ -95,8 +98,6 @@ describe("AppleMdmXmlPrintingService", () => {
         const buffer = Buffer.from("Hello, World!")
         const result = yield* service.printXml({ payload: buffer })
 
-        console.log(result)
-
         expect(result).toContain("<data>")
         expect(result).toContain("SGVsbG8sIFdvcmxkIQ==")
         expect(result).toContain("</data>")
@@ -187,5 +188,35 @@ describe("AppleMdmXmlPrintingService", () => {
           ),
         ),
       ))
+
+    it.effect("should generate valid XML for any WifiPayloadFull schema instance", () =>
+      Effect.gen(function*() {
+        const service = yield* XmlPrintingService
+        const arbitrary = Arbitrary.make(WifiPayloadFullSchema)
+        const xmlParser = new XMLParser()
+
+        yield* Effect.try(
+          () =>
+            FastCheck.assert(
+              FastCheck.asyncProperty(
+                arbitrary,
+                (payload) =>
+                  service.printXml(payload).pipe(
+                    Effect.tap(
+                      (xmlPayload) => Effect.try(() => xmlParser.parse(xmlPayload)),
+                    ),
+                    Effect.tapError(Console.error),
+                    Effect.mapBoth(
+                      {
+                        onFailure: constFalse,
+                        onSuccess: constTrue,
+                      },
+                    ),
+                    Effect.runPromise,
+                  ),
+              ),
+            ),
+        )
+      }).pipe(Effect.provide(TestLayer)))
   })
 })

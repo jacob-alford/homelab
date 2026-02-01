@@ -1,6 +1,6 @@
 import { Schema } from "effect"
 
-import { Buffer } from "./Buffer.js"
+import { BufferSchema } from "./Buffer.js"
 
 export const JSONPrimitiveSchema = Schema.Union(
   Schema.String,
@@ -12,7 +12,7 @@ export const JSONPrimitiveSchema = Schema.Union(
 export type JSONPrimitive = typeof JSONPrimitiveSchema.Type
 
 export const JSONExtensions = Schema.Union(
-  Buffer,
+  BufferSchema,
 )
 
 export type JSONExtensions = typeof JSONExtensions.Type
