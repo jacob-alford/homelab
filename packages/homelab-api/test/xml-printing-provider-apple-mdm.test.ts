@@ -89,7 +89,20 @@ describe("AppleMdmXmlPrintingService", () => {
         expect(result).toContain("</array>")
       }).pipe(Effect.provide(TestLayer)))
 
-    it.effect.only("should encode complex nested structures", () =>
+    it.effect("should encode Buffer as base64 data", () =>
+      Effect.gen(function*() {
+        const service = yield* XmlPrintingService
+        const buffer = Buffer.from("Hello, World!")
+        const result = yield* service.printXml({ payload: buffer })
+
+        console.log(result)
+
+        expect(result).toContain("<data>")
+        expect(result).toContain("SGVsbG8sIFdvcmxkIQ==")
+        expect(result).toContain("</data>")
+      }).pipe(Effect.provide(TestLayer)))
+
+    it.effect("should encode complex nested structures", () =>
       Effect.gen(function*() {
         const service = yield* XmlPrintingService
         const result = yield* service.printXml({
@@ -99,8 +112,6 @@ describe("AppleMdmXmlPrintingService", () => {
             timeout: 30,
           },
         })
-
-        console.log(result)
 
         expect(result).toContain("<dict>")
         expect(result).toContain("<key>enabled</key>")

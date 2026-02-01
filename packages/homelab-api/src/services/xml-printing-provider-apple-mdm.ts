@@ -1,12 +1,9 @@
-import { } from "@effect/typeclass"
-import * as A from "@effect/typeclass/data/Array"
-import * as R from "@effect/typeclass/data/Record"
+import {} from "@effect/typeclass"
 import * as Str from "@effect/typeclass/data/String"
-import * as Fld from "@effect/typeclass/Foldable"
-import * as Mn from "@effect/typeclass/Monoid"
 import * as Sg from "@effect/typeclass/Semigroup"
-import { Array, Context, Effect, Layer, pipe, Record } from "effect"
-import type { JSON } from "../schemas/JSON.js"
+import { inspect } from "bun"
+import { Array, Context, Effect, Layer, pipe, Record, String } from "effect"
+import type { JSONArray, JSONExt, JSONRecord } from "../schemas/JSONExt.js"
 import type { XmlPrintingServiceImpl } from "./xml-printing-service.js"
 import { XmlPrintingError, XmlPrintingService } from "./xml-printing-service.js"
 
@@ -19,7 +16,7 @@ export class AppleMdmXmlPrintingConfig extends Context.Tag(AppleMdmXmlPrintingCo
     newline?: string
     indent?: string
   }
->() { }
+>() {}
 
 export const AppleMdmXmlPrintingLive = Layer.effect(
   XmlPrintingService,
@@ -47,7 +44,7 @@ class AppleMdmXmlPrintingImpl implements XmlPrintingServiceImpl {
     this.indent = indent
   }
 
-  printXml(json: Record<string, JSON>): Effect.Effect<string, XmlPrintingError> {
+  printXml(json: JSONRecord): Effect.Effect<string, XmlPrintingError> {
     return pipe(
       this.encodeContent(json),
       Effect.map(
@@ -90,8 +87,9 @@ class AppleMdmXmlPrintingImpl implements XmlPrintingServiceImpl {
 
     const indentation = this.indent.repeat(indent)
 
-    return `${s !== node ? s : ""}${indentation}<${node}${attributesStr === "" ? "" : ` ${attributesStr}`}>${content}${multiline ? `\n${indentation}` : ""
-      }</${node}>`
+    return `${s !== node ? s : ""}${indentation}<${node}${attributesStr === "" ? "" : ` ${attributesStr}`}>${content}${
+      multiline ? `\n${indentation}` : ""
+    }</${node}>`
   }
 
   private escape(str: string): string {
@@ -103,7 +101,7 @@ class AppleMdmXmlPrintingImpl implements XmlPrintingServiceImpl {
       .replace(/'/g, "&apos;")
   }
 
-  private encodeContent(json: JSON, depthLevel = 0): Effect.Effect<string, XmlPrintingError> {
+  private encodeContent(json: JSONExt, depthLevel = 0): Effect.Effect<string, XmlPrintingError> {
     if (json === null) {
       return Effect.fail(
         new XmlPrintingError({
@@ -124,12 +122,31 @@ class AppleMdmXmlPrintingImpl implements XmlPrintingServiceImpl {
           }),
         )
       } else {
-        return Effect.succeed(this.b`\n${"integer"}${{}}${String(json)}${depthLevel}`)
+        return Effect.succeed(this.b`\n${"integer"}${{}}${inspect(json)}${depthLevel}`)
       }
     }
 
     if (typeof json === "boolean") {
       return Effect.succeed(`\n${this.indent.repeat(depthLevel)}<${json}/>`)
+    }
+
+    if (this.isBuffer(json)) {
+      return Effect.try({
+        try: () => {
+          const dataString = pipe(
+            json.toString("base64"),
+            String.split(""),
+            Array.chunksOf(52),
+            Array.map(Array.join("")),
+            Array.join("\n"),
+          )
+
+          return this.b`\n${"data"}${{}}${`\n${this.indent.repeat(depthLevel)}${dataString}`}${depthLevel}${true}`
+        },
+        catch(error) {
+          return new XmlPrintingError({ error })
+        },
+      })
     }
 
     if (this.isObject(json)) {
@@ -161,15 +178,19 @@ class AppleMdmXmlPrintingImpl implements XmlPrintingServiceImpl {
     }
 
     return Effect.die(
-      new Error(`Unexpected type passed to AppleMdmXmlPrintingServiceImpl#printXml: ${String(json)}`),
+      new Error(`Unexpected type passed to AppleMdmXmlPrintingServiceImpl#printXml: ${inspect(json)}`),
     )
   }
 
-  private isObject(json: JSON): json is Record<string, JSON> {
+  private isObject(json: JSONExt): json is JSONRecord {
     return json !== null && typeof json === "object" && !Array.isArray(json)
   }
 
-  private isArray(json: JSON): json is Array<JSON> {
+  private isArray(json: JSONExt): json is JSONArray {
     return Array.isArray(json)
+  }
+
+  private isBuffer(json: JSONExt): json is Buffer {
+    return json instanceof Buffer
   }
 }
