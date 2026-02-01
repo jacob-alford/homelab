@@ -1,9 +1,6 @@
 import { describe, expect, it } from "@effect/vitest"
 import { Effect, Layer } from "effect"
-import {
-  AppleMdmXmlPrintingConfig,
-  AppleMdmXmlPrintingLive,
-} from "../src/services/xml-printing-provider-apple-mdm.js"
+import { AppleMdmXmlPrintingConfig, AppleMdmXmlPrintingLive } from "../src/services/xml-printing-provider-apple-mdm.js"
 import { XmlPrintingError, XmlPrintingService } from "../src/services/xml-printing-service.js"
 
 const DefaultConfig = Layer.succeed(AppleMdmXmlPrintingConfig, {
@@ -21,9 +18,9 @@ describe("AppleMdmXmlPrintingService", () => {
         const service = yield* XmlPrintingService
         const result = yield* service.printXml({ name: "test" })
 
-        expect(result).toContain('<?xml version="1.0" encoding="UTF-8"?>')
-        expect(result).toContain('<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"')
-        expect(result).toContain('<plist version="1.0">')
+        expect(result).toContain("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+        expect(result).toContain("<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\"")
+        expect(result).toContain("<plist version=\"1.0\">")
         expect(result).toContain("<string>test</string>")
         expect(result).toContain("</plist>")
       }).pipe(Effect.provide(TestLayer)))
@@ -55,7 +52,7 @@ describe("AppleMdmXmlPrintingService", () => {
     it.effect("should escape special characters in strings", () =>
       Effect.gen(function*() {
         const service = yield* XmlPrintingService
-        const result = yield* service.printXml({ text: '<tag attr="value">&test' })
+        const result = yield* service.printXml({ text: "<tag attr=\"value\">&test" })
 
         expect(result).toContain("&lt;tag attr=&quot;value&quot;&gt;&amp;test")
       }).pipe(Effect.provide(TestLayer)))
@@ -92,7 +89,7 @@ describe("AppleMdmXmlPrintingService", () => {
         expect(result).toContain("</array>")
       }).pipe(Effect.provide(TestLayer)))
 
-    it.effect("should encode complex nested structures", () =>
+    it.effect.only("should encode complex nested structures", () =>
       Effect.gen(function*() {
         const service = yield* XmlPrintingService
         const result = yield* service.printXml({
@@ -102,6 +99,8 @@ describe("AppleMdmXmlPrintingService", () => {
             timeout: 30,
           },
         })
+
+        console.log(result)
 
         expect(result).toContain("<dict>")
         expect(result).toContain("<key>enabled</key>")
@@ -143,7 +142,7 @@ describe("AppleMdmXmlPrintingService", () => {
         const service = yield* XmlPrintingService
         const result = yield* service.printXml({ test: "value" })
 
-        expect(result).toContain('<?xml version="1.0" encoding="ISO-8859-1"?>')
+        expect(result).toContain("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>")
       }).pipe(
         Effect.provide(
           AppleMdmXmlPrintingLive.pipe(
