@@ -56,7 +56,7 @@ class AppleMdmXmlPrintingImpl implements XmlPrintingServiceImpl {
             this.xmlLeader,
             [
               this.doctype,
-              this.b`${"plist"}${{ version: "1.0" }}${content}${0}`,
+              this.b`${"plist"}${{ version: "1.0" }}${content}${0}${true}`,
             ],
           ),
       ),
@@ -80,15 +80,18 @@ class AppleMdmXmlPrintingImpl implements XmlPrintingServiceImpl {
     attributes: Record<string, string> = {},
     content: string,
     indent: number = 0,
+    multiline: boolean = false,
   ): string {
     const attributesStr = pipe(
       attributes,
-      Record.collect((k, v) => `${k}=${this.escape(v)}`),
+      Record.collect((k, v) => `${k}="${this.escape(v)}"`),
       Array.join(" "),
     )
 
-    return `${s !== node ? s : ""}${this.indent.repeat(indent)}<${node}${attributesStr === "" ? "" : attributesStr
-      }>${content}</${node}>`
+    const indentation = this.indent.repeat(indent)
+
+    return `${s !== node ? s : ""}${indentation}<${node}${attributesStr === "" ? "" : ` ${attributesStr}`}>${content}${multiline ? `\n${indentation}` : ""
+      }</${node}>`
   }
 
   private escape(str: string): string {
@@ -137,7 +140,8 @@ class AppleMdmXmlPrintingImpl implements XmlPrintingServiceImpl {
           this.encodeContent(v, depthLevel + 1).pipe(
             Effect.map(
               (children) =>
-                z + this.b`\n${"dict"}${{}}${this.b`\n${"key"}${{}}${k}${depthLevel + 1}` + children}${depthLevel}`,
+                z +
+                this.b`\n${"dict"}${{}}${this.b`\n${"key"}${{}}${k}${depthLevel + 1}` + children}${depthLevel}${true}`,
             ),
           ),
       )
@@ -150,7 +154,7 @@ class AppleMdmXmlPrintingImpl implements XmlPrintingServiceImpl {
         (z, v) =>
           this.encodeContent(v, depthLevel + 1).pipe(
             Effect.map(
-              (children) => z + this.b`\n${"array"}${{}}${children}${depthLevel}`,
+              (children) => z + this.b`\n${"array"}${{}}${children}${depthLevel}${true}`,
             ),
           ),
       )
