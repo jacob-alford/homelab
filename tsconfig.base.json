@@ -37,6 +37,10 @@
     "removeComments": false,
     "plugins": [{ "name": "@effect/language-service" }],
     "paths": {
+      "homelab-api": ["./packages/homelab-api/src/index.js"],
+      "homelab-api/*": ["./packages/homelab-api/src/*.js"],
+      "homelab-server": ["./packages/homelab-server/src/index.js"],
+      "homelab-server/*": ["./packages/homelab-server/src/*.js"],
       "@template/cli": ["./packages/cli/src/index.js"],
       "@template/cli/*": ["./packages/cli/src/*.js"],
       "@template/cli/test/*": ["./packages/cli/test/*.js"],

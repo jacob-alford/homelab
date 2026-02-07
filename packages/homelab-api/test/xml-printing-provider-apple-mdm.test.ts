@@ -1,7 +1,8 @@
 import { describe, expect, it } from "@effect/vitest"
-import { Arbitrary, Console, Effect, FastCheck, Layer } from "effect"
-import { constFalse, constTrue } from "effect/Function"
+import { Arbitrary, Console, Effect, FastCheck, Layer, Schema } from "effect"
+import { constFalse, constTrue, flow, pipe } from "effect/Function"
 import { XMLParser } from "fast-xml-parser"
+import { AcmePayloadFull } from "../src/schemas/acme-payload-full.js"
 import { WifiPayloadFullSchema } from "../src/schemas/wifi-payload-full.js"
 import { AppleMdmXmlPrintingConfig, AppleMdmXmlPrintingLive } from "../src/services/xml-printing-provider-apple-mdm.js"
 import { XmlPrintingError, XmlPrintingService } from "../src/services/xml-printing-service.js"
@@ -205,12 +206,49 @@ describe("AppleMdmXmlPrintingService", () => {
                     Effect.tap(
                       (xmlPayload) => Effect.try(() => xmlParser.parse(xmlPayload)),
                     ),
+                    Effect.tap(Console.log),
                     Effect.tapError(Console.error),
                     Effect.mapBoth(
                       {
                         onFailure: constFalse,
                         onSuccess: constTrue,
                       },
+                    ),
+                    Effect.runPromise,
+                  ),
+              ),
+            ),
+        )
+      }).pipe(Effect.provide(TestLayer)))
+    it.effect("should generate valid XML for any AcmePayloadFull schema instance", () =>
+      Effect.gen(function*() {
+        const service = yield* XmlPrintingService
+        const arbitrary = Arbitrary.make(AcmePayloadFull)
+        const xmlParser = new XMLParser()
+
+        yield* Effect.try(
+          () =>
+            FastCheck.assert(
+              FastCheck.asyncProperty(
+                arbitrary,
+                (_) =>
+                  pipe(
+                    _,
+                    Schema.encode(AcmePayloadFull),
+                    Effect.flatMap(
+                      (payload) =>
+                        service.printXml(payload).pipe(
+                          Effect.tap(
+                            (xmlPayload) => Effect.try(() => xmlParser.parse(xmlPayload)),
+                          ),
+                          Effect.tapError(Console.error),
+                          Effect.mapBoth(
+                            {
+                              onFailure: constFalse,
+                              onSuccess: constTrue,
+                            },
+                          ),
+                        ),
                     ),
                     Effect.runPromise,
                   ),

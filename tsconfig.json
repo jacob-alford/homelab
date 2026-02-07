@@ -3,5 +3,6 @@
   "include": [],
   "references": [
     { "path": "packages/homelab-api" },
+    { "path": "packages/homelab-server" }
   ]
 }
