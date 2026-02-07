@@ -6,7 +6,10 @@
   "description": "Effect-ts Bun HTTP Server implementation for homelab services",
   "scripts": {
     "dev": "bun --watch src/main.ts",
-    "start": "bun src/main.ts"
+    "start": "bun src/main.ts",
+    "build": "tsc -b tsconfig.json",
+    "lint": "eslint src",
+    "typecheck": "tsc -b tsconfig.json"
   },
   "dependencies": {
     "@effect/platform": "latest",
