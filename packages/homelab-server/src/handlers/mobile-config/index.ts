@@ -3,7 +3,7 @@ import * as API from "homelab-api"
 
 import { handleCerts } from "./certs.js"
 import { handleDeviceAcme } from "./device-acme.js"
-import { handleWifiGuest } from "./wifi-guest.js"
+import { handleWifiDownload } from "./wifi-download.js"
 import { handleWifi } from "./wifi.js"
 
 export const MobileConfigApiLive = HttpApiBuilder.group(
@@ -13,6 +13,6 @@ export const MobileConfigApiLive = HttpApiBuilder.group(
     handlers
       .handle("certs", handleCerts)
       .handle("wifi", handleWifi)
-      .handle("device-acme", handleDeviceAcme)
-      .handle("wifi-guest", handleWifiGuest),
+      .handle("wifi-download", handleWifiDownload)
+      .handle("device-acme", handleDeviceAcme),
 )
