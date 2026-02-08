@@ -1,13 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["src"],
-  "compilerOptions": {
-    "types": ["bun"],
-    "rootDir": "src",
-    "outDir": "build",
-    "tsBuildInfoFile": ".tsbuildinfo/tsbuildinfo"
-  },
+  "include": [],
   "references": [
-    { "path": "../homelab-api" }
+    { "path": "tsconfig.src.json" }
   ]
 }

@@ -1,4 +1,4 @@
 import { NotImplemented } from "@effect/platform/HttpApiError"
 import { Effect } from "effect"
 
-export const handleCerts = () => Effect.fail(new NotImplemented())
+export const handleWifiDownload = () => Effect.fail(new NotImplemented())

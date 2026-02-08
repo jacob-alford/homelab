@@ -3,6 +3,7 @@ import * as Str from "@effect/typeclass/data/String"
 import * as Sg from "@effect/typeclass/Semigroup"
 import { inspect } from "bun"
 import { Array, Context, Effect, Layer, pipe, Record, String } from "effect"
+import type { XML } from "homelab-api/schemas/XML"
 import type { JSONArray, JSONExt, JSONRecord } from "../schemas/JSONExt.js"
 import type { XmlPrintingServiceImpl } from "./xml-printing-service.js"
 import { XmlPrintingError, XmlPrintingService } from "./xml-printing-service.js"
@@ -44,7 +45,7 @@ class AppleMdmXmlPrintingImpl implements XmlPrintingServiceImpl {
     this.indent = indent
   }
 
-  printXml(json: JSONRecord): Effect.Effect<string, XmlPrintingError> {
+  printXml(json: JSONRecord): Effect.Effect<XML, XmlPrintingError> {
     return pipe(
       this.encodeContent(json),
       Effect.map(
