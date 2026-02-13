@@ -29,3 +29,5 @@ export const WifiConfigSchema = GenericPayloadSchema.pipe(
     }),
   ),
 )
+
+export type WifiConfig = typeof WifiConfigSchema.Type

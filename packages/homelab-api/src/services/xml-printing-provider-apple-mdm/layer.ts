@@ -1,23 +1,16 @@
-import {} from "@effect/typeclass"
 import * as Str from "@effect/typeclass/data/String"
 import * as Sg from "@effect/typeclass/Semigroup"
 import { inspect } from "bun"
-import { Array, Context, Effect, Layer, pipe, Record, String } from "effect"
+import { Array, Effect, Layer, pipe, Record, String } from "effect"
 import type { XML } from "homelab-api/schemas/XML"
-import type { JSONArray, JSONExt, JSONRecord } from "../schemas/JSONExt.js"
-import type { XmlPrintingServiceImpl } from "./xml-printing-service.js"
-import { XmlPrintingError, XmlPrintingService } from "./xml-printing-service.js"
+import type { JSONArray, JSONExt, JSONRecord } from "../../schemas/JSONExt.js"
+import { XmlPrintingError, XmlPrintingService } from "../xml-printing-service/index.js"
+import { AppleMdmXmlPrintingConfig } from "./definition.js"
 
-export const AppleMdmXmlPrintingConfigId = "AppleMdmXmlPrintingServiceConfig"
-
-export class AppleMdmXmlPrintingConfig extends Context.Tag(AppleMdmXmlPrintingConfigId)<
+export const AppleMdmXmlPrintingConfigDefault = Layer.succeed(
   AppleMdmXmlPrintingConfig,
-  {
-    encoding?: string
-    newline?: string
-    indent?: string
-  }
->() {}
+  {},
+)
 
 export const AppleMdmXmlPrintingLive = Layer.effect(
   XmlPrintingService,
@@ -28,7 +21,7 @@ export const AppleMdmXmlPrintingLive = Layer.effect(
   }),
 )
 
-class AppleMdmXmlPrintingImpl implements XmlPrintingServiceImpl {
+class AppleMdmXmlPrintingImpl {
   private encoding: string
   private newline: string
   private indent: string
@@ -59,7 +52,7 @@ class AppleMdmXmlPrintingImpl implements XmlPrintingServiceImpl {
           ),
       ),
       Effect.map(
-        (result) => result.replaceAll("\n", this.newline),
+        (result) => result.replaceAll("\n", this.newline) as XML,
       ),
     )
   }
@@ -159,9 +152,13 @@ class AppleMdmXmlPrintingImpl implements XmlPrintingServiceImpl {
             Effect.map(
               (children) =>
                 z +
-                this.b`\n${"dict"}${{}}${this.b`\n${"key"}${{}}${k}${depthLevel + 1}` + children}${depthLevel}${true}`,
+                this.b`\n${"key"}${{}}${k}${depthLevel + 1}` + children,
             ),
           ),
+      ).pipe(
+        Effect.map(
+          (content) => this.b`\n${"dict"}${{}}${content}${depthLevel}${true}`,
+        ),
       )
     }
 
@@ -172,9 +169,13 @@ class AppleMdmXmlPrintingImpl implements XmlPrintingServiceImpl {
         (z, v) =>
           this.encodeContent(v, depthLevel + 1).pipe(
             Effect.map(
-              (children) => z + this.b`\n${"array"}${{}}${children}${depthLevel}${true}`,
+              (children) => z + children,
             ),
           ),
+      ).pipe(
+        Effect.map(
+          (content) => this.b`\n${"array"}${{}}${content}${depthLevel}${true}`,
+        ),
       )
     }
 

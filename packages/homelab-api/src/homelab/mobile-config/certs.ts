@@ -8,3 +8,5 @@ export const Certs = HttpApiEndpoint.get("certs")`/certs`.addSuccess(Schema.Stri
     status: 501,
   },
 )
+
+export type CertsEndpoint = typeof Certs

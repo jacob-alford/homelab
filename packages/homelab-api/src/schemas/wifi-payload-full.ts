@@ -18,3 +18,5 @@ export const WifiPayloadFullSchema = GenericPayloadSchema.pipe(
     }),
   ),
 )
+
+export type WifiPayloadFull = typeof WifiPayloadFullSchema.Type
