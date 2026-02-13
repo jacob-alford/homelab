@@ -8,3 +8,5 @@ export const DeviceAcme = HttpApiEndpoint.get("device-acme")`/device-acme`.addSu
     status: 501,
   },
 )
+
+export type DeviceAcmeEndpoint = typeof DeviceAcme

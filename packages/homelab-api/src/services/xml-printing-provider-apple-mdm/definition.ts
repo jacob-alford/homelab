@@ -1,0 +1,12 @@
+import { Context } from "effect"
+
+export const AppleMdmXmlPrintingConfigId = "AppleMdmXmlPrintingServiceConfig"
+
+export class AppleMdmXmlPrintingConfig extends Context.Tag(AppleMdmXmlPrintingConfigId)<
+  AppleMdmXmlPrintingConfig,
+  {
+    encoding?: string
+    newline?: string
+    indent?: string
+  }
+>() {}

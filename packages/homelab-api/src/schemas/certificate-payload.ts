@@ -8,3 +8,5 @@ export const CertificatePayloadSchema = GenericPayloadSchema.pipe(
     }),
   ),
 )
+
+export type CertificatePayload = typeof CertificatePayloadSchema.Type

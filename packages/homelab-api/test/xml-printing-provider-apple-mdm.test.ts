@@ -4,8 +4,11 @@ import { constFalse, constTrue, flow, pipe } from "effect/Function"
 import { XMLParser } from "fast-xml-parser"
 import { AcmePayloadFull } from "../src/schemas/acme-payload-full.js"
 import { WifiPayloadFullSchema } from "../src/schemas/wifi-payload-full.js"
-import { AppleMdmXmlPrintingConfig, AppleMdmXmlPrintingLive } from "../src/services/xml-printing-provider-apple-mdm.js"
-import { XmlPrintingError, XmlPrintingService } from "../src/services/xml-printing-service.js"
+import {
+  AppleMdmXmlPrintingConfig,
+  AppleMdmXmlPrintingLive,
+} from "../src/services/xml-printing-provider-apple-mdm/index.js"
+import { XmlPrintingError, XmlPrintingService } from "../src/services/xml-printing-service/index.js"
 
 const DefaultConfig = Layer.succeed(AppleMdmXmlPrintingConfig, {
   encoding: "UTF-8",
@@ -91,6 +94,36 @@ describe("AppleMdmXmlPrintingService", () => {
         expect(result).toContain("<string>banana</string>")
         expect(result).toContain("<string>cherry</string>")
         expect(result).toContain("</array>")
+      }).pipe(Effect.provide(TestLayer)))
+
+    it.effect("should encode arrays with only one <array> tag for multiple items", () =>
+      Effect.gen(function*() {
+        const service = yield* XmlPrintingService
+        const result = yield* service.printXml({
+          items: [1, 2, 3],
+        })
+
+        const arrayTagCount = (result.match(/<array>/g) || []).length
+        expect(arrayTagCount).toBe(1)
+      }).pipe(Effect.provide(TestLayer)))
+
+    it.effect("should encode objects with only one <dict> tag for multiple keys", () =>
+      Effect.gen(function*() {
+        const service = yield* XmlPrintingService
+        const result = yield* service.printXml({
+          obj: { a: "123", b: "456", c: "789" },
+        })
+
+        const outerDictMatches = result.match(
+          /<dict>[\s\S]*?<key>obj<\/key>[\s\S]*?<dict>([\s\S]*?)<\/dict>[\s\S]*?<\/dict>/g,
+        )
+        expect(outerDictMatches).toBeTruthy()
+
+        if (outerDictMatches) {
+          const innerContent = outerDictMatches[0]
+          const innerDictCount = (innerContent.match(/<dict>/g) || []).length
+          expect(innerDictCount).toBe(2)
+        }
       }).pipe(Effect.provide(TestLayer)))
 
     it.effect("should encode Buffer as base64 data", () =>
