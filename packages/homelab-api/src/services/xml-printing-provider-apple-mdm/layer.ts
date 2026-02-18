@@ -1,9 +1,11 @@
 import * as Str from "@effect/typeclass/data/String"
 import * as Sg from "@effect/typeclass/Semigroup"
 import { inspect } from "bun"
-import { Array, Effect, Layer, pipe, Record, String } from "effect"
-import type { XML } from "homelab-api/schemas/XML"
-import type { JSONArray, JSONExt, JSONRecord } from "../../schemas/JSONExt.js"
+import type { Predicate } from "effect"
+import { Array, Effect, flow, Layer, pipe, Record, String } from "effect"
+import { Lines } from "homelab-data"
+import type { JSONExt } from "../../schemas/index.js"
+import { XML } from "../../schemas/index.js"
 import { XmlPrintingError, XmlPrintingService } from "../xml-printing-service/index.js"
 import { AppleMdmXmlPrintingConfig } from "./definition.js"
 
@@ -38,52 +40,107 @@ class AppleMdmXmlPrintingImpl {
     this.indent = indent
   }
 
-  printXml(json: JSONRecord): Effect.Effect<XML, XmlPrintingError> {
+  printXml(json: JSONExt.JSONRecord): Effect.Effect<XML.XML, XmlPrintingError> {
     return pipe(
       this.encodeContent(json),
       Effect.map(
         (content) =>
-          Sg.intercalate(this.newline)(Str.Semigroup).combineMany(
-            this.xmlLeader,
-            [
-              this.doctype,
-              this.b`${"plist"}${{ version: "1.0" }}${content}${0}${true}`,
-            ],
+          pipe(
+            Lines.lines(
+              ...this.xmlLeader,
+              ...this.doctype,
+              ...this.plist(content),
+            ),
+            Array.reduce(
+              "",
+              (z, [depth, line]) => z.concat(`${this.indent.repeat(depth)}${line}${this.newline}`),
+            ),
           ),
       ),
       Effect.map(
-        (result) => result.replaceAll("\n", this.newline) as XML,
+        XML.wrapUnsafe,
       ),
     )
   }
 
   private get xmlLeader() {
-    return `<?xml version="1.0" encoding="${this.encoding}"?>`
+    return this.$({
+      node: "?xml",
+      attributes: {
+        version: "1.0",
+        encoding: this.encoding,
+      },
+      closingCharacter: "?",
+    })
   }
 
   private get doctype() {
-    return `<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">`
+    return this.$({
+      node: "!DOCTYPE",
+      attributes: {
+        plist: null,
+        PUBLIC: null,
+        [`"-//Apple//DTD PLIST 1.0//EN"`]: null,
+        [`"http://www.apple.com/DTDs/PropertyList-1.0.dtd"`]: null,
+      },
+      closingCharacter: null,
+    })
   }
 
-  private b(
-    [s]: TemplateStringsArray,
-    node: string,
-    attributes: Record<string, string> = {},
-    content: string,
-    indent: number = 0,
-    multiline: boolean = false,
-  ): string {
+  private plist(plistContents: Lines.Lines) {
+    return this.$({
+      node: "plist",
+      attributes: {
+        version: "1.0",
+      },
+      children: plistContents,
+      inlineChildren: false,
+    })
+  }
+
+  private $(
+    params: XmlTagTemplate,
+  ): Lines.Lines {
+    const {
+      attributes = {},
+      children,
+      closingCharacter = "/",
+      depth = 0,
+      inlineChildren = true,
+      node,
+    } = params
+
     const attributesStr = pipe(
       attributes,
-      Record.collect((k, v) => `${k}="${this.escape(v)}"`),
+      Record.collect((k, v) => v ? `${k}="${this.escape(v)}"` : k),
       Array.join(" "),
+      (_) => _ === "" ? "" : ` ${_}`,
     )
 
-    const indentation = this.indent.repeat(indent)
+    if (!children) {
+      return Lines.singleton(depth, `<${node}${attributesStr}${closingCharacter ?? ""}>`)
+    }
 
-    return `${s !== node ? s : ""}${indentation}<${node}${attributesStr === "" ? "" : ` ${attributesStr}`}>${content}${
-      multiline ? `\n${indentation}` : ""
-    }</${node}>`
+    const nodeOpen = `<${node}${attributesStr}>`
+    const nodeClose = `</${node}>`
+
+    if (inlineChildren) {
+      const [, child] = Lines.fstChild(children)
+
+      return Lines.singleton(depth, `${nodeOpen}${child}${nodeClose}`)
+    }
+
+    return Lines.lines(
+      Lines.line(
+        depth,
+        nodeOpen,
+      ),
+      ...children,
+      Lines.line(
+        depth,
+        nodeClose,
+      ),
+    )
   }
 
   private escape(str: string): string {
@@ -95,7 +152,9 @@ class AppleMdmXmlPrintingImpl {
       .replace(/'/g, "&apos;")
   }
 
-  private encodeContent(json: JSONExt, depthLevel = 0): Effect.Effect<string, XmlPrintingError> {
+  private encodeContent(json: JSONExt.JSONExt, depth = 0): Effect.Effect<Lines.Lines, XmlPrintingError> {
+    const depthLevel = depth
+
     if (json === null) {
       return Effect.fail(
         new XmlPrintingError({
@@ -105,7 +164,13 @@ class AppleMdmXmlPrintingImpl {
     }
 
     if (typeof json === "string") {
-      return Effect.succeed(this.b`\n${"string"}${{}}${this.escape(json)}${depthLevel}`)
+      return Effect.succeed(
+        this.$({
+          node: "string",
+          children: Lines.singleton(depth, this.escape(json)),
+          depth: depthLevel,
+        }),
+      )
     }
 
     if (typeof json === "number") {
@@ -116,12 +181,23 @@ class AppleMdmXmlPrintingImpl {
           }),
         )
       } else {
-        return Effect.succeed(this.b`\n${"integer"}${{}}${inspect(json)}${depthLevel}`)
+        return Effect.succeed(
+          this.$({
+            node: "integer",
+            children: Lines.singleton(depth, `${json}`),
+            depth,
+          }),
+        )
       }
     }
 
     if (typeof json === "boolean") {
-      return Effect.succeed(`\n${this.indent.repeat(depthLevel)}<${json}/>`)
+      return Effect.succeed(
+        this.$({
+          node: `${json}`,
+          depth,
+        }),
+      )
     }
 
     if (this.isBuffer(json)) {
@@ -132,10 +208,14 @@ class AppleMdmXmlPrintingImpl {
             String.split(""),
             Array.chunksOf(52),
             Array.map(Array.join("")),
-            Array.join("\n"),
           )
 
-          return this.b`\n${"data"}${{}}${`\n${this.indent.repeat(depthLevel)}${dataString}`}${depthLevel}${true}`
+          return this.$({
+            node: "data",
+            depth,
+            children: Array.map(dataString, (dataLine) => Lines.line(depth, dataLine)),
+            inlineChildren: false,
+          })
         },
         catch(error) {
           return new XmlPrintingError({ error })
@@ -146,18 +226,30 @@ class AppleMdmXmlPrintingImpl {
     if (this.isObject(json)) {
       return Effect.reduce(
         Record.toEntries(json),
-        "",
+        Array.empty<Lines.Line>(),
         (z, [k, v]) =>
           this.encodeContent(v, depthLevel + 1).pipe(
             Effect.map(
               (children) =>
-                z +
-                this.b`\n${"key"}${{}}${k}${depthLevel + 1}` + children,
+                z.concat(
+                  this.$({
+                    node: "key",
+                    depth: depth + 1,
+                    children: Lines.singleton(depth + 1, k),
+                  }),
+                  children,
+                ),
             ),
           ),
       ).pipe(
         Effect.map(
-          (content) => this.b`\n${"dict"}${{}}${content}${depthLevel}${true}`,
+          (content) =>
+            this.$({
+              node: "dict",
+              depth,
+              children: content,
+              inlineChildren: false,
+            }),
         ),
       )
     }
@@ -165,16 +257,22 @@ class AppleMdmXmlPrintingImpl {
     if (this.isArray(json)) {
       return Effect.reduce(
         json,
-        "",
+        Lines.empty,
         (z, v) =>
           this.encodeContent(v, depthLevel + 1).pipe(
             Effect.map(
-              (children) => z + children,
+              (children) => z.concat(children),
             ),
           ),
       ).pipe(
         Effect.map(
-          (content) => this.b`\n${"array"}${{}}${content}${depthLevel}${true}`,
+          (content) =>
+            this.$({
+              node: "array",
+              children: content,
+              depth,
+              inlineChildren: false,
+            }),
         ),
       )
     }
@@ -184,15 +282,43 @@ class AppleMdmXmlPrintingImpl {
     )
   }
 
-  private isObject(json: JSONExt): json is JSONRecord {
+  private isObject(json: JSONExt.JSONExt): json is JSONExt.JSONRecord {
     return json !== null && typeof json === "object" && !Array.isArray(json)
   }
 
-  private isArray(json: JSONExt): json is JSONArray {
+  private isArray(json: JSONExt.JSONExt): json is JSONExt.JSONArray {
     return Array.isArray(json)
   }
 
-  private isBuffer(json: JSONExt): json is Buffer {
+  private isBuffer(json: JSONExt.JSONExt): json is Buffer {
     return json instanceof Buffer
   }
 }
+
+interface XmlTagTemplate {
+  readonly node: string
+  readonly attributes?: Record<string, string | null>
+  readonly children?: Lines.Lines
+  readonly depth?: number
+  readonly inlineChildren?: boolean
+  readonly closingCharacter?: string | null
+}
+
+function prepend(a: string): (b: string) => string {
+  return function prependInner(b) {
+    return `${a}${b}`
+  }
+}
+
+function prependIf(pred: Predicate.Predicate<string>, prefix: string): (str: string) => string {
+  return function prependIfInner(str) {
+    if (pred(str)) return `${prefix}${str}`
+    else return str
+  }
+}
+
+const trimWhiteSpace: (str: string) => string = flow(
+  String.trimStart,
+  String.replace("\n", ""),
+  String.trimStart,
+)

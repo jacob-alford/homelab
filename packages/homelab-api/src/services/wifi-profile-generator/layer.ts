@@ -34,10 +34,6 @@ class WifiProfileServiceImpl implements WifiProfileServiceDef {
     const uuids = this.uuids
     const wifiPayloadService = this.wifiPayloadService
 
-    console.log({
-      certPayloadService,
-    })
-
     return Effect.gen(function*() {
       const rootCertPayload = yield* certPayloadService.cert(
         "roots.crt",
@@ -51,19 +47,19 @@ class WifiProfileServiceImpl implements WifiProfileServiceDef {
         "intermediate",
       )
 
+      const [ssid] = wifiParams
+
       const wifiPayload = yield* wifiPayloadService.wpa3EnterprisePeapWifi(...wifiParams)
 
       return {
-        ConsentText: { default: "This allows iOS to connect automatically to the 0x676179 network" },
+        ConsentText: { default: `This allows iOS to connect automatically to the ${ssid} network` },
         PayloadContent: [
           rootCertPayload,
           intermediatePayload,
           wifiPayload,
         ],
-        PayloadDescription: `This profile allows this device to connect to the ${
-          wifiParams[0]
-        } network WPA3 Enterprise network.`,
-        PayloadDisplayName: `${wifiParams[0]} Wi-Fi`,
+        PayloadDescription: `This profile allows this device to connect to the ${ssid} network.`,
+        PayloadDisplayName: `${ssid} Wi-Fi and Certificates`,
         PayloadIdentifier:
           `alford.plato-splunk.homelab.homelab-api.wifi-profile-generator.${uuids._0x676179WifiAndCertsPayloadUuid}`,
         PayloadOrganization: "Plato Splunk Media",

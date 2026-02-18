@@ -1,3 +1,4 @@
+import { HttpApiSchema } from "@effect/platform"
 import { Schema } from "effect"
 
 export const XMLSymbol = Symbol.for("homelab/XML")
@@ -15,6 +16,14 @@ export const XMLSchema = Schema.String.pipe(
 </plist>` as any,
     ],
   }),
+  HttpApiSchema.withEncoding({
+    kind: "Text",
+    contentType: "application/xml",
+  }),
 )
 
 export type XML = typeof XMLSchema.Type
+
+export function wrapUnsafe(str: string): XML {
+  return str as XML
+}
