@@ -7,7 +7,4 @@
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
     "rootDir": "src"
   },
-  "references": [
-    { "path": "../homelab-api/tsconfig.src.json" }
-  ]
 }

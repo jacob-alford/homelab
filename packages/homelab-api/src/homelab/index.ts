@@ -5,4 +5,4 @@ export const HomelabApi = HttpApi.make("homelab").add(MobileConfigApi).prefix("/
 
 export * as Endpoints from "./mobile-config/index.js"
 
-export { MobileConfigApi }
+export { MobileConfigApi } from "./mobile-config/index.js"

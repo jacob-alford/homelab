@@ -8,17 +8,14 @@ export const handleWifi = Effect.fn("handleWifi")(
     const { ssid } = args.path
     const { disableMACRandomization, password, username } = args.urlParams
 
-    const xmlPrintingService = yield* Services.XmlPrintingService.XmlPrintingService
-    const wifiProfileService = yield* Services.WifiProfileGeneratorService.WifiProfileService
-
-    const wifiProfile = yield* wifiProfileService.wpa3EnterprisePeapWifi(
+    const wifiProfile = yield* Services.WifiProfileGeneratorService.wpa3EnterprisePeapWifi(
       ssid,
       username,
       password,
       disableMACRandomization,
     )
 
-    return yield* xmlPrintingService.printXml(
+    return yield* Services.XmlPrintingService.printXml(
       wifiProfile,
     )
   },

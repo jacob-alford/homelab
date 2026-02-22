@@ -1,5 +1,5 @@
 import { HttpApiBuilder } from "@effect/platform"
-import * as API from "homelab-api"
+import { Homelab } from "homelab-api"
 
 import { handleCerts } from "./certs.js"
 import { handleDeviceAcme } from "./device-acme.js"
@@ -7,7 +7,7 @@ import { handleWifiDownload } from "./wifi-download.js"
 import { handleWifi } from "./wifi.js"
 
 export const MobileConfigApiLive = HttpApiBuilder.group(
-  API.Homelab.HomelabApi,
+  Homelab.MobileConfigApi,
   "mobile-config",
   (handlers) =>
     handlers
