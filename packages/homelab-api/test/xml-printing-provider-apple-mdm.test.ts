@@ -239,7 +239,6 @@ describe("AppleMdmXmlPrintingService", () => {
                     Effect.tap(
                       (xmlPayload) => Effect.try(() => xmlParser.parse(xmlPayload)),
                     ),
-                    Effect.tap(Console.log),
                     Effect.tapError(Console.error),
                     Effect.mapBoth(
                       {

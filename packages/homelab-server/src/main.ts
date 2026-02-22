@@ -2,7 +2,6 @@ import { HttpApiBuilder, HttpApiSwagger, HttpMiddleware, Path } from "@effect/pl
 import { BunFileSystem, BunHttpServer, BunPath, BunRuntime } from "@effect/platform-bun"
 import { Config, Effect, Layer } from "effect"
 import { Services } from "homelab-api"
-import { CertificateServiceConfig } from "homelab-api/services/certificate-service/definition"
 import { ApiLive } from "./api.js"
 
 const HomeLabApiLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
@@ -40,7 +39,7 @@ const HomeLabApiLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   ),
   Layer.provide(
     Layer.effect(
-      CertificateServiceConfig,
+      Services.CertificateService.CertificateServiceConfig,
       Effect.gen(function*() {
         const path = yield* Path.Path
 

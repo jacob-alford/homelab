@@ -1,8 +1,5 @@
-import * as Str from "@effect/typeclass/data/String"
-import * as Sg from "@effect/typeclass/Semigroup"
 import { inspect } from "bun"
-import type { Predicate } from "effect"
-import { Array, Effect, flow, Layer, pipe, Record, String } from "effect"
+import { Array, Effect, Layer, pipe, Record, String } from "effect"
 import { Lines } from "homelab-data"
 import type { JSONExt } from "../../schemas/index.js"
 import { XML } from "../../schemas/index.js"
@@ -17,9 +14,7 @@ export const AppleMdmXmlPrintingConfigDefault = Layer.succeed(
 export const AppleMdmXmlPrintingLive = Layer.effect(
   XmlPrintingService,
   Effect.gen(function*() {
-    const config = yield* AppleMdmXmlPrintingConfig
-
-    return new AppleMdmXmlPrintingImpl(config)
+    return new AppleMdmXmlPrintingImpl(yield* AppleMdmXmlPrintingConfig)
   }),
 )
 
@@ -51,10 +46,10 @@ class AppleMdmXmlPrintingImpl {
               ...this.doctype,
               ...this.plist(content),
             ),
-            Array.reduce(
-              "",
-              (z, [depth, line]) => z.concat(`${this.indent.repeat(depth)}${line}${this.newline}`),
-            ),
+            Lines.compile({
+              indent: this.indent,
+              newline: this.newline,
+            }),
           ),
       ),
       Effect.map(
@@ -117,7 +112,7 @@ class AppleMdmXmlPrintingImpl {
       (_) => _ === "" ? "" : ` ${_}`,
     )
 
-    if (!children) {
+    if (!children || !Lines.isNonEmpty(children)) {
       return Lines.singleton(depth, `<${node}${attributesStr}${closingCharacter ?? ""}>`)
     }
 
@@ -125,8 +120,7 @@ class AppleMdmXmlPrintingImpl {
     const nodeClose = `</${node}>`
 
     if (inlineChildren) {
-      const [, child] = Lines.fstChild(children)
-
+      const [, child] = Lines.fst(children)
       return Lines.singleton(depth, `${nodeOpen}${child}${nodeClose}`)
     }
 
@@ -226,7 +220,7 @@ class AppleMdmXmlPrintingImpl {
     if (this.isObject(json)) {
       return Effect.reduce(
         Record.toEntries(json),
-        Array.empty<Lines.Line>(),
+        Lines.empty,
         (z, [k, v]) =>
           this.encodeContent(v, depthLevel + 1).pipe(
             Effect.map(
@@ -303,22 +297,3 @@ interface XmlTagTemplate {
   readonly inlineChildren?: boolean
   readonly closingCharacter?: string | null
 }
-
-function prepend(a: string): (b: string) => string {
-  return function prependInner(b) {
-    return `${a}${b}`
-  }
-}
-
-function prependIf(pred: Predicate.Predicate<string>, prefix: string): (str: string) => string {
-  return function prependIfInner(str) {
-    if (pred(str)) return `${prefix}${str}`
-    else return str
-  }
-}
-
-const trimWhiteSpace: (str: string) => string = flow(
-  String.trimStart,
-  String.replace("\n", ""),
-  String.trimStart,
-)

@@ -1,6 +1,6 @@
 import { Effect, Layer } from "effect"
 
-import type { WifiConfig } from "homelab-api/schemas/index"
+import { Schemas } from "../../index.js"
 import { UuidDictionaryService } from "../uuid-dictionary-service/index.js"
 import type { UuidGenerationError } from "../uuid-service/index.js"
 import type { WifiPayloadServiceDef } from "./definition.js"
@@ -25,7 +25,7 @@ class WifiPayloadServiceImpl implements WifiPayloadServiceDef {
     username: string,
     password: string,
     disableMACRandomization: boolean = false,
-  ): Effect.Effect<WifiConfig.WifiConfig, UuidGenerationError> {
+  ): Effect.Effect<Schemas.WifiConfig.WifiConfig, UuidGenerationError> {
     return Effect.succeed(
       {
         AutoJoin: true,
@@ -55,7 +55,7 @@ class WifiPayloadServiceImpl implements WifiPayloadServiceDef {
         PayloadType: `com.apple.wifi.managed`,
         PayloadUUID: this.uuids._0x676179WifiPayloadUuid,
         PayloadVersion: 1,
-      } satisfies WifiConfig.WifiConfig,
+      } satisfies Schemas.WifiConfig.WifiConfig,
     )
   }
 }

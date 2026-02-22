@@ -1,6 +1,6 @@
 import { Effect, Layer } from "effect"
 
-import type { CertificatePayload } from "homelab-api/schemas/index"
+import type { Schemas } from "../../index.js"
 import { UuidDictionaryService } from "../uuid-dictionary-service/index.js"
 import type { CertPayloadServiceDef } from "./definition.js"
 import { CertPayloadService } from "./definition.js"
@@ -36,7 +36,7 @@ class CertPayloadServiceImpl implements CertPayloadServiceDef {
         PayloadType: "com.apple.security.root",
         PayloadUUID: uuid,
         PayloadVersion: 1,
-      } satisfies CertificatePayload.CertificatePayload,
+      } satisfies Schemas.CertificatePayload.CertificatePayload,
     )
   }
 }

@@ -1,6 +1,6 @@
 import { Effect, Layer } from "effect"
 
-import { type WifiPayloadFull } from "homelab-api/schemas/wifi-payload-full"
+import { Schemas } from "../../index.js"
 import { CertPayloadService } from "../cert-payload-service/index.js"
 import { CertificateService } from "../certificate-service/index.js"
 import { UuidDictionaryService } from "../uuid-dictionary-service/index.js"
@@ -67,7 +67,7 @@ class WifiProfileServiceImpl implements WifiProfileServiceDef {
         PayloadType: "Configuration",
         PayloadUUID: uuids._0x676179WifiAndCertsPayloadUuid,
         PayloadVersion: 1,
-      } satisfies WifiPayloadFull
+      } satisfies Schemas.WifiPayload.WifiPayloadFull
     })
   }
 }

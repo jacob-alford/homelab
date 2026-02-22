@@ -12,9 +12,9 @@
     "typecheck": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@effect/platform": "^0.94.5",
-    "@effect/platform-bun": "^0.87.1",
-    "effect": "^3.19.18",
+    "@effect/platform": "^0.94.x",
+    "@effect/platform-bun": "^0.87.x",
+    "effect": "^3.x",
     "homelab-api": "workspace:*"
   }
 }

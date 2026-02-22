@@ -2,7 +2,7 @@ import { HttpApiEndpoint, HttpApiError, HttpApiSchema } from "@effect/platform"
 import { InternalServerError, NotImplemented } from "@effect/platform/HttpApiError"
 import type { Types } from "effect"
 import { Schema } from "effect"
-import { XMLSchema } from "homelab-api/schemas/XML"
+import { Schemas } from "../../index.js"
 
 export const WifiQueryParams = null
 
@@ -18,7 +18,7 @@ export const WifiMobileConfigQueryParams = Schema.Struct({
 
 export const WifiMobileConfig = HttpApiEndpoint.post("wifi")`/wifi/${SSIDParam}`.setUrlParams(
   WifiMobileConfigQueryParams,
-).addSuccess(XMLSchema, {
+).addSuccess(Schemas.XML.XMLSchema, {
   status: 201,
 }).addError(
   NotImplemented,
@@ -38,7 +38,7 @@ export type WifiMobileConfigHandlerArgs = Types.Simplify<
 
 export const WifiMobileConfigDownload = HttpApiEndpoint.get("wifi-download")`/wifi/${SSIDParam}/_download`.setUrlParams(
   WifiMobileConfigQueryParams,
-).addSuccess(XMLSchema).addError(
+).addSuccess(Schemas.XML.XMLSchema).addError(
   HttpApiError.NotImplemented,
   {
     status: 501,
