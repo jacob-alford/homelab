@@ -6,7 +6,7 @@ import { Services } from "homelab-api"
 export const handleWifi = Effect.fn("handleWifi")(
   function*(args: Homelab.Endpoints.Wifi.WifiMobileConfigHandlerArgs) {
     const { encryption, ssid } = args.path
-    const { disableMACRandomization, enterpriseClientType, password, username } = args.urlParams
+    const { disableMACRandomization, enterpriseClientType, password, username } = args.payload
 
     if (enterpriseClientType === "EAP-TLS") {
       return yield* Effect.fail(
