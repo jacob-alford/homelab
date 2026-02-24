@@ -1,6 +1,6 @@
 import { Context, Data, Effect } from "effect"
 
-import type { Schemas } from "../../index.js"
+import type * as Schemas from "../../schemas/index.js"
 
 export const XmlPrintingServiceId = "homelab-api/services/xml-printing-service/XmlPrintingService"
 

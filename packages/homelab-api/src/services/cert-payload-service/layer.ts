@@ -1,6 +1,6 @@
 import { Effect, Layer } from "effect"
 
-import type { Schemas } from "../../index.js"
+import type * as Schemas from "../../schemas/index.js"
 import { UuidDictionaryService } from "../uuid-dictionary-service/index.js"
 import type { CertPayloadServiceDef } from "./definition.js"
 import { CertPayloadService } from "./definition.js"

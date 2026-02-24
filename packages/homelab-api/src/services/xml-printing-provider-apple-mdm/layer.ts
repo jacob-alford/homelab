@@ -1,9 +1,9 @@
-import { inspect } from "bun"
 import { Array, Effect, Layer, pipe, Record, String } from "effect"
 import { Lines } from "homelab-data"
+import { inspect } from "node:util"
 import type { JSONExt } from "../../schemas/index.js"
 import { XML } from "../../schemas/index.js"
-import { XmlPrintingError, XmlPrintingService } from "../xml-printing-service/index.js"
+import { XmlPrintingError, XmlPrintingService } from "../xml-printing-service/definition.js"
 import { AppleMdmXmlPrintingConfig } from "./definition.js"
 
 export const AppleMdmXmlPrintingConfigDefault = Layer.succeed(

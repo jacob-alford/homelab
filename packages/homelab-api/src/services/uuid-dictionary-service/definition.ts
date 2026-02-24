@@ -4,11 +4,12 @@ import type { UUID } from "../uuid-service/index.js"
 export const UuidDictionaryServiceId = "homelab-api/services/uuid-dictionary-service/UuidDictionaryService"
 
 export interface UuidDictionaryServiceDef {
+  wifiPayloadUUID(ssidName: string): UUID | null
+
   readonly rootCertPayloadUuid: UUID
   readonly intermediateCertPayloadUuid: UUID
-  readonly _0x676179WifiPayloadUuid: UUID
   readonly platoSplunkAcmePayloadUuid: UUID
-  readonly _0x676179WifiAndCertsPayloadUuid: UUID
+  readonly homelabConfigUuid: UUID
 }
 
 export class UuidDictionaryService extends Context.Tag(UuidDictionaryServiceId)<

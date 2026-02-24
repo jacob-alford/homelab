@@ -4,6 +4,11 @@ import { GenericPayloadSchema } from "./generic-payload.js"
 
 export const TLSVersionSchema = Schema.TemplateLiteral(Schema.Number, Schema.Literal("."), Schema.Number)
 
+export const WifiEncryptionType = Schema.Literal("WPA2", "WPA3")
+export type WifiEncryptionType = typeof WifiEncryptionType.Type
+
+export const EnterpriseClientConfigurationType = Schema.Literal("PEAP", "EAP-TLS")
+
 export const PEAPClientConfigurationSchema = Schema.Struct({
   AcceptEAPTypes: Schema.Array(Schema.Int.pipe(Schema.positive())),
   PayloadCertificateAnchorUUID: Schema.Array(Schema.UUID),
@@ -20,12 +25,13 @@ export const WifiConfigSchema = GenericPayloadSchema.pipe(
       AutoJoin: Schema.Boolean,
       CaptiveBypass: Schema.Boolean,
       DisableAssociationMACRandomization: Schema.Boolean,
-      EAPClientConfiguration: PEAPClientConfigurationSchema,
-      EncryptionType: Schema.String,
+      EAPClientConfiguration: PEAPClientConfigurationSchema.pipe(Schema.optionalWith({ exact: true })),
+      EncryptionType: WifiEncryptionType,
       HIDDEN_NETWORK: Schema.Boolean,
       IsHotspot: Schema.Boolean,
       ProxyType: Schema.String,
       SSID_STR: Schema.String,
+      Password: Schema.String.pipe(Schema.optionalWith({ exact: true })),
     }),
   ),
 )

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@effect/vitest"
 import { Arbitrary, Console, Effect, FastCheck, Layer, Schema } from "effect"
-import { constFalse, constTrue, flow, pipe } from "effect/Function"
+import { constFalse, constTrue, pipe } from "effect/Function"
 import { XMLParser } from "fast-xml-parser"
 import { AcmePayloadFull } from "../src/schemas/acme-payload-full.js"
 import { WifiPayloadFullSchema } from "../src/schemas/wifi-payload-full.js"
