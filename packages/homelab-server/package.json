@@ -5,16 +5,26 @@
   "license": "MIT",
   "description": "Effect-ts Bun HTTP Server implementation for homelab services",
   "scripts": {
-    "dev": "bun --env-file=.env-dev --watch src/main.ts ",
-    "start": "bun src/main.ts",
+    "circular": "yarn madge --circular ./src/api.ts",
+    "dev": "tsx --env-file=.env-dev --watch src/main.ts",
+    "start": "tsx src/main.ts",
     "build": "tsc -b tsconfig.json",
     "lint": "eslint src",
     "typecheck": "tsc -b tsconfig.json"
   },
   "dependencies": {
+    "@effect/cluster": "^0.56.x",
+    "@effect/experimental": "^0.58.x",
     "@effect/platform": "^0.94.x",
-    "@effect/platform-bun": "^0.87.x",
+    "@effect/platform-node": "^0.104.x",
+    "@effect/rpc": "^0.73.x",
+    "@effect/sql": "^0.49.x",
+    "@effect/workflow": "^0.16.x",
     "effect": "^3.x",
-    "homelab-api": "workspace:*"
+    "homelab-api": "workspace:*",
+    "tsx": "^4.21.0"
+  },
+  "devDependencies": {
+    "madge": "^8.0.0"
   }
 }

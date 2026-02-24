@@ -1,21 +1,17 @@
 name: Setup
-description: Perform standard setup and install dependencies using pnpm.
-inputs:
-  node-version:
-    description: The version of Node.js to install
-    required: true
-    default: 24.5.0
-
+description: Perform standard setup and install dependencies using yarn.
 runs:
   using: composite
   steps:
-    - name: Install pnpm
-      uses: pnpm/action-setup@v3
-    - name: Install node
-      uses: actions/setup-node@v4
+    - name: Install Yarn
+      uses: actions/checkout@v4
+      run: corepack enable
+    - name: Install Node
+      uses: actions/setup-node@v6
       with:
-        cache: pnpm
-        node-version: ${{ inputs.node-version }}
+        node-version-file: ".nvmrc"
+        package-manager-cache: "false"
+        cache: "yarn"
     - name: Install dependencies
       shell: bash
-      run: pnpm install
+      run: yarn

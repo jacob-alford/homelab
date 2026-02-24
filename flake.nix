@@ -16,7 +16,8 @@
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {
           packages = with pkgs; [
-            bun
+            yarn-berry
+            nodejs_24
             typescript
             typescript-language-server
             python3
