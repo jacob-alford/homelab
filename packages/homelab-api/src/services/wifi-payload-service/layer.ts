@@ -2,7 +2,6 @@ import { Effect, Layer } from "effect"
 
 import type * as Schemas from "../../schemas/index.js"
 import { UuidDictionaryService } from "../uuid-dictionary-service/index.js"
-import type { UuidGenerationError } from "../uuid-service/index.js"
 import type { WifiPayloadServiceDef } from "./definition.js"
 import { WifiPayloadGenerationError, WifiPayloadService } from "./definition.js"
 
