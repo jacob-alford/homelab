@@ -1,14 +1,15 @@
 import { HttpApiBuilder, HttpApiSwagger, HttpMiddleware, Path } from "@effect/platform"
-import { BunFileSystem, BunHttpServer, BunPath, BunRuntime } from "@effect/platform-bun"
-import { Config, Effect, Layer } from "effect"
+import { NodeFileSystem, NodeHttpServer, NodePath, NodeRuntime } from "@effect/platform-node"
+import { Config, Console, Effect, Layer } from "effect"
 import { Services } from "homelab-api"
+import { createServer } from "http"
 import { ApiLive } from "./api.js"
 
 const HomeLabApiLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(HttpApiSwagger.layer()),
   Layer.provide(ApiLive),
   Layer.provide(
-    BunHttpServer.layer({ port: 3000 }),
+    NodeHttpServer.layer(() => createServer(), { port: 3000 }),
   ),
   Layer.provide(
     Services.XmlPrintingProviderApplePlist.AppleMdmXmlPrintingLive,
@@ -35,7 +36,7 @@ const HomeLabApiLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
     Services.UuidDictionaryService.UuidDictionaryServiceLive,
   ),
   Layer.provide(
-    BunFileSystem.layer,
+    NodeFileSystem.layer,
   ),
   Layer.provide(
     Layer.effect(
@@ -58,12 +59,15 @@ const HomeLabApiLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
     ),
   ),
   Layer.provide(
-    BunPath.layer,
+    NodePath.layer,
   ),
 )
 
 Layer.launch(
   HomeLabApiLive,
 ).pipe(
-  BunRuntime.runMain,
+  Effect.tap(
+    () => Console.log("Listening on http://localhost:3000, docs at http://localhost:3000/docs"),
+  ),
+  NodeRuntime.runMain,
 )

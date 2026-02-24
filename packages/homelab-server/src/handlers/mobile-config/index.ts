@@ -7,7 +7,7 @@ import { handleWifiDownload } from "./wifi-download.js"
 import { handleWifi } from "./wifi.js"
 
 export const MobileConfigApiLive = HttpApiBuilder.group(
-  Homelab.MobileConfigApi,
+  Homelab.HomelabApi,
   "mobile-config",
   (handlers) =>
     handlers

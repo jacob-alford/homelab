@@ -1,10 +1,10 @@
 import { Effect, Layer } from "effect"
 
-import { Schemas } from "../../index.js"
+import type * as Schemas from "../../schemas/index.js"
 import { UuidDictionaryService } from "../uuid-dictionary-service/index.js"
 import type { UuidGenerationError } from "../uuid-service/index.js"
 import type { WifiPayloadServiceDef } from "./definition.js"
-import { WifiPayloadService } from "./definition.js"
+import { WifiPayloadGenerationError, WifiPayloadService } from "./definition.js"
 
 export const WifiPayloadServiceLive = Layer.effect(
   WifiPayloadService,
@@ -20,12 +20,61 @@ class WifiPayloadServiceImpl implements WifiPayloadServiceDef {
     private readonly uuids: typeof UuidDictionaryService.Service,
   ) {}
 
+  wpaPersonalWifi(
+    encryptionType: Schemas.WifiConfig.WifiEncryptionType,
+    ssidString: string,
+    password: string,
+    disableMACRandomization: boolean = false,
+  ): Effect.Effect<Schemas.WifiConfig.WifiConfig, WifiPayloadGenerationError> {
+    const payloadUuid = this.uuids.wifiPayloadUUID(ssidString)
+
+    if (!payloadUuid) {
+      return Effect.fail(
+        new WifiPayloadGenerationError({
+          error: `SSID ${ssidString} not found`,
+          reason: "ssid-not-found",
+        }),
+      )
+    }
+
+    return Effect.succeed(
+      {
+        AutoJoin: true,
+        CaptiveBypass: false,
+        DisableAssociationMACRandomization: disableMACRandomization,
+        EncryptionType: encryptionType,
+        HIDDEN_NETWORK: false,
+        IsHotspot: false,
+        ProxyType: "None",
+        SSID_STR: ssidString,
+        PayloadDescription: "Configures Wi-Fi settings",
+        PayloadDisplayName: "Wi-Fi",
+        PayloadIdentifier: `com.apple.wifi.managed.${payloadUuid}`,
+        PayloadType: `com.apple.wifi.managed`,
+        PayloadUUID: payloadUuid,
+        PayloadVersion: 1,
+        Password: password,
+      } satisfies Schemas.WifiConfig.WifiConfig,
+    )
+  }
+
   wpa3EnterprisePeapWifi(
     ssidString: string,
     username: string,
     password: string,
     disableMACRandomization: boolean = false,
-  ): Effect.Effect<Schemas.WifiConfig.WifiConfig, UuidGenerationError> {
+  ): Effect.Effect<Schemas.WifiConfig.WifiConfig, WifiPayloadGenerationError> {
+    const payloadUuid = this.uuids.wifiPayloadUUID(ssidString)
+
+    if (!payloadUuid) {
+      return Effect.fail(
+        new WifiPayloadGenerationError({
+          error: `SSID ${ssidString} not found`,
+          reason: "ssid-not-found",
+        }),
+      )
+    }
+
     return Effect.succeed(
       {
         AutoJoin: true,
@@ -51,9 +100,9 @@ class WifiPayloadServiceImpl implements WifiPayloadServiceDef {
 
         PayloadDescription: "Configures Wi-Fi settings",
         PayloadDisplayName: "Wi-Fi",
-        PayloadIdentifier: `com.apple.wifi.managed.${this.uuids._0x676179WifiPayloadUuid}`,
+        PayloadIdentifier: `com.apple.wifi.managed.${payloadUuid}`,
         PayloadType: `com.apple.wifi.managed`,
-        PayloadUUID: this.uuids._0x676179WifiPayloadUuid,
+        PayloadUUID: payloadUuid,
         PayloadVersion: 1,
       } satisfies Schemas.WifiConfig.WifiConfig,
     )
