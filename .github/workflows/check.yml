@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/setup
-      - run: pnpm check
+      - run: yarn typecheck
 
   lint:
     name: Lint
@@ -31,7 +31,17 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/setup
-      - run: pnpm lint
+      - run: yarn lint
+
+  circular:
+    name: Circular Deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        uses: ./.github/actions/setup
+      - run: yarn circular
 
   test:
     name: Test
@@ -41,6 +51,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/setup
-      - run: pnpm vitest
+      - run: yarn test
         env:
           NODE_OPTIONS: --max_old_space_size=8192
