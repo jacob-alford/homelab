@@ -3,8 +3,10 @@ description: Perform standard setup and install dependencies using yarn.
 runs:
   using: composite
   steps:
-    - name: Install Yarn
+    - name: Checkout
       uses: actions/checkout@v4
+    - name: Install Yarn
+      shell: bash
       run: corepack enable
     - name: Install Node
       uses: actions/setup-node@v6
