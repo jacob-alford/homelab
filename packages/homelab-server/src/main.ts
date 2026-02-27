@@ -18,13 +18,19 @@ const HomeLabApiLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
     Services.WifiProfileGeneratorService.WifiProfileServiceLive,
   ),
   Layer.provide(
-    Services.WifiPayloadService.WifiPayloadServiceLive,
+    Services.CertProfileGeneratorService.CertProfileServiceLive,
+  ),
+  Layer.provide(
+    Services.RootPayloadService.RootPayloadServiceLive,
+  ),
+  Layer.provide(
+    Services.WifiConfigService.WifiConfigServiceLive,
   ),
   Layer.provide(
     Services.XmlPrintingProviderApplePlist.AppleMdmXmlPrintingConfigDefault,
   ),
   Layer.provide(
-    Services.CertPayloadService.CertPayloadServiceLive,
+    Services.CertConfigService.CertConfigServiceLive,
   ),
   Layer.provide(
     Services.CertificateService.CertificateServiceLive,

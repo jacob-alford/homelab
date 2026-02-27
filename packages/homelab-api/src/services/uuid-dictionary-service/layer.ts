@@ -9,6 +9,8 @@ export const UuidDictionaryServiceLive = Layer.succeed(
       switch (ssidName) {
         case "0x676179":
           return "30d28d43-2c8a-4e8e-83ee-6c355e089181" as UUID
+        case "dialup-express":
+          return "6d104c5a-a004-4c39-8fdc-d44b2e2675a9" as UUID
         default:
           return null
       }

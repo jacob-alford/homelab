@@ -6,9 +6,14 @@ import { XML } from "../../schemas/index.js"
 import { XmlPrintingError, XmlPrintingService } from "../xml-printing-service/definition.js"
 import { AppleMdmXmlPrintingConfig } from "./definition.js"
 
+const APPLE_BASE64_CHARS_PER_LINE = 52
+
 export const AppleMdmXmlPrintingConfigDefault = Layer.succeed(
   AppleMdmXmlPrintingConfig,
-  {},
+  {
+    indent: "  ",
+    newline: "\n",
+  },
 )
 
 export const AppleMdmXmlPrintingLive = Layer.effect(
@@ -37,7 +42,7 @@ class AppleMdmXmlPrintingImpl {
 
   printXml(json: JSONExt.JSONRecord): Effect.Effect<XML.XML, XmlPrintingError> {
     return pipe(
-      this.encodeContent(json),
+      this.encodeContent(json, 1),
       Effect.map(
         (content) =>
           pipe(
@@ -200,7 +205,7 @@ class AppleMdmXmlPrintingImpl {
           const dataString = pipe(
             json.toString("base64"),
             String.split(""),
-            Array.chunksOf(52),
+            Array.chunksOf(APPLE_BASE64_CHARS_PER_LINE),
             Array.map(Array.join("")),
           )
 
