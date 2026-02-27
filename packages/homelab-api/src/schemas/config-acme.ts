@@ -1,7 +1,7 @@
 import { Schema } from "effect"
-import { GenericPayloadSchema } from "./generic-payload.js"
+import { GenericPayloadSchema } from "./payload-generic.js"
 
-export const AcmeConfig = GenericPayloadSchema.pipe(
+export const AcmeConfigSchema = GenericPayloadSchema.pipe(
   Schema.extend(
     Schema.Struct({
       Attest: Schema.Boolean,

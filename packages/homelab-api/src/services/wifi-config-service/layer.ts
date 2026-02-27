@@ -2,19 +2,19 @@ import { Effect, Layer } from "effect"
 
 import type * as Schemas from "../../schemas/index.js"
 import { UuidDictionaryService } from "../uuid-dictionary-service/index.js"
-import type { WifiPayloadServiceDef } from "./definition.js"
-import { WifiPayloadGenerationError, WifiPayloadService } from "./definition.js"
+import type { WifiConfigServiceDef } from "./definition.js"
+import { WifiConfigGenerationError, WifiConfigService } from "./definition.js"
 
-export const WifiPayloadServiceLive = Layer.effect(
-  WifiPayloadService,
+export const WifiConfigServiceLive = Layer.effect(
+  WifiConfigService,
   Effect.gen(function*() {
-    return new WifiPayloadServiceImpl(
+    return new WifiConfigServiceImpl(
       yield* UuidDictionaryService,
     )
   }),
 )
 
-class WifiPayloadServiceImpl implements WifiPayloadServiceDef {
+class WifiConfigServiceImpl implements WifiConfigServiceDef {
   constructor(
     private readonly uuids: typeof UuidDictionaryService.Service,
   ) {}
@@ -24,12 +24,12 @@ class WifiPayloadServiceImpl implements WifiPayloadServiceDef {
     ssidString: string,
     password: string,
     disableMACRandomization: boolean = false,
-  ): Effect.Effect<Schemas.WifiConfig.WifiConfig, WifiPayloadGenerationError> {
+  ): Effect.Effect<Schemas.WifiConfig.WifiConfig, WifiConfigGenerationError> {
     const payloadUuid = this.uuids.wifiPayloadUUID(ssidString)
 
     if (!payloadUuid) {
       return Effect.fail(
-        new WifiPayloadGenerationError({
+        new WifiConfigGenerationError({
           error: `SSID ${ssidString} not found`,
           reason: "ssid-not-found",
         }),
@@ -62,12 +62,12 @@ class WifiPayloadServiceImpl implements WifiPayloadServiceDef {
     username: string,
     password: string,
     disableMACRandomization: boolean = false,
-  ): Effect.Effect<Schemas.WifiConfig.WifiConfig, WifiPayloadGenerationError> {
+  ): Effect.Effect<Schemas.WifiConfig.WifiConfig, WifiConfigGenerationError> {
     const payloadUuid = this.uuids.wifiPayloadUUID(ssidString)
 
     if (!payloadUuid) {
       return Effect.fail(
-        new WifiPayloadGenerationError({
+        new WifiConfigGenerationError({
           error: `SSID ${ssidString} not found`,
           reason: "ssid-not-found",
         }),

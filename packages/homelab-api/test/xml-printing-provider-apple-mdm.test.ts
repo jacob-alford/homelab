@@ -1,9 +1,8 @@
 import { describe, expect, it } from "@effect/vitest"
-import { Arbitrary, Console, Effect, FastCheck, Layer, Schema } from "effect"
-import { constFalse, constTrue, pipe } from "effect/Function"
+import { Arbitrary, Console, Effect, FastCheck, Layer } from "effect"
+import { constFalse, constTrue } from "effect/Function"
 import { XMLParser } from "fast-xml-parser"
-import { AcmePayloadFull } from "../src/schemas/acme-payload-full.js"
-import { WifiPayloadFullSchema } from "../src/schemas/wifi-payload-full.js"
+import { RootPayloadSchema } from "../src/schemas/payload-root.js"
 import {
   AppleMdmXmlPrintingConfig,
   AppleMdmXmlPrintingLive,
@@ -223,10 +222,10 @@ describe("AppleMdmXmlPrintingService", () => {
         ),
       ))
 
-    it.effect("should generate valid XML for any WifiPayloadFull schema instance", () =>
+    it.effect("should generate valid XML for any RootPayload schema instance", () =>
       Effect.gen(function*() {
         const service = yield* XmlPrintingService
-        const arbitrary = Arbitrary.make(WifiPayloadFullSchema)
+        const arbitrary = Arbitrary.make(RootPayloadSchema)
         const xmlParser = new XMLParser()
 
         yield* Effect.try(
@@ -245,42 +244,6 @@ describe("AppleMdmXmlPrintingService", () => {
                         onFailure: constFalse,
                         onSuccess: constTrue,
                       },
-                    ),
-                    Effect.runPromise,
-                  ),
-              ),
-            ),
-        )
-      }).pipe(Effect.provide(TestLayer)))
-    it.effect("should generate valid XML for any AcmePayloadFull schema instance", () =>
-      Effect.gen(function*() {
-        const service = yield* XmlPrintingService
-        const arbitrary = Arbitrary.make(AcmePayloadFull)
-        const xmlParser = new XMLParser()
-
-        yield* Effect.try(
-          () =>
-            FastCheck.assert(
-              FastCheck.asyncProperty(
-                arbitrary,
-                (_) =>
-                  pipe(
-                    _,
-                    Schema.encode(AcmePayloadFull),
-                    Effect.flatMap(
-                      (payload) =>
-                        service.printXml(payload).pipe(
-                          Effect.tap(
-                            (xmlPayload) => Effect.try(() => xmlParser.parse(xmlPayload)),
-                          ),
-                          Effect.tapError(Console.error),
-                          Effect.mapBoth(
-                            {
-                              onFailure: constFalse,
-                              onSuccess: constTrue,
-                            },
-                          ),
-                        ),
                     ),
                     Effect.runPromise,
                   ),

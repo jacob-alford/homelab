@@ -1,6 +1,6 @@
 import { Schema } from "effect"
 
-import { GenericPayloadSchema } from "./generic-payload.js"
+import { GenericPayloadSchema } from "./payload-generic.js"
 
 export const TLSVersionSchema = Schema.TemplateLiteral(Schema.Number, Schema.Literal("."), Schema.Number)
 

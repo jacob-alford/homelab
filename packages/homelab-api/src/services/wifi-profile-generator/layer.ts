@@ -1,11 +1,13 @@
-import { Effect, Layer } from "effect"
+import type { ParseResult } from "effect"
+import { Effect, Layer, pipe, Schema } from "effect"
 
-import type * as Schemas from "../../schemas/index.js"
-import { CertPayloadService } from "../cert-payload-service/index.js"
+import { ApiErrors } from "../../index.js"
+import * as Schemas from "../../schemas/index.js"
+import { CertConfigService } from "../cert-config-service/index.js"
 import { CertificateService } from "../certificate-service/index.js"
-import { UuidDictionaryService } from "../uuid-dictionary-service/index.js"
-import type { WifiPayloadGenerationError } from "../wifi-payload-service/definition.js"
-import { WifiPayloadService } from "../wifi-payload-service/definition.js"
+import { RootPayloadService } from "../root-payload-service/index.js"
+import type { WifiConfigGenerationError } from "../wifi-config-service/definition.js"
+import { WifiConfigService } from "../wifi-config-service/definition.js"
 import type { WifiProfileServiceDef } from "./definition.js"
 import { WifiProfileService } from "./definition.js"
 
@@ -13,105 +15,99 @@ export const WifiProfileServiceLive = Layer.effect(
   WifiProfileService,
   Effect.gen(function*() {
     return new WifiProfileServiceImpl(
-      yield* CertPayloadService,
+      yield* CertConfigService,
       yield* CertificateService,
-      yield* UuidDictionaryService,
-      yield* WifiPayloadService,
+      yield* RootPayloadService,
+      yield* WifiConfigService,
     )
   }),
 )
 
 class WifiProfileServiceImpl implements WifiProfileServiceDef {
   constructor(
-    private readonly certPayloadService: typeof CertPayloadService.Service,
+    private readonly certConfigService: typeof CertConfigService.Service,
     private readonly certs: typeof CertificateService.Service,
-    private readonly uuids: typeof UuidDictionaryService.Service,
-    private readonly wifiPayloadService: typeof WifiPayloadService.Service,
+    private readonly rootPayloadService: typeof RootPayloadService.Service,
+    private readonly wifiConfigService: typeof WifiConfigService.Service,
   ) {}
 
   wpaPersonalWifi(
-    ...wifiParams: Parameters<typeof WifiPayloadService.Service.wpaPersonalWifi>
-  ): Effect.Effect<Schemas.WifiPayload.WifiPayloadFull, WifiPayloadGenerationError> {
-    const certPayloadService = this.certPayloadService
+    ...wifiParams: Parameters<typeof WifiConfigService.Service.wpaPersonalWifi>
+  ): Effect.Effect<Schemas.RootPayload.RootPayloadWire, WifiConfigGenerationError | ApiErrors.HttpApiEncodeError> {
+    const certConfigService = this.certConfigService
     const certs = this.certs
-    const uuids = this.uuids
-    const wifiPayloadService = this.wifiPayloadService
+    const rootPayloadService = this.rootPayloadService
+    const wifiConfigService = this.wifiConfigService
 
     return Effect.gen(function*() {
-      const rootCertPayload = yield* certPayloadService.cert(
+      const rootCertPayload = yield* certConfigService.rootCert(
         "roots.crt",
         certs.rootCert,
-        "root",
       )
 
-      const intermediatePayload = yield* certPayloadService.cert(
+      const intermediatePayload = yield* certConfigService.intermediateCert(
         "intermediates.crt",
         certs.intermediateCert,
-        "intermediate",
       )
 
-      const [ssid] = wifiParams
+      const wifiPayload = yield* wifiConfigService.wpaPersonalWifi(...wifiParams)
 
-      const wifiPayload = yield* wifiPayloadService.wpaPersonalWifi(...wifiParams)
-
-      return {
-        ConsentText: { default: `This allows iOS to connect automatically to the ${ssid} network` },
-        PayloadContent: [
+      return yield* pipe(
+        rootPayloadService.rootPayload(
           rootCertPayload,
           intermediatePayload,
           wifiPayload,
-        ],
-        PayloadDescription: `This profile allows this device to connect to the ${ssid} network.`,
-        PayloadDisplayName: `${ssid} Wi-Fi and Certificates`,
-        PayloadIdentifier: `alford.plato-splunk.homelab.homelab-api.wifi-profile-generator.${uuids.homelabConfigUuid}`,
-        PayloadOrganization: "Plato Splunk Media",
-        PayloadRemovalDisallowed: false,
-        PayloadType: "Configuration",
-        PayloadUUID: uuids.homelabConfigUuid,
-        PayloadVersion: 1,
-      } satisfies Schemas.WifiPayload.WifiPayloadFull
+        ),
+        Effect.andThen(
+          Schema.encode(
+            Schemas.RootPayload.RootPayloadSchema,
+          ),
+        ),
+        Effect.catchTag(
+          "ParseError",
+          ApiErrors.HttpApiEncodeError.fromParseError,
+        ),
+      )
     })
   }
 
-  wpa3EnterprisePeapWifi(...wifiParams: Parameters<typeof WifiPayloadService.Service.wpa3EnterprisePeapWifi>) {
-    const certPayloadService = this.certPayloadService
+  wpa3EnterprisePeapWifi(
+    ...wifiParams: Parameters<typeof WifiConfigService.Service.wpa3EnterprisePeapWifi>
+  ): Effect.Effect<Schemas.RootPayload.RootPayloadWire, WifiConfigGenerationError | ApiErrors.HttpApiEncodeError> {
+    const certConfigService = this.certConfigService
     const certs = this.certs
-    const uuids = this.uuids
-    const wifiPayloadService = this.wifiPayloadService
+    const rootPayloadService = this.rootPayloadService
+    const wifiConfigService = this.wifiConfigService
 
     return Effect.gen(function*() {
-      const rootCertPayload = yield* certPayloadService.cert(
+      const rootCertPayload = yield* certConfigService.rootCert(
         "roots.crt",
         certs.rootCert,
-        "root",
       )
 
-      const intermediatePayload = yield* certPayloadService.cert(
+      const intermediatePayload = yield* certConfigService.intermediateCert(
         "intermediates.crt",
         certs.intermediateCert,
-        "intermediate",
       )
 
-      const [ssid] = wifiParams
+      const wifiPayload = yield* wifiConfigService.wpa3EnterprisePeapWifi(...wifiParams)
 
-      const wifiPayload = yield* wifiPayloadService.wpa3EnterprisePeapWifi(...wifiParams)
-
-      return {
-        ConsentText: { default: `This allows iOS to connect automatically to the ${ssid} network` },
-        PayloadContent: [
+      return yield* pipe(
+        rootPayloadService.rootPayload(
           rootCertPayload,
           intermediatePayload,
           wifiPayload,
-        ],
-        PayloadDescription: `This profile allows this device to connect to the ${ssid} network.`,
-        PayloadDisplayName: `${ssid} Wi-Fi and Certificates`,
-        PayloadIdentifier: `alford.plato-splunk.homelab.homelab-api.wifi-profile-generator.${uuids.homelabConfigUuid}`,
-        PayloadOrganization: "Plato Splunk Media",
-        PayloadRemovalDisallowed: false,
-        PayloadType: "Configuration",
-        PayloadUUID: uuids.homelabConfigUuid,
-        PayloadVersion: 1,
-      } satisfies Schemas.WifiPayload.WifiPayloadFull
+        ),
+        Effect.andThen(
+          Schema.encode(
+            Schemas.RootPayload.RootPayloadSchema,
+          ),
+        ),
+        Effect.catchTag(
+          "ParseError",
+          ApiErrors.HttpApiEncodeError.fromParseError,
+        ),
+      )
     })
   }
 }
