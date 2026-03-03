@@ -1,7 +1,7 @@
 import type { Effect } from "effect"
 import { Context } from "effect"
 
-import type { ApiErrors } from "../../index.js"
+import type * as ApiErrors from "../../errors/http-errors.js"
 import type * as Schemas from "../../schemas/index.js"
 
 export const CertProfileServiceId = "homelab-api/services/cert-profile-generator/CertProfileService"

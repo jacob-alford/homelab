@@ -1,3 +1,5 @@
+export * as AcmeConfigService from "./acme-config-service/index.js"
+export * as AcmeProfileGeneratorService from "./acme-profile-generator/index.js"
 export * as CertConfigService from "./cert-config-service/index.js"
 export * as CertProfileGeneratorService from "./cert-profile-generator/index.js"
 export * as CertificateService from "./certificate-service/index.js"

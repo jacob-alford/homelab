@@ -15,6 +15,9 @@ const HomeLabApiLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
     Services.XmlPrintingProviderApplePlist.AppleMdmXmlPrintingLive,
   ),
   Layer.provide(
+    Services.AcmeProfileGeneratorService.AcmeProfileServiceLive,
+  ),
+  Layer.provide(
     Services.WifiProfileGeneratorService.WifiProfileServiceLive,
   ),
   Layer.provide(
@@ -22,6 +25,20 @@ const HomeLabApiLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   ),
   Layer.provide(
     Services.RootPayloadService.RootPayloadServiceLive,
+  ),
+  Layer.provide(
+    Services.AcmeConfigService.AcmeConfigServiceLive,
+  ),
+  Layer.provide(
+    Layer.succeed(
+      Services.AcmeConfigService.AcmeConfigOptions,
+      {
+        acmeUrl: "https://ca.plato-splunk.media/acme/acme/directory",
+        hardwareBound: true,
+        keyType: "ECSECPrimeRandom",
+        keySize: 384,
+      },
+    ),
   ),
   Layer.provide(
     Services.WifiConfigService.WifiConfigServiceLive,

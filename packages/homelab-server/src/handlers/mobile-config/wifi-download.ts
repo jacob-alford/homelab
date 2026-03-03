@@ -4,7 +4,7 @@ import type { Homelab } from "homelab-api"
 import { handleWifi } from "./wifi.js"
 
 export const handleWifiDownload = Effect.fn("handleWifiDownload")(
-  function*(args: Homelab.Endpoints.WifiDownload.WifiMobileConfigDownloadHandlerArgs) {
+  function*(args: Homelab.MobileConfigEndpoints.WifiDownload.WifiMobileConfigDownloadHandlerArgs) {
     const response = yield* handleWifi({
       ...args,
       payload: args.urlParams,

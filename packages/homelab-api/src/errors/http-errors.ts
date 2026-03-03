@@ -17,12 +17,13 @@ export class NotFound extends Schema.TaggedError<NotFound>()(
   },
   HttpApiSchema.annotations({
     status: 404,
-    description: "An error raised when one or more aspects of the request is not found",
+    description: "An error raised when one or more aspects of the request are not found",
   }),
 ) {}
 
 export const BadRequestReasonsSchema = Schema.Literal(
   "eap-client-username-required",
+  "acme-invalid-client-identifier"
 )
 
 export class BadRequest extends Schema.TaggedError<BadRequest>()(
@@ -33,7 +34,7 @@ export class BadRequest extends Schema.TaggedError<BadRequest>()(
   },
   HttpApiSchema.annotations({
     status: 400,
-    description: "An error raised when one or more aspects of the request is not valid",
+    description: "An error raised when one or more aspects of the request are not valid",
   }),
 ) {}
 

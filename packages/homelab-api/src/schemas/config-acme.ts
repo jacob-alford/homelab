@@ -13,3 +13,6 @@ export const AcmeConfigSchema = GenericPayloadSchema.pipe(
     }),
   ),
 )
+
+export type AcmeConfig = typeof AcmeConfigSchema.Type
+export type AcmeConfigWire = typeof AcmeConfigSchema.Encoded
