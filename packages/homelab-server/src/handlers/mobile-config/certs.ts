@@ -3,7 +3,7 @@ import type { Homelab } from "homelab-api"
 import { ApiErrors, Services } from "homelab-api"
 
 export const handleCerts = Effect.fn("handleCerts")(
-  function*(_args: Homelab.Endpoints.Certs.CertsHandlerArgs) {
+  function*(_args: Homelab.MobileConfigEndpoints.Certs.CertsHandlerArgs) {
     const certProfileGenerator = yield* Services.CertProfileGeneratorService.CertProfileService
     const xmlPrintingService = yield* Services.XmlPrintingService.XmlPrintingService
 

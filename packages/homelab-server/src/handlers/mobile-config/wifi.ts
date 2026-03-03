@@ -1,10 +1,9 @@
-import { HttpApiError } from "@effect/platform"
-import { Console, Effect, flow, identity, Match, pipe } from "effect"
+import { Console, Effect, flow, Match } from "effect"
 import type { Homelab } from "homelab-api"
 import { ApiErrors, Services } from "homelab-api"
 
 export const handleWifi = Effect.fn("handleWifi")(
-  function*(args: Homelab.Endpoints.Wifi.WifiMobileConfigHandlerArgs) {
+  function*(args: Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigHandlerArgs) {
     const { encryption, ssid } = args.path
     const { disableMACRandomization, enterpriseClientType, password, username } = args.payload
 

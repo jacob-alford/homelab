@@ -2,16 +2,18 @@ import { Effect, Layer, pipe, Schema } from "effect"
 
 import * as ApiErrors from "../../errors/http-errors.js"
 import * as Schemas from "../../schemas/index.js"
+import { AcmeConfigService } from "../acme-config-service/index.js"
 import { CertConfigService } from "../cert-config-service/index.js"
 import { CertificateService } from "../certificate-service/index.js"
 import { RootPayloadService } from "../root-payload-service/index.js"
-import type { CertProfileServiceDef } from "./definition.js"
-import { CertProfileService } from "./definition.js"
+import type { AcmeProfileServiceDef } from "./definition.js"
+import { AcmeProfileService } from "./definition.js"
 
-export const CertProfileServiceLive = Layer.effect(
-  CertProfileService,
+export const AcmeProfileServiceLive = Layer.effect(
+  AcmeProfileService,
   Effect.gen(function*() {
-    return new CertProfileServiceImpl(
+    return new AcmeProfileServiceImpl(
+      yield* AcmeConfigService,
       yield* CertConfigService,
       yield* CertificateService,
       yield* RootPayloadService,
@@ -19,14 +21,18 @@ export const CertProfileServiceLive = Layer.effect(
   }),
 )
 
-class CertProfileServiceImpl implements CertProfileServiceDef {
+class AcmeProfileServiceImpl implements AcmeProfileServiceDef {
   constructor(
+    private readonly acmeConfigService: typeof AcmeConfigService.Service,
     private readonly certConfigService: typeof CertConfigService.Service,
     private readonly certs: typeof CertificateService.Service,
     private readonly rootPayloadService: typeof RootPayloadService.Service,
   ) {}
 
-  get certProfile(): Effect.Effect<Schemas.RootPayload.RootPayloadWire, ApiErrors.HttpApiEncodeError> {
+  acmeProfile(
+    ...acmeParams: Parameters<typeof AcmeConfigService.Service.acmeConfig>
+  ): Effect.Effect<Schemas.RootPayload.RootPayloadWire, ApiErrors.HttpApiEncodeError> {
+    const acmeConfigService = this.acmeConfigService
     const certConfigService = this.certConfigService
     const certs = this.certs
     const rootPayloadService = this.rootPayloadService
@@ -37,15 +43,12 @@ class CertProfileServiceImpl implements CertProfileServiceDef {
         certs.rootCert,
       )
 
-      const intermediatePayload = yield* certConfigService.intermediateCert(
-        "intermediates.crt",
-        certs.intermediateCert,
-      )
+      const acmePayload = yield* acmeConfigService.acmeConfig(...acmeParams)
 
       return yield* pipe(
         rootPayloadService.rootPayload(
           rootCertPayload,
-          intermediatePayload,
+          acmePayload,
         ),
         Effect.andThen(
           Schema.encode(

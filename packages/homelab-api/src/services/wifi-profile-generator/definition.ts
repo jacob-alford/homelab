@@ -1,6 +1,6 @@
 import { Context, Effect } from "effect"
 
-import type { ApiErrors } from "../../index.js"
+import type * as ApiErrors from "../../errors/http-errors.js"
 import type * as Schemas from "../../schemas/index.js"
 import type { WifiConfigGenerationError, WifiConfigService } from "../wifi-config-service/definition.js"
 

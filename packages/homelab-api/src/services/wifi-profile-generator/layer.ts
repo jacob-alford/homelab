@@ -1,7 +1,6 @@
-import type { ParseResult } from "effect"
 import { Effect, Layer, pipe, Schema } from "effect"
 
-import { ApiErrors } from "../../index.js"
+import * as ApiErrors from "../../errors/http-errors.js"
 import * as Schemas from "../../schemas/index.js"
 import { CertConfigService } from "../cert-config-service/index.js"
 import { CertificateService } from "../certificate-service/index.js"
