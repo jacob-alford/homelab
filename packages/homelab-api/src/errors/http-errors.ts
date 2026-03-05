@@ -1,5 +1,8 @@
 import { HttpApiError, HttpApiSchema } from "@effect/platform"
 import { Effect, ParseResult, Schema } from "effect"
+import type { Identity } from "../identity.js"
+import { Operation } from "../operation.js"
+import { Resource } from "../resource.js"
 
 export const BaseHttpErrorSchema = Schema.Struct({
   message: Schema.String,
@@ -23,7 +26,7 @@ export class NotFound extends Schema.TaggedError<NotFound>()(
 
 export const BadRequestReasonsSchema = Schema.Literal(
   "eap-client-username-required",
-  "acme-invalid-client-identifier"
+  "acme-invalid-client-identifier",
 )
 
 export class BadRequest extends Schema.TaggedError<BadRequest>()(
@@ -58,6 +61,69 @@ export class NotImplemented extends Schema.TaggedError<NotImplemented>()(
     description: "An error raised when an aspect of the request handler is not yet implemented",
   }),
 ) {}
+
+export const AuthenticationErrorReasonsSchema = Schema.Literal(
+  "not-authenticated",
+  "failed-to-verify",
+  "invalid-authentication",
+)
+
+export class AuthenticationError extends Schema.TaggedError<AuthenticationError>()(
+  "AuthorizationError",
+  {
+    ...BaseHttpErrorSchema.fields,
+    endpoint: Schema.String,
+    reason: AuthenticationErrorReasonsSchema,
+    error: Schema.String.pipe(Schema.optionalWith({ exact: true })),
+  },
+  HttpApiSchema.annotations({
+    status: 401,
+    description: "An error raised when an aspect of the request's authentication is invalid.",
+  }),
+) {
+  static missingAuthorization(endpoint: string): AuthenticationError {
+    return new AuthenticationError({
+      endpoint,
+      reason: "not-authenticated",
+      message: `${endpoint} requires authentication`,
+    })
+  }
+
+  static failedToAuthenticate(endpoint: string, error: string): AuthenticationError {
+    return new AuthenticationError({
+      endpoint,
+      reason: "failed-to-verify",
+      message: `encountered error while attempting to validate authentication`,
+      error,
+    })
+  }
+
+  static invalidAuthentication(endpoint: string, cause: string): AuthenticationError {
+    return new AuthenticationError({
+      endpoint,
+      reason: "invalid-authentication",
+      message: `unable to authenticate: ${cause}`,
+    })
+  }
+}
+
+export class AuthorizationError extends Schema.TaggedError<AuthorizationError>()(
+  "AuthorizationError",
+  { ...BaseHttpErrorSchema.fields, resource: Schema.Enums(Resource), operation: Schema.Enums(Operation) },
+  HttpApiSchema.annotations({
+    status: 403,
+    description:
+      "An error raised when the authenticated caller of a request is not authorized to perform an aspect of the request.",
+  }),
+) {
+  static fromFGA(identity: Identity, operation: Operation, resource: Resource): AuthorizationError {
+    return new AuthorizationError({
+      message: `${identity} is not allowed to perform ${operation} on ${resource}`,
+      operation,
+      resource,
+    })
+  }
+}
 
 export class HttpApiEncodeError extends Schema.TaggedError<HttpApiEncodeError>()(
   "HttpApiDecodeError",

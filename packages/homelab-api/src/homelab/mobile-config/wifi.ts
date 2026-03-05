@@ -4,6 +4,12 @@ import { Schema } from "effect"
 import * as ApiErrors from "../../errors/http-errors.js"
 import * as Schemas from "../../schemas/index.js"
 
+declare module "../../resource.js" {
+  enum Resource {
+    "Config.Wifi" = "Config.Wifi",
+  }
+}
+
 export const WifiQueryParams = null
 
 export const SSIDParam = HttpApiSchema.param("ssid", Schema.String)
