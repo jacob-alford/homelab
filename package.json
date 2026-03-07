@@ -10,10 +10,12 @@
     "build": "yarn workspaces foreach --all build",
     "typecheck": "yarn workspaces foreach --all run typecheck",
     "test": "yarn workspaces foreach --all run test",
+    "test:staged": "yarn workspaces foreach --all run test:staged",
     "lint": "yarn workspaces foreach --all run lint",
     "circular": "yarn workspaces foreach --all run circular",
     "changeset-version": "changeset version && node scripts/version.mjs",
-    "changeset-publish": "bun run build && TEST_DIST= vitest && changeset publish"
+    "changeset-publish": "bun run build && TEST_DIST= vitest && changeset publish",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.6",
@@ -42,11 +44,22 @@
     "eslint-plugin-sort-destructure-keys": "^2.0.0",
     "fast-check": "^4.5.3",
     "glob": "^11.1.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.3.2",
+    "tsc-files": "^1.1.4",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
     "@effect/typeclass": "^0.38.0",
     "fast-xml-parser": "^5.3.7"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs}": [
+      "eslint --fix",
+      "eslint",
+      "tsc-files --noEmit",
+      "yarn test:staged"
+    ]
   }
 }

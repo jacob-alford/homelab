@@ -23,6 +23,7 @@
     "lint": "eslint src",
     "typecheck": "tsc -b tsconfig.json",
     "test": "vitest run",
+    "test:staged": "vitest related --run",
     "test:watch": "vitest watch",
     "coverage": "vitest --coverage"
   },
