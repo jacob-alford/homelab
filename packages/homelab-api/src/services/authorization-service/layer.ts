@@ -29,19 +29,22 @@ class AuthorizationServiceImpl implements AuthorizationServiceDef {
   }
 
   canCreate(identity: Identity, resource: Resource) {
-    return this.hasFeatureFlag(resource, Operation.create).pipe(
+    return this.canView(identity, resource).pipe(
+      Effect.zipRight(this.hasFeatureFlag(resource, Operation.create)),
       this.authorize(identity, Operation.create, resource),
     )
   }
 
   canModify(identity: Identity, resource: Resource) {
-    return this.hasFeatureFlag(resource, Operation.modify).pipe(
+    return this.canCreate(identity, resource).pipe(
+      Effect.zipRight(this.hasFeatureFlag(resource, Operation.modify)),
       this.authorize(identity, Operation.modify, resource),
     )
   }
 
   canDelete(identity: Identity, resource: Resource) {
-    return this.hasFeatureFlag(resource, Operation.delete).pipe(
+    return this.canModify(identity, resource).pipe(
+      Effect.zipRight(this.hasFeatureFlag(resource, Operation.delete)),
       this.authorize(identity, Operation.delete, resource),
     )
   }

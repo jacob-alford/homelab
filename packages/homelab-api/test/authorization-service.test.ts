@@ -4,33 +4,6 @@ import { ConfigProvider, Effect, HashSet, Layer } from "effect"
 import type { Schemas } from "../src/index.js"
 import { Identity, Operation, Resource, Services } from "../src/index.js"
 
-const createOIDCIdentity = (email: string, groups: Array<Schemas.ScopeGroups.ScopeOrGroup>): Identity.Identity => {
-  return new Identity.OIDCIdentity(email, HashSet.fromIterable(groups))
-}
-
-const createMTLSIdentity = (commonName: string, scopes: Array<Schemas.ScopeGroups.ScopeOrGroup>): Identity.Identity => {
-  return new Identity.MTLSIdentity(commonName, HashSet.fromIterable(scopes))
-}
-
-const createFeatureFlagConfig = (flags: Array<Schemas.FeatureFlags.FeatureFlags>) => {
-  return Layer.setConfigProvider(
-    ConfigProvider.fromMap(
-      new Map([["FEATURE_FLAGS", flags.join(",")]]),
-    ),
-  )
-}
-
-const TestLayer = (
-  flags: Array<Schemas.FeatureFlags.FeatureFlags>,
-): Layer.Layer<
-  Services.AuthorizationService.AuthorizationService | Services.FeatureFlagService.FeatureFlagService,
-  ConfigError.ConfigError
-> =>
-  Services.AuthorizationService.AuthorizationServiceLive.pipe(
-    Layer.provideMerge(Services.FeatureFlagService.FeatureFlagServiceLive),
-    Layer.provideMerge(createFeatureFlagConfig(flags)),
-  )
-
 const allResources = Object.values(Resource)
 const allOperations = Object.values(Operation)
 
@@ -41,34 +14,26 @@ const operationMethodMap = {
   [Operation.delete]: Services.AuthorizationService.canDelete,
 } as const
 
-const getRandomDifferentResource = <T extends Resource>(current: T): Exclude<Resource, T> => {
-  const others = allResources.filter((r): r is Exclude<Resource, T> => r !== current)
-  return others[Math.floor(Math.random() * others.length)]
-}
-
-const getRandomDifferentOperation = <T extends Operation>(current: T): Exclude<Operation, T> => {
-  const others = allOperations.filter((op): op is Exclude<Operation, T> => op !== current)
-  return others[Math.floor(Math.random() * others.length)]
-}
-
 describe("AuthorizationService", () => {
   describe.for(allResources)("%s", (resource) => {
     describe.for(allOperations)("%s", (operation) => {
       const checkPermission = operationMethodMap[operation]
-      const otherResource = getRandomDifferentResource(resource)
-      const otherOperation = getRandomDifferentOperation(operation)
+      const otherResource = getDifferentResource(resource)
+      const otherOperation = getDifferentOperation(operation)
 
       it.effect("should allow OIDC identity with resource permission", () =>
         Effect.gen(function*() {
           const identity = createOIDCIdentity("user@example.com", [resource])
           const result = yield* checkPermission(identity, resource)
+
           expect(result).toBe(true)
         }).pipe(Effect.provide(TestLayer([`${resource}.enabled`]))))
 
-      it.effect("should allow OIDC identity with resource.operation permission", () =>
+      it.effect("should allow OIDC identity with all required permissions", () =>
         Effect.gen(function*() {
-          const identity = createOIDCIdentity("user@example.com", [`${resource}.${operation}`])
+          const identity = createOIDCIdentity("user@example.com", getRequiredPermissions(resource, operation))
           const result = yield* checkPermission(identity, resource)
+
           expect(result).toBe(true)
         }).pipe(Effect.provide(TestLayer([`${resource}.enabled`]))))
 
@@ -76,13 +41,15 @@ describe("AuthorizationService", () => {
         Effect.gen(function*() {
           const identity = createMTLSIdentity("client.example.com", [resource])
           const result = yield* checkPermission(identity, resource)
+
           expect(result).toBe(true)
         }).pipe(Effect.provide(TestLayer([`${resource}.enabled`]))))
 
-      it.effect("should allow mTLS identity with resource.operation permission", () =>
+      it.effect("should allow mTLS identity with all required permissions", () =>
         Effect.gen(function*() {
-          const identity = createMTLSIdentity("client.example.com", [`${resource}.${operation}`])
+          const identity = createMTLSIdentity("client.example.com", getRequiredPermissions(resource, operation))
           const result = yield* checkPermission(identity, resource)
+
           expect(result).toBe(true)
         }).pipe(Effect.provide(TestLayer([`${resource}.enabled`]))))
 
@@ -90,37 +57,55 @@ describe("AuthorizationService", () => {
         Effect.gen(function*() {
           const identity = createOIDCIdentity("user@example.com", [otherResource])
           const result = yield* Effect.flip(checkPermission(identity, resource))
+
           expect(result._tag).toBe("AuthorizationError")
-          expect(result.operation).toBe(operation)
+
+          const expectedOperation = getExpectedFailureOperation(operation)
+
+          expect(result.operation).toBe(expectedOperation)
           expect(result.resource).toBe(resource)
-          expect(result.message).toBe(`${identity} is not allowed to perform ${operation} on ${resource}`)
+          expect(result.message).toBe(`${identity} is not allowed to perform ${expectedOperation} on ${resource}`)
         }).pipe(Effect.provide(TestLayer([`${resource}.enabled`]))))
 
       it.effect("should deny when mTLS identity lacks permissions", () =>
         Effect.gen(function*() {
           const identity = createMTLSIdentity("client.example.com", [otherResource])
           const result = yield* Effect.flip(checkPermission(identity, resource))
+
           expect(result._tag).toBe("AuthorizationError")
-          expect(result.operation).toBe(operation)
+
+          const expectedOperation = getExpectedFailureOperation(operation)
+
+          expect(result.operation).toBe(expectedOperation)
           expect(result.resource).toBe(resource)
-          expect(result.message).toBe(`${identity} is not allowed to perform ${operation} on ${resource}`)
+          expect(result.message).toBe(`${identity} is not allowed to perform ${expectedOperation} on ${resource}`)
         }).pipe(Effect.provide(TestLayer([`${resource}.enabled`]))))
 
       it.effect("should deny when OIDC identity has permission for different resource", () =>
         Effect.gen(function*() {
           const identity = createOIDCIdentity("user@example.com", [`${otherResource}.${operation}`])
           const result = yield* Effect.flip(checkPermission(identity, resource))
+
           expect(result._tag).toBe("AuthorizationError")
-          expect(result.operation).toBe(operation)
+
+          const expectedOperation = getExpectedFailureOperation(operation)
+
+          expect(result.operation).toBe(expectedOperation)
           expect(result.resource).toBe(resource)
-          expect(result.message).toBe(`${identity} is not allowed to perform ${operation} on ${resource}`)
+          expect(result.message).toBe(`${identity} is not allowed to perform ${expectedOperation} on ${resource}`)
         }).pipe(Effect.provide(TestLayer(["*"]))))
 
       it.effect("should deny when OIDC identity has permission for different operation", () =>
         Effect.gen(function*() {
-          const otherOperation = getRandomDifferentOperation(operation)
-          const identity = createOIDCIdentity("user@example.com", [`${resource}.${otherOperation}`])
+          const requiredPermissions = getRequiredPermissions(resource, operation).filter((p) =>
+            p !== `${resource}.${operation}`
+          )
+          const identity = createOIDCIdentity("user@example.com", [
+            ...requiredPermissions,
+            `${resource}.${otherOperation}`,
+          ])
           const result = yield* Effect.flip(checkPermission(identity, resource))
+
           expect(result._tag).toBe("AuthorizationError")
           expect(result.operation).toBe(operation)
           expect(result.resource).toBe(resource)
@@ -131,26 +116,35 @@ describe("AuthorizationService", () => {
         Effect.gen(function*() {
           const identity = createOIDCIdentity("user@example.com", [resource])
           const result = yield* Effect.flip(checkPermission(identity, resource))
+
           expect(result._tag).toBe("AuthorizationError")
-          expect(result.operation).toBe(operation)
+
+          const expectedOperation = getExpectedFailureOperation(operation, otherOperation)
+
+          expect(result.operation).toBe(expectedOperation)
           expect(result.resource).toBe(resource)
-          expect(result.message).toBe(`${operation} is not enabled for ${resource}`)
+          expect(result.message).toBe(`${expectedOperation} is not enabled for ${resource}`)
         }).pipe(Effect.provide(TestLayer([`${resource}.${otherOperation}.enabled`]))))
 
       it.effect("should deny when feature flag enabled for different resource", () =>
         Effect.gen(function*() {
           const identity = createOIDCIdentity("user@example.com", [resource])
           const result = yield* Effect.flip(checkPermission(identity, resource))
+
           expect(result._tag).toBe("AuthorizationError")
-          expect(result.operation).toBe(operation)
+
+          const expectedOperation = getExpectedFailureOperation(operation)
+
+          expect(result.operation).toBe(expectedOperation)
           expect(result.resource).toBe(resource)
-          expect(result.message).toBe(`${operation} is not enabled for ${resource}`)
+          expect(result.message).toBe(`${expectedOperation} is not enabled for ${resource}`)
         }).pipe(Effect.provide(TestLayer([`${otherResource}.enabled`]))))
 
       it.effect("should allow when wildcard feature flag is enabled", () =>
         Effect.gen(function*() {
           const identity = createOIDCIdentity("user@example.com", [resource])
           const result = yield* checkPermission(identity, resource)
+
           expect(result).toBe(true)
         }).pipe(Effect.provide(TestLayer(["*"]))))
 
@@ -158,32 +152,10 @@ describe("AuthorizationService", () => {
         Effect.gen(function*() {
           const identity = createOIDCIdentity("user@example.com", [resource])
           const result = yield* checkPermission(identity, resource)
+
           expect(result).toBe(true)
-        }).pipe(Effect.provide(TestLayer([`${resource}.${operation}.enabled`]))))
+        }).pipe(Effect.provide(TestLayer(getRequiredFeatureFlags(resource, operation)))))
     })
-  })
-
-  describe.for(allResources)("feature flag precedence - %s", (resource) => {
-    it.effect("should respect wildcard over resource-specific flags", () =>
-      Effect.gen(function*() {
-        const identity = createOIDCIdentity("user@example.com", [resource])
-        const result = yield* Services.AuthorizationService.canView(identity, resource)
-        expect(result).toBe(true)
-      }).pipe(Effect.provide(TestLayer(["*"]))))
-
-    it.effect("should respect resource-level flag", () =>
-      Effect.gen(function*() {
-        const identity = createOIDCIdentity("user@example.com", [resource])
-        const result = yield* Services.AuthorizationService.canView(identity, resource)
-        expect(result).toBe(true)
-      }).pipe(Effect.provide(TestLayer([`${resource}.enabled`]))))
-
-    it.effect("should respect operation-level flag", () =>
-      Effect.gen(function*() {
-        const identity = createOIDCIdentity("user@example.com", [resource])
-        const result = yield* Services.AuthorizationService.canView(identity, resource)
-        expect(result).toBe(true)
-      }).pipe(Effect.provide(TestLayer([`${resource}.view.enabled`]))))
   })
 
   describe.for(allResources)("permission hierarchy - %s", (resource) => {
@@ -201,57 +173,30 @@ describe("AuthorizationService", () => {
         expect(deleteResult).toBe(true)
       }).pipe(Effect.provide(TestLayer(["*"]))))
 
-    it.effect("should require operation-specific permission when specified", () =>
+    it.effect("should enforce operation-specific permissions", () =>
       Effect.gen(function*() {
         const identity = createOIDCIdentity("user@example.com", [`${resource}.view`])
         const viewResult = yield* Services.AuthorizationService.canView(identity, resource)
         const createResult = yield* Effect.flip(Services.AuthorizationService.canCreate(identity, resource))
+        const modifyResult = yield* Effect.flip(Services.AuthorizationService.canModify(identity, resource))
+        const deleteResult = yield* Effect.flip(Services.AuthorizationService.canDelete(identity, resource))
 
         expect(viewResult).toBe(true)
+
         expect(createResult._tag).toBe("AuthorizationError")
         expect(createResult.operation).toBe(Operation.create)
         expect(createResult.resource).toBe(resource)
         expect(createResult.message).toBe(`${identity} is not allowed to perform ${Operation.create} on ${resource}`)
-      }).pipe(Effect.provide(TestLayer(["*"]))))
-  })
 
-  describe.for(allResources)("multiple identities - %s", (resource) => {
-    it.effect("should handle multiple OIDC identities with different permissions", () =>
-      Effect.gen(function*() {
-        const admin = createOIDCIdentity("admin@example.com", [resource])
-        const user = createOIDCIdentity("user@example.com", [`${resource}.view`])
+        expect(modifyResult._tag).toBe("AuthorizationError")
+        expect(modifyResult.operation).toBe(Operation.create)
+        expect(modifyResult.resource).toBe(resource)
+        expect(modifyResult.message).toBe(`${identity} is not allowed to perform ${Operation.create} on ${resource}`)
 
-        const adminView = yield* Services.AuthorizationService.canView(admin, resource)
-        const adminCreate = yield* Services.AuthorizationService.canCreate(admin, resource)
-        const userView = yield* Services.AuthorizationService.canView(user, resource)
-        const userCreate = yield* Effect.flip(Services.AuthorizationService.canCreate(user, resource))
-
-        expect(adminView).toBe(true)
-        expect(adminCreate).toBe(true)
-        expect(userView).toBe(true)
-        expect(userCreate._tag).toBe("AuthorizationError")
-        expect(userCreate.operation).toBe(Operation.create)
-        expect(userCreate.resource).toBe(resource)
-        expect(userCreate.message).toBe(`${user} is not allowed to perform ${Operation.create} on ${resource}`)
-      }).pipe(Effect.provide(TestLayer(["*"]))))
-
-    it.effect("should handle multiple mTLS identities with different permissions", () =>
-      Effect.gen(function*() {
-        const admin = createMTLSIdentity("admin.example.com", [resource])
-        const user = createMTLSIdentity("user.example.com", [`${resource}.view`])
-
-        const adminView = yield* Services.AuthorizationService.canView(admin, resource)
-        const adminCreate = yield* Services.AuthorizationService.canCreate(admin, resource)
-        const userView = yield* Services.AuthorizationService.canView(user, resource)
-        const userCreate = yield* Effect.flip(Services.AuthorizationService.canCreate(user, resource))
-
-        expect(adminView).toBe(true)
-        expect(adminCreate).toBe(true)
-        expect(userView).toBe(true)
-        expect(userCreate._tag).toBe("AuthorizationError")
-        expect(userCreate.operation).toBe(Operation.create)
-        expect(userCreate.resource).toBe(resource)
-        expect(userCreate.message).toBe(`${user} is not allowed to perform ${Operation.create} on ${resource}`)
+        expect(deleteResult._tag).toBe("AuthorizationError")
+        expect(deleteResult.operation).toBe(Operation.create)
+        expect(deleteResult.resource).toBe(resource)
+        expect(deleteResult.message).toBe(`${identity} is not allowed to perform ${Operation.create} on ${resource}`)
       }).pipe(Effect.provide(TestLayer(["*"]))))
   })
 
@@ -260,6 +205,7 @@ describe("AuthorizationService", () => {
       Effect.gen(function*() {
         const identity = createOIDCIdentity("user@example.com", [])
         const result = yield* Effect.flip(Services.AuthorizationService.canView(identity, resource))
+
         expect(result._tag).toBe("AuthorizationError")
         expect(result.operation).toBe(Operation.view)
         expect(result.resource).toBe(resource)
@@ -267,4 +213,99 @@ describe("AuthorizationService", () => {
       }).pipe(Effect.provide(TestLayer(["*"]))))
   })
 })
-// test comment
+
+function getRequiredPermissions(
+  resource: Resource,
+  minPermission: Operation,
+): Array<Schemas.ScopeGroups.ScopeOrGroup> {
+  const permissions: Array<Schemas.ScopeGroups.ScopeOrGroup> = [`${resource}.${minPermission}`]
+  if (minPermission === Operation.create) {
+    permissions.push(`${resource}.${Operation.view}`)
+  } else if (minPermission === Operation.modify) {
+    permissions.push(`${resource}.${Operation.view}`, `${resource}.${Operation.create}`)
+  } else if (minPermission === Operation.delete) {
+    permissions.push(
+      `${resource}.${Operation.view}`,
+      `${resource}.${Operation.create}`,
+      `${resource}.${Operation.modify}`,
+    )
+  }
+  return permissions
+}
+
+function getRequiredFeatureFlags(
+  resource: Resource,
+  minPermission: Operation,
+): Array<Schemas.FeatureFlags.FeatureFlags> {
+  const flags: Array<Schemas.FeatureFlags.FeatureFlags> = [`${resource}.${minPermission}.enabled`]
+  if (minPermission === Operation.create) {
+    flags.push(`${resource}.${Operation.view}.enabled`)
+  } else if (minPermission === Operation.modify) {
+    flags.push(`${resource}.${Operation.view}.enabled`, `${resource}.${Operation.create}.enabled`)
+  } else if (minPermission === Operation.delete) {
+    flags.push(
+      `${resource}.${Operation.view}.enabled`,
+      `${resource}.${Operation.create}.enabled`,
+      `${resource}.${Operation.modify}.enabled`,
+    )
+  }
+  return flags
+}
+
+function getExpectedFailureOperation(requestedOperation: Operation, enabledOperation?: Operation): Operation {
+  if (requestedOperation === Operation.view) {
+    return Operation.view
+  } else if (requestedOperation === Operation.create) {
+    return enabledOperation === Operation.view ? Operation.create : Operation.view
+  } else if (requestedOperation === Operation.modify) {
+    return enabledOperation === Operation.view ?
+      Operation.create :
+      enabledOperation === Operation.create
+      ? Operation.modify
+      : Operation.view
+  } else {
+    return enabledOperation === Operation.view ?
+      Operation.create :
+      enabledOperation === Operation.create ?
+      Operation.modify :
+      enabledOperation === Operation.modify
+      ? Operation.delete
+      : Operation.view
+  }
+}
+
+function createOIDCIdentity(email: string, groups: Array<Schemas.ScopeGroups.ScopeOrGroup>): Identity.Identity {
+  return new Identity.OIDCIdentity(email, HashSet.fromIterable(groups))
+}
+
+function createMTLSIdentity(commonName: string, scopes: Array<Schemas.ScopeGroups.ScopeOrGroup>): Identity.Identity {
+  return new Identity.MTLSIdentity(commonName, HashSet.fromIterable(scopes))
+}
+
+function createFeatureFlagConfig(flags: Array<Schemas.FeatureFlags.FeatureFlags>) {
+  return Layer.setConfigProvider(
+    ConfigProvider.fromMap(
+      new Map([["FEATURE_FLAGS", flags.join(",")]]),
+    ),
+  )
+}
+
+function TestLayer(
+  flags: Array<Schemas.FeatureFlags.FeatureFlags>,
+): Layer.Layer<
+  Services.AuthorizationService.AuthorizationService | Services.FeatureFlagService.FeatureFlagService,
+  ConfigError.ConfigError
+> {
+  return Services.AuthorizationService.AuthorizationServiceLive.pipe(
+    Layer.provideMerge(Services.FeatureFlagService.FeatureFlagServiceLive),
+    Layer.provideMerge(createFeatureFlagConfig(flags)),
+  )
+}
+
+function getDifferentResource<T extends Resource>(current: T): Exclude<Resource, T> {
+  return allResources.find((r): r is Exclude<Resource, T> => r !== current)!
+}
+
+function getDifferentOperation<T extends Operation>(current: T): Exclude<Operation, T> {
+  return allOperations.find((op): op is Exclude<Operation, T> => op !== current)!
+}
