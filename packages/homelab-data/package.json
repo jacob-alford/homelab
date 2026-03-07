@@ -21,7 +21,7 @@
   "scripts": {
     "circular": "yarn madge --circular ./src/index.ts",
     "lint": "eslint src",
-    "typecheck": "tsc -b tsconfig.json",
+    "typecheck": "tsc -b tsconfig.json --noEmit",
     "test": "vitest run",
     "test:staged": "vitest related --run",
     "test:watch": "vitest watch",

@@ -53,13 +53,5 @@
   "dependencies": {
     "@effect/typeclass": "^0.38.0",
     "fast-xml-parser": "^5.3.7"
-  },
-  "lint-staged": {
-    "*.{ts,tsx,js,jsx,mjs}": [
-      "eslint --fix",
-      "eslint",
-      "tsc-files --noEmit",
-      "yarn test:staged"
-    ]
   }
 }

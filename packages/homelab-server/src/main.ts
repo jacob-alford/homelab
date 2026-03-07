@@ -1,7 +1,7 @@
 import { HttpApiBuilder, HttpApiSwagger, HttpMiddleware, Path } from "@effect/platform"
 import { NodeFileSystem, NodeHttpServer, NodePath, NodeRuntime } from "@effect/platform-node"
-import { Config, Console, Effect, Layer, Schema } from "effect"
-import { Schemas, Services } from "homelab-api"
+import { Config, Console, Effect, Layer } from "effect"
+import { Services } from "homelab-api"
 import { createServer } from "http"
 import { ApiLive } from "./api.js"
 
