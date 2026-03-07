@@ -52,6 +52,7 @@
   },
   "devDependencies": {
     "@effect/vitest": "^0.27.x",
+    "@vitest/coverage-v8": "3.2.4",
     "madge": "^8.x",
     "vitest": "^3.x"
   }

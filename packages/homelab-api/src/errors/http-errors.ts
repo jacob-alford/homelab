@@ -123,6 +123,14 @@ export class AuthorizationError extends Schema.TaggedError<AuthorizationError>()
       resource,
     })
   }
+
+  static fromFeatureFlag(resource: Resource, operation: Operation): AuthorizationError {
+    return new AuthorizationError({
+      message: `${operation} is not enabled for ${resource}`,
+      operation,
+      resource,
+    })
+  }
 }
 
 export class HttpApiEncodeError extends Schema.TaggedError<HttpApiEncodeError>()(
