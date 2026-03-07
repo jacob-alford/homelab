@@ -1,4 +1,5 @@
 import { HashSet } from "effect"
+import type { ScopeOrGroup, ScopeOrGroupSet } from "./schemas/scope-groups.js"
 
 const IdentityTag = Symbol.for("homelab-api/identity")
 
@@ -27,36 +28,36 @@ export abstract class IdentityBase {
   }
 }
 
-export class OIDCIdentity extends IdentityBase implements IdRoleOrGroup {
+export class OIDCIdentity extends IdentityBase implements Permissions {
   readonly [IdentityTag] = IdentityType.OIDC
 
   constructor(
     public readonly email: string,
-    private readonly groups: HashSet.HashSet<string>,
+    private readonly groups: ScopeOrGroupSet,
   ) {
     super(email)
   }
 
-  hasRoleOrGroup(_role: string, group: string) {
+  hasPermission(group: ScopeOrGroup) {
     return HashSet.has(this.groups, group)
   }
 }
 
-export class MTLSIdentity extends IdentityBase implements IdRoleOrGroup {
+export class MTLSIdentity extends IdentityBase implements Permissions {
   readonly [IdentityTag] = IdentityType.mTLS
 
   constructor(
     public readonly commonName: string,
-    private readonly scopes: HashSet.HashSet<string>,
+    private readonly scopes: ScopeOrGroupSet,
   ) {
     super(commonName)
   }
 
-  hasRoleOrGroup(role: string): boolean {
+  hasPermission(role: ScopeOrGroup): boolean {
     return HashSet.has(this.scopes, role)
   }
 }
 
-export interface IdRoleOrGroup {
-  hasRoleOrGroup(role: string, group: string): boolean
+export interface Permissions {
+  hasPermission(identifier: ScopeOrGroup): boolean
 }

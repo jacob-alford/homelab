@@ -4,12 +4,6 @@ import { Schema } from "effect"
 import * as ApiErrors from "../../errors/http-errors.js"
 import * as Schemas from "../../schemas/index.js"
 
-declare module "../../resource.js" {
-  enum Resource {
-    "Config.ACME" = "Config.ACME",
-  }
-}
-
 export const AcmeQueryParams = null
 
 export const ClientIdentifierParam = HttpApiSchema.param("clientIdentifier", Schema.String)
