@@ -71,13 +71,6 @@ const HomeLabApiLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
         const rootCertPath = yield* Config.string("ROOT_CERT")
         const intermediateCertPath = yield* Config.string("INTERMEDIATE_CERT")
 
-        const featureFlags = yield* Config.hashSet(
-          Schema.Config(
-            "FEATURE_FLAGS",
-            Schemas.Env.FeatureFlags,
-          ),
-        )
-
         const rootCert = path.resolve(basePath, rootCertPath)
         const intermediateCert = path.resolve(basePath, intermediateCertPath)
 
