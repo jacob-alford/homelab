@@ -10,7 +10,8 @@
     "start": "tsx src/main.ts",
     "build": "tsc -b tsconfig.json",
     "lint": "eslint src",
-    "typecheck": "tsc -b tsconfig.json"
+    "typecheck": "tsc -b tsconfig.json",
+    "test:staged": "echo 'No tests for homelab-server'"
   },
   "dependencies": {
     "@effect/cluster": "^0.56.x",

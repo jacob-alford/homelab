@@ -25,6 +25,7 @@
     "typecheck": "tsc -b tsconfig.json",
     "test:watch": "vitest watch",
     "test": "vitest run",
+    "test:staged": "vitest related --run",
     "coverage": "vitest --coverage"
   },
   "dependencies": {
