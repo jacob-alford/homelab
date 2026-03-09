@@ -21,6 +21,7 @@
             typescript
             typescript-language-server
             python3
+            rolldown
           ];
         };
       });
