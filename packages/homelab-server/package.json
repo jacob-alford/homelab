@@ -6,14 +6,16 @@
   "description": "Effect-ts Bun HTTP Server implementation for homelab services",
   "scripts": {
     "circular": "yarn madge --circular ./src/api.ts",
-    "dev": "tsx --env-file=.env-dev --watch src/main.ts",
+    "dev": "tsx --env-file=.env --watch src/main.ts",
     "start": "tsx src/main.ts",
-    "build": "tsc -b tsconfig.json",
+    "build": "rolldown -c",
+    "serve": "dotenvx run -f .env -- node ./dist/main.js",
     "lint": "eslint src",
     "typecheck": "tsc -b tsconfig.json --noEmit",
     "test:staged": "echo 'No tests for homelab-server'"
   },
   "dependencies": {
+    "@dotenvx/dotenvx": "^1.54.1",
     "@effect/cluster": "^0.56.x",
     "@effect/experimental": "^0.58.x",
     "@effect/platform": "^0.94.x",
@@ -26,6 +28,7 @@
     "tsx": "^4.21.0"
   },
   "devDependencies": {
-    "madge": "^8.0.0"
+    "madge": "^8.0.0",
+    "rolldown": "^1.0.0-rc.7"
   }
 }
