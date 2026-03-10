@@ -1,6 +1,9 @@
 {
   "extends": "../../tsconfig.base.json",
   "include": [],
+  "compilerOptions": {
+    "types": ["node"]
+  },
   "references": [
     { "path": "tsconfig.src.json" }
   ]
