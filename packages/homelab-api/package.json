@@ -37,7 +37,8 @@
     "@effect/sql": "^0.49.x",
     "@effect/workflow": "^0.16.x",
     "effect": "^3.x",
-    "homelab-data": "workspace:*"
+    "homelab-data": "workspace:*",
+    "type-fest": "^5.4.4"
   },
   "effect": {
     "generateExports": {

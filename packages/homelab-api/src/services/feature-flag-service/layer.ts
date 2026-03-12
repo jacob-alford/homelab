@@ -1,7 +1,7 @@
 import { Effect, HashSet, Layer, Schema } from "effect"
 
 import type { Operation } from "../../operation.js"
-import type { Resource } from "../../resource.js"
+import type { ResourceURIs } from "../../resource-uris.js"
 import { type FeatureFlagsSet, FeatureFlagsSetSchema } from "../../schemas/feature-flags.js"
 import type { FeatureFlagServiceDef } from "./definition.js"
 import { FeatureFlagService } from "./definition.js"
@@ -22,7 +22,7 @@ class FeatureFlagServiceImpl implements FeatureFlagServiceDef {
     private readonly flags: FeatureFlagsSet,
   ) {}
 
-  enabled(resource: Resource, op: Operation): boolean {
+  enabled(resource: ResourceURIs, op: Operation): boolean {
     return this.allEnabled || this.resourceEnabled(resource) || this.resourceOpEnabled(resource, op)
   }
 
@@ -30,11 +30,11 @@ class FeatureFlagServiceImpl implements FeatureFlagServiceDef {
     return HashSet.has(this.flags, "*")
   }
 
-  private resourceOpEnabled(resource: Resource, op: Operation) {
+  private resourceOpEnabled(resource: ResourceURIs, op: Operation) {
     return HashSet.has(this.flags, `${resource}.${op}.enabled`)
   }
 
-  private resourceEnabled(resource: Resource) {
+  private resourceEnabled(resource: ResourceURIs) {
     return HashSet.has(this.flags, `${resource}.enabled`)
   }
 }

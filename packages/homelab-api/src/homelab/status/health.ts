@@ -14,3 +14,9 @@ export type HealthEndpoint = typeof HealthEndpoint
 export type HealthEndpointHandlerArgs = Types.Simplify<
   HttpApiEndpoint.HttpApiEndpoint.Request<HealthEndpoint>
 >
+
+declare module "../../resource-uris.js" {
+  interface URIToParams {
+    readonly [`Status.Health`]: HealthEndpointHandlerArgs
+  }
+}

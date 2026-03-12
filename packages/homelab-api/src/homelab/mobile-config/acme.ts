@@ -31,3 +31,9 @@ export type AcmeMobileConfigEndpoint = typeof AcmeMobileConfig
 export type AcmeMobileConfigHandlerArgs = Types.Simplify<
   HttpApiEndpoint.HttpApiEndpoint.Request<AcmeMobileConfigEndpoint>
 >
+
+declare module "../../resource-uris.js" {
+  interface URIToParams {
+    readonly [`Config.ACME`]: AcmeMobileConfigHandlerArgs
+  }
+}

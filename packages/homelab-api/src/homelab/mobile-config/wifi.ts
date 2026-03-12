@@ -53,3 +53,9 @@ export type WifiMobileConfigEndpoint = typeof WifiMobileConfig
 export type WifiMobileConfigHandlerArgs = Types.Simplify<
   HttpApiEndpoint.HttpApiEndpoint.Request<WifiMobileConfigEndpoint>
 >
+
+declare module "../../resource-uris.js" {
+  interface URIToParams {
+    readonly [`Config.Wifi`]: WifiMobileConfigHandlerArgs
+  }
+}

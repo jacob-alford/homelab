@@ -2,14 +2,15 @@ import { Context, Effect } from "effect"
 import type { AuthorizationError } from "../../errors/http-errors.js"
 import type { Identity } from "../../identity.js"
 import type { Operation } from "../../operation.js"
-import type { Resource } from "../../resource.js"
+import type { Params, ResourceURIs } from "../../resource-uris.js"
 
 export const AuthorizationServiceId = "homelab-api/services/authorization-service/AuthorizationService"
 
 export type AuthorizationServiceDef = {
-  +readonly [K in Operation as `can${Capitalize<K>}`]: (
+  +readonly [K in Operation as `can${Capitalize<K>}`]: <Res extends ResourceURIs>(
     identity: Identity,
-    resource: Resource,
+    resource: Res,
+    params: Params<Res>,
   ) => Effect.Effect<true, AuthorizationError>
 }
 

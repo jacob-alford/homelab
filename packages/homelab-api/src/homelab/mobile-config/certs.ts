@@ -26,3 +26,9 @@ export type CertsEndpoint = typeof Certs
 export type CertsHandlerArgs = Types.Simplify<
   HttpApiEndpoint.HttpApiEndpoint.Request<CertsEndpoint>
 >
+
+declare module "../../resource-uris.js" {
+  interface URIToParams {
+    readonly [`Config.Certs`]: CertsHandlerArgs
+  }
+}

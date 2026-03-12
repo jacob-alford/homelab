@@ -1,16 +1,16 @@
 import { Schema } from "effect"
 import { Operation } from "../operation.js"
-import { Resource } from "../resource.js"
 import { ListStringToSet } from "./ListStringToSet.js"
+import { ResourceURISchema } from "./resource-uris.js"
 
 export const ResourceOperationFlags = Schema.TemplateLiteral(
-  Schema.Literal(...Object.values(Resource)),
+  ResourceURISchema,
   ".",
   Schema.Literal(...Object.values(Operation)),
 )
 
 export const ResourceFlags = Schema.Union(
-  Schema.Literal(...Object.values(Resource)),
+  ResourceURISchema,
   ResourceOperationFlags,
 )
 

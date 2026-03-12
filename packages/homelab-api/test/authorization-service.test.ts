@@ -1,10 +1,11 @@
 import { describe, expect, it } from "@effect/vitest"
 import type { ConfigError } from "effect"
 import { ConfigProvider, Effect, HashSet, Layer } from "effect"
-import type { Schemas } from "../src/index.js"
-import { Identity, Operation, Resource, Services } from "../src/index.js"
+import type { PartialDeep } from "type-fest"
+import type { ResourceURIs, Schemas } from "../src/index.js"
+import { Identity, Operation, Services } from "../src/index.js"
+import { ResourceURILiterals } from "../src/schemas/resource-uris.js"
 
-const allResources = Object.values(Resource)
 const allOperations = Object.values(Operation)
 
 const operationMethodMap = {
@@ -15,7 +16,7 @@ const operationMethodMap = {
 } as const
 
 describe("AuthorizationService", () => {
-  describe.for(allResources)("%s", (resource) => {
+  describe.for(ResourceURILiterals)("%s", (resource) => {
     describe.for(allOperations)("%s", (operation) => {
       const checkPermission = operationMethodMap[operation]
       const otherResource = getDifferentResource(resource)
@@ -24,7 +25,7 @@ describe("AuthorizationService", () => {
       it.effect("should allow OIDC identity with resource permission", () =>
         Effect.gen(function*() {
           const identity = createOIDCIdentity("user@example.com", [resource])
-          const result = yield* checkPermission(identity, resource)
+          const result = yield* checkPermission(identity, resource, setupParams(resource))
 
           expect(result).toBe(true)
         }).pipe(Effect.provide(TestLayer([`${resource}.enabled`]))))
@@ -32,7 +33,7 @@ describe("AuthorizationService", () => {
       it.effect("should allow OIDC identity with all required permissions", () =>
         Effect.gen(function*() {
           const identity = createOIDCIdentity("user@example.com", getRequiredPermissions(resource, operation))
-          const result = yield* checkPermission(identity, resource)
+          const result = yield* checkPermission(identity, resource, setupParams(resource))
 
           expect(result).toBe(true)
         }).pipe(Effect.provide(TestLayer([`${resource}.enabled`]))))
@@ -40,7 +41,7 @@ describe("AuthorizationService", () => {
       it.effect("should allow mTLS identity with resource permission", () =>
         Effect.gen(function*() {
           const identity = createMTLSIdentity("client.example.com", [resource])
-          const result = yield* checkPermission(identity, resource)
+          const result = yield* checkPermission(identity, resource, setupParams(resource))
 
           expect(result).toBe(true)
         }).pipe(Effect.provide(TestLayer([`${resource}.enabled`]))))
@@ -48,7 +49,7 @@ describe("AuthorizationService", () => {
       it.effect("should allow mTLS identity with all required permissions", () =>
         Effect.gen(function*() {
           const identity = createMTLSIdentity("client.example.com", getRequiredPermissions(resource, operation))
-          const result = yield* checkPermission(identity, resource)
+          const result = yield* checkPermission(identity, resource, setupParams(resource))
 
           expect(result).toBe(true)
         }).pipe(Effect.provide(TestLayer([`${resource}.enabled`]))))
@@ -56,7 +57,7 @@ describe("AuthorizationService", () => {
       it.effect("should deny when OIDC identity lacks permissions", () =>
         Effect.gen(function*() {
           const identity = createOIDCIdentity("user@example.com", [otherResource])
-          const result = yield* Effect.flip(checkPermission(identity, resource))
+          const result = yield* Effect.flip(checkPermission(identity, resource, setupParams(resource)))
 
           expect(result._tag).toBe("AuthorizationError")
 
@@ -70,7 +71,7 @@ describe("AuthorizationService", () => {
       it.effect("should deny when mTLS identity lacks permissions", () =>
         Effect.gen(function*() {
           const identity = createMTLSIdentity("client.example.com", [otherResource])
-          const result = yield* Effect.flip(checkPermission(identity, resource))
+          const result = yield* Effect.flip(checkPermission(identity, resource, setupParams(resource)))
 
           expect(result._tag).toBe("AuthorizationError")
 
@@ -84,7 +85,7 @@ describe("AuthorizationService", () => {
       it.effect("should deny when OIDC identity has permission for different resource", () =>
         Effect.gen(function*() {
           const identity = createOIDCIdentity("user@example.com", [`${otherResource}.${operation}`])
-          const result = yield* Effect.flip(checkPermission(identity, resource))
+          const result = yield* Effect.flip(checkPermission(identity, resource, setupParams(resource)))
 
           expect(result._tag).toBe("AuthorizationError")
 
@@ -104,7 +105,7 @@ describe("AuthorizationService", () => {
             ...requiredPermissions,
             `${resource}.${otherOperation}`,
           ])
-          const result = yield* Effect.flip(checkPermission(identity, resource))
+          const result = yield* Effect.flip(checkPermission(identity, resource, setupParams(resource)))
 
           expect(result._tag).toBe("AuthorizationError")
           expect(result.operation).toBe(operation)
@@ -115,7 +116,7 @@ describe("AuthorizationService", () => {
       it.effect("should deny when feature flag enabled for different operation", () =>
         Effect.gen(function*() {
           const identity = createOIDCIdentity("user@example.com", [resource])
-          const result = yield* Effect.flip(checkPermission(identity, resource))
+          const result = yield* Effect.flip(checkPermission(identity, resource, setupParams(resource)))
 
           expect(result._tag).toBe("AuthorizationError")
 
@@ -129,7 +130,7 @@ describe("AuthorizationService", () => {
       it.effect("should deny when feature flag enabled for different resource", () =>
         Effect.gen(function*() {
           const identity = createOIDCIdentity("user@example.com", [resource])
-          const result = yield* Effect.flip(checkPermission(identity, resource))
+          const result = yield* Effect.flip(checkPermission(identity, resource, setupParams(resource)))
 
           expect(result._tag).toBe("AuthorizationError")
 
@@ -143,7 +144,7 @@ describe("AuthorizationService", () => {
       it.effect("should allow when wildcard feature flag is enabled", () =>
         Effect.gen(function*() {
           const identity = createOIDCIdentity("user@example.com", [resource])
-          const result = yield* checkPermission(identity, resource)
+          const result = yield* checkPermission(identity, resource, setupParams(resource))
 
           expect(result).toBe(true)
         }).pipe(Effect.provide(TestLayer(["*"]))))
@@ -151,21 +152,33 @@ describe("AuthorizationService", () => {
       it.effect("should allow when operation-specific feature flag is enabled", () =>
         Effect.gen(function*() {
           const identity = createOIDCIdentity("user@example.com", [resource])
-          const result = yield* checkPermission(identity, resource)
+          const result = yield* checkPermission(identity, resource, setupParams(resource))
 
           expect(result).toBe(true)
         }).pipe(Effect.provide(TestLayer(getRequiredFeatureFlags(resource, operation)))))
     })
   })
 
-  describe.for(allResources)("permission hierarchy - %s", (resource) => {
+  describe.for(ResourceURILiterals)("permission hierarchy - %s", (resource) => {
     it.effect("should allow resource-level permission for any operation", () =>
       Effect.gen(function*() {
         const identity = createOIDCIdentity("admin@example.com", [resource])
-        const viewResult = yield* Services.AuthorizationService.canView(identity, resource)
-        const createResult = yield* Services.AuthorizationService.canCreate(identity, resource)
-        const modifyResult = yield* Services.AuthorizationService.canModify(identity, resource)
-        const deleteResult = yield* Services.AuthorizationService.canDelete(identity, resource)
+        const viewResult = yield* Services.AuthorizationService.canView(identity, resource, setupParams(resource))
+        const createResult = yield* Services.AuthorizationService.canCreate(
+          identity,
+          resource,
+          setupParams(resource),
+        )
+        const modifyResult = yield* Services.AuthorizationService.canModify(
+          identity,
+          resource,
+          setupParams(resource),
+        )
+        const deleteResult = yield* Services.AuthorizationService.canDelete(
+          identity,
+          resource,
+          setupParams(resource),
+        )
 
         expect(viewResult).toBe(true)
         expect(createResult).toBe(true)
@@ -176,10 +189,16 @@ describe("AuthorizationService", () => {
     it.effect("should enforce operation-specific permissions", () =>
       Effect.gen(function*() {
         const identity = createOIDCIdentity("user@example.com", [`${resource}.view`])
-        const viewResult = yield* Services.AuthorizationService.canView(identity, resource)
-        const createResult = yield* Effect.flip(Services.AuthorizationService.canCreate(identity, resource))
-        const modifyResult = yield* Effect.flip(Services.AuthorizationService.canModify(identity, resource))
-        const deleteResult = yield* Effect.flip(Services.AuthorizationService.canDelete(identity, resource))
+        const viewResult = yield* Services.AuthorizationService.canView(identity, resource, setupParams(resource))
+        const createResult = yield* Effect.flip(
+          Services.AuthorizationService.canCreate(identity, resource, setupParams(resource)),
+        )
+        const modifyResult = yield* Effect.flip(
+          Services.AuthorizationService.canModify(identity, resource, setupParams(resource)),
+        )
+        const deleteResult = yield* Effect.flip(
+          Services.AuthorizationService.canDelete(identity, resource, setupParams(resource)),
+        )
 
         expect(viewResult).toBe(true)
 
@@ -200,11 +219,13 @@ describe("AuthorizationService", () => {
       }).pipe(Effect.provide(TestLayer(["*"]))))
   })
 
-  describe.for(allResources)("edge cases - %s", (resource) => {
+  describe.for(ResourceURILiterals)("edge cases - %s", (resource) => {
     it.effect("should deny access with empty permissions", () =>
       Effect.gen(function*() {
         const identity = createOIDCIdentity("user@example.com", [])
-        const result = yield* Effect.flip(Services.AuthorizationService.canView(identity, resource))
+        const result = yield* Effect.flip(
+          Services.AuthorizationService.canView(identity, resource, setupParams(resource)),
+        )
 
         expect(result._tag).toBe("AuthorizationError")
         expect(result.operation).toBe(Operation.view)
@@ -212,10 +233,59 @@ describe("AuthorizationService", () => {
         expect(result.message).toBe(`${identity} is not allowed to perform ${Operation.view} on ${resource}`)
       }).pipe(Effect.provide(TestLayer(["*"]))))
   })
+
+  describe("fine-grained authorization - Config.Wifi", () => {
+    it.effect("should allow OIDC identity when principle matches username", () =>
+      Effect.gen(function*() {
+        const identity = createOIDCIdentity("john@example.com", ["Config.Wifi"])
+        const params = setupParams("Config.Wifi", {
+          "Config.Wifi": { payload: { username: "john" } },
+        })
+        const result = yield* Services.AuthorizationService.canCreate(identity, "Config.Wifi", params)
+
+        expect(result).toBe(true)
+      }).pipe(Effect.provide(TestLayer(["*"]))))
+
+    it.effect("should deny OIDC identity when principle does not match username", () =>
+      Effect.gen(function*() {
+        const identity = createOIDCIdentity("john@example.com", ["Config.Wifi"])
+        const params = setupParams("Config.Wifi", {
+          "Config.Wifi": { payload: { username: "alice" } },
+        })
+        const result = yield* Effect.flip(
+          Services.AuthorizationService.canCreate(identity, "Config.Wifi", params),
+        )
+
+        expect(result._tag).toBe("AuthorizationError")
+        expect(result.operation).toBe(Operation.view)
+        expect(result.resource).toBe("Config.Wifi")
+        expect(result.message).toBe("User's principle identifer must match the requested username")
+      }).pipe(Effect.provide(TestLayer(["*"]))))
+
+    it.effect("should allow OIDC identity when no username is provided", () =>
+      Effect.gen(function*() {
+        const identity = createOIDCIdentity("john@example.com", ["Config.Wifi"])
+        const params = setupParams("Config.Wifi")
+        const result = yield* Services.AuthorizationService.canCreate(identity, "Config.Wifi", params)
+
+        expect(result).toBe(true)
+      }).pipe(Effect.provide(TestLayer(["*"]))))
+
+    it.effect("should allow any OIDC identity to create guest WiFi payload", () =>
+      Effect.gen(function*() {
+        const identity = createOIDCIdentity("sarah@example.com", ["Config.Wifi"])
+        const params = setupParams("Config.Wifi", {
+          "Config.Wifi": { payload: { username: "guest" } },
+        })
+        const result = yield* Services.AuthorizationService.canCreate(identity, "Config.Wifi", params)
+
+        expect(result).toBe(true)
+      }).pipe(Effect.provide(TestLayer(["*"]))))
+  })
 })
 
 function getRequiredPermissions(
-  resource: Resource,
+  resource: ResourceURIs.ResourceURIs,
   minPermission: Operation,
 ): Array<Schemas.ScopeGroups.ScopeOrGroup> {
   const permissions: Array<Schemas.ScopeGroups.ScopeOrGroup> = [`${resource}.${minPermission}`]
@@ -234,7 +304,7 @@ function getRequiredPermissions(
 }
 
 function getRequiredFeatureFlags(
-  resource: Resource,
+  resource: ResourceURIs.ResourceURIs,
   minPermission: Operation,
 ): Array<Schemas.FeatureFlags.FeatureFlags> {
   const flags: Array<Schemas.FeatureFlags.FeatureFlags> = [`${resource}.${minPermission}.enabled`]
@@ -293,19 +363,41 @@ function createFeatureFlagConfig(flags: Array<Schemas.FeatureFlags.FeatureFlags>
 function TestLayer(
   flags: Array<Schemas.FeatureFlags.FeatureFlags>,
 ): Layer.Layer<
-  Services.AuthorizationService.AuthorizationService | Services.FeatureFlagService.FeatureFlagService,
+  | Services.AuthorizationService.AuthorizationService
+  | Services.FeatureFlagService.FeatureFlagService
+  | Services.FineGrainedAuthorizationService.FineGrainedAuthorizationService,
   ConfigError.ConfigError
 > {
   return Services.AuthorizationService.AuthorizationServiceLive.pipe(
     Layer.provideMerge(Services.FeatureFlagService.FeatureFlagServiceLive),
+    Layer.provideMerge(Services.FineGrainedAuthorizationService.FineGrainedAuthorizationServiceLive),
     Layer.provideMerge(createFeatureFlagConfig(flags)),
   )
 }
 
-function getDifferentResource<T extends Resource>(current: T): Exclude<Resource, T> {
-  return allResources.find((r): r is Exclude<Resource, T> => r !== current)!
+function getDifferentResource<T extends ResourceURIs.ResourceURIs>(current: T): Exclude<ResourceURIs.ResourceURIs, T> {
+  return ResourceURILiterals.find((r): r is Exclude<ResourceURIs.ResourceURIs, T> => r !== current)!
 }
 
 function getDifferentOperation<T extends Operation>(current: T): Exclude<Operation, T> {
   return allOperations.find((op): op is Exclude<Operation, T> => op !== current)!
+}
+
+function setupParams<Res extends ResourceURIs.ResourceURIs>(
+  resource: Res,
+  overrides: PartialDeep<ResourceURIs.URIToParams> = {},
+): ResourceURIs.Params<Res> {
+  const defaults: Record<ResourceURIs.ResourceURIs, any> = {
+    "Config.Wifi": {
+      path: { ssid: "test-ssid", encryption: "WPA3", ...overrides["Config.Wifi"]?.path },
+      payload: { password: "test-password", ...overrides["Config.Wifi"]?.payload },
+    },
+    "Config.ACME": {
+      path: { clientIdentifier: "test-client", ...overrides["Config.ACME"]?.path },
+    },
+    "Config.Certs": {},
+    "Status.Health": {},
+  }
+
+  return defaults[resource] as ResourceURIs.Params<Res>
 }
