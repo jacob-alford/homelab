@@ -14,6 +14,7 @@ export type Identity = OIDCIdentity | MTLSIdentity
 
 export abstract class IdentityBase {
   abstract readonly [IdentityTag]: IdentityType
+  abstract readonly principle: string
 
   constructor(
     readonly identifier: string,
@@ -38,6 +39,10 @@ export class OIDCIdentity extends IdentityBase implements Permissions {
     super(email)
   }
 
+  get principle() {
+    return this.email.split("@")[0]
+  }
+
   hasPermission(group: ScopeOrGroup) {
     return HashSet.has(this.groups, group)
   }
@@ -51,6 +56,10 @@ export class MTLSIdentity extends IdentityBase implements Permissions {
     private readonly scopes: ScopeOrGroupSet,
   ) {
     super(commonName)
+  }
+
+  get principle() {
+    return this.commonName
   }
 
   hasPermission(role: ScopeOrGroup): boolean {

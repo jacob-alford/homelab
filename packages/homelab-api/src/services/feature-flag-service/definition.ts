@@ -1,11 +1,11 @@
 import { Context, Effect } from "effect"
 import type { Operation } from "../../operation.js"
-import type { Resource } from "../../resource.js"
+import type { ResourceURIs } from "../../resource-uris.js"
 
 export const FeatureFlagServiceId = "homelab-api/services/feature-flag-service/FeatureFlagService"
 
 export interface FeatureFlagServiceDef {
-  enabled(resource: Resource, operation: Operation): boolean
+  enabled(resource: ResourceURIs, operation: Operation): boolean
 }
 
 export class FeatureFlagService extends Context.Tag(FeatureFlagServiceId)<FeatureFlagService, FeatureFlagServiceDef>() {

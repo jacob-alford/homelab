@@ -2,7 +2,8 @@ import { HttpApiError, HttpApiSchema } from "@effect/platform"
 import { Effect, ParseResult, Schema } from "effect"
 import type { Identity } from "../identity.js"
 import { Operation } from "../operation.js"
-import { Resource } from "../resource.js"
+import type { ResourceURIs } from "../resource-uris.js"
+import { ResourceURISchema } from "../schemas/resource-uris.js"
 
 export const BaseHttpErrorSchema = Schema.Struct({
   message: Schema.String,
@@ -109,14 +110,14 @@ export class AuthenticationError extends Schema.TaggedError<AuthenticationError>
 
 export class AuthorizationError extends Schema.TaggedError<AuthorizationError>()(
   "AuthorizationError",
-  { ...BaseHttpErrorSchema.fields, resource: Schema.Enums(Resource), operation: Schema.Enums(Operation) },
+  { ...BaseHttpErrorSchema.fields, resource: ResourceURISchema, operation: Schema.Enums(Operation) },
   HttpApiSchema.annotations({
     status: 403,
     description:
       "An error raised when the authenticated caller of a request is not authorized to perform an aspect of the request.",
   }),
 ) {
-  static fromFGA(identity: Identity, operation: Operation, resource: Resource): AuthorizationError {
+  static fromFGA(identity: Identity, operation: Operation, resource: ResourceURIs): AuthorizationError {
     return new AuthorizationError({
       message: `${identity} is not allowed to perform ${operation} on ${resource}`,
       operation,
@@ -124,7 +125,7 @@ export class AuthorizationError extends Schema.TaggedError<AuthorizationError>()
     })
   }
 
-  static fromFeatureFlag(resource: Resource, operation: Operation): AuthorizationError {
+  static fromFeatureFlag(resource: ResourceURIs, operation: Operation): AuthorizationError {
     return new AuthorizationError({
       message: `${operation} is not enabled for ${resource}`,
       operation,
