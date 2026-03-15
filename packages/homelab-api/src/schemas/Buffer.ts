@@ -1,4 +1,5 @@
-import { Schema } from "effect"
+import { Effect, ParseResult, Schema } from "effect"
+import { Base64 } from "./Base64.js"
 
 export const BufferSchema = Schema.declare(
   (input): input is Buffer => input instanceof Buffer,
@@ -7,4 +8,37 @@ export const BufferSchema = Schema.declare(
     description: "The NodeJS Buffer type",
     arbitrary: () => (fc) => fc.base64String().map((_) => Buffer.from(_, "base64")),
   },
+)
+
+export const BufferFromBase64 = Schema.transformOrFail(
+  Base64,
+  BufferSchema,
+  {
+    decode(base64, _options, ast) {
+      return Effect.try({
+        try() {
+          return Buffer.from(base64, "hex")
+        },
+        catch(err) {
+          return new ParseResult.Type(ast, base64, `Unexpected error while converting Base64 to Buffer: ${err}`)
+        },
+      })
+    },
+    encode(buffer, _options, ast) {
+      return Effect.try({
+        try() {
+          return buffer.toString("base64")
+        },
+        catch(err) {
+          return new ParseResult.Type(ast, buffer, `Unexpected error while converting Buffer to Base64: ${err}`)
+        },
+      })
+    },
+  },
+)
+
+export const OptionalBufferFromBase64 = BufferFromBase64.pipe(
+  Schema.optionalWith({
+    exact: true,
+  }),
 )

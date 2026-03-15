@@ -4853,6 +4853,8 @@ __metadata:
     "@vitest/coverage-v8": "npm:3.2.4"
     effect: "npm:^3.x"
     homelab-data: "workspace:*"
+    homelab-shared: "workspace:*"
+    jose: "npm:^6.2.1"
     madge: "npm:^8.x"
     type-fest: "npm:^5.4.4"
     vitest: "npm:^3.x"
@@ -4894,6 +4896,24 @@ __metadata:
     madge: "npm:^8.0.0"
     rolldown: "npm:^1.0.0-rc.7"
     tsx: "npm:^4.21.0"
+  languageName: unknown
+  linkType: soft
+
+"homelab-shared@workspace:*, homelab-shared@workspace:packages/homelab-shared":
+  version: 0.0.0-use.local
+  resolution: "homelab-shared@workspace:packages/homelab-shared"
+  dependencies:
+    "@effect/cluster": "npm:^0.56.x"
+    "@effect/experimental": "npm:^0.58.x"
+    "@effect/platform": "npm:^0.94.x"
+    "@effect/platform-node": "npm:^0.104.x"
+    "@effect/rpc": "npm:^0.73.x"
+    "@effect/sql": "npm:^0.49.x"
+    "@effect/vitest": "npm:^0.27.x"
+    "@effect/workflow": "npm:^0.16.x"
+    effect: "npm:^3.x"
+    madge: "npm:^8.0.0"
+    vitest: "npm:^3.x"
   languageName: unknown
   linkType: soft
 
@@ -5589,6 +5609,13 @@ __metadata:
     graceful-fs: "npm:^4.2.9"
     picomatch: "npm:^2.2.3"
   checksum: 10c0/bc55a8f49fdbb8f51baf31d2a4f312fb66c9db1483b82f602c9c990e659cdd7ec529c8e916d5a89452ecbcfae4949b21b40a7a59d4ffc0cd813a973ab08c8150
+  languageName: node
+  linkType: hard
+
+"jose@npm:^6.2.1":
+  version: 6.2.1
+  resolution: "jose@npm:6.2.1"
+  checksum: 10c0/456822e00a2ee6b1470fabadd694b237af64b9977aa8a47844aae2841298daefd79bb04ff328cbc3aa3c886761aa72b33bc5c1ad797b31b8368e77a89d09b779
   languageName: node
   linkType: hard
 
