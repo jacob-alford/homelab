@@ -8,9 +8,10 @@ export type IdentityTag = typeof IdentityTag
 export enum IdentityType {
   OIDC = "OIDC",
   mTLS = "mTLS",
+  Guest = "Guest",
 }
 
-export type Identity = OIDCIdentity | MTLSIdentity
+export type Identity = GuestIdentity | OIDCIdentity | MTLSIdentity
 
 export abstract class IdentityBase {
   abstract readonly [IdentityTag]: IdentityType
@@ -27,6 +28,22 @@ export abstract class IdentityBase {
 
     throw new TypeError(`Unable to coerce ${this[IdentityTag].toUpperCase()}Identity into a number`)
   }
+}
+
+export class GuestIdentity extends IdentityBase implements Permissions {
+  readonly [IdentityTag] = IdentityType.Guest
+  readonly principle = "guest"
+
+  hasPermission(identifier: ScopeOrGroup): boolean {
+    return HashSet.has(this.permissions, identifier)
+  }
+
+  private readonly permissions: HashSet.HashSet<ScopeOrGroup> = HashSet.fromIterable([
+    "Config.Wifi.view",
+    "Config.Wifi.create",
+    "Config.Certs.view",
+    "Config.Certs.create",
+  ])
 }
 
 export class OIDCIdentity extends IdentityBase implements Permissions {

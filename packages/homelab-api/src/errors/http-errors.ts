@@ -3,6 +3,7 @@ import { Effect, ParseResult, Schema } from "effect"
 import type { Identity } from "../identity.js"
 import { Operation } from "../operation.js"
 import type { ResourceURIs } from "../resource-uris.js"
+import { OptionalString, OptionalUnknown } from "../schemas/optionals.js"
 import { ResourceURISchema } from "../schemas/resource-uris.js"
 
 export const BaseHttpErrorSchema = Schema.Struct({
@@ -44,7 +45,7 @@ export class BadRequest extends Schema.TaggedError<BadRequest>()(
 
 export class InternalServerError extends Schema.TaggedError<InternalServerError>()(
   "InternalServerError",
-  BaseHttpErrorSchema.fields,
+  { ...BaseHttpErrorSchema.fields, error: OptionalUnknown },
   HttpApiSchema.annotations({
     status: 500,
     description: "An error raised when an unrecoverable error has occurred and warrants investigation",
@@ -66,46 +67,25 @@ export class NotImplemented extends Schema.TaggedError<NotImplemented>()(
 export const AuthenticationErrorReasonsSchema = Schema.Literal(
   "not-authenticated",
   "failed-to-verify",
-  "invalid-authentication",
+  "invalid-credential",
+  "expired-credential",
+  "invalid-claims",
+  "signature-validation-failed",
 )
 
 export class AuthenticationError extends Schema.TaggedError<AuthenticationError>()(
   "AuthorizationError",
   {
     ...BaseHttpErrorSchema.fields,
-    endpoint: Schema.String,
+    endpoint: OptionalString,
     reason: AuthenticationErrorReasonsSchema,
-    error: Schema.String.pipe(Schema.optionalWith({ exact: true })),
+    error: OptionalUnknown,
   },
   HttpApiSchema.annotations({
     status: 401,
     description: "An error raised when an aspect of the request's authentication is invalid.",
   }),
 ) {
-  static missingAuthorization(endpoint: string): AuthenticationError {
-    return new AuthenticationError({
-      endpoint,
-      reason: "not-authenticated",
-      message: `${endpoint} requires authentication`,
-    })
-  }
-
-  static failedToAuthenticate(endpoint: string, error: string): AuthenticationError {
-    return new AuthenticationError({
-      endpoint,
-      reason: "failed-to-verify",
-      message: `encountered error while attempting to validate authentication`,
-      error,
-    })
-  }
-
-  static invalidAuthentication(endpoint: string, cause: string): AuthenticationError {
-    return new AuthenticationError({
-      endpoint,
-      reason: "invalid-authentication",
-      message: `unable to authenticate: ${cause}`,
-    })
-  }
 }
 
 export class AuthorizationError extends Schema.TaggedError<AuthorizationError>()(
