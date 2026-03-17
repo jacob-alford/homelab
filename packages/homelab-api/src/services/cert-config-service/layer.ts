@@ -1,7 +1,7 @@
 import { Effect, Layer } from "effect"
 
+import { UuidDictionaryService } from "../../config/uuid-config.js"
 import type * as Schemas from "../../schemas/index.js"
-import { UuidDictionaryService } from "../uuid-dictionary-service/index.js"
 import type { UUID } from "../uuid-service/definition.js"
 import type { CertConfigServiceDef } from "./definition.js"
 import { CertConfigService } from "./definition.js"

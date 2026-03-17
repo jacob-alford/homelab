@@ -42,3 +42,30 @@ export const OptionalBufferFromBase64 = BufferFromBase64.pipe(
     exact: true,
   }),
 )
+
+export const StringFromUint8Array = Schema.transformOrFail(
+  Schema.Uint8ArrayFromSelf,
+  Schema.String,
+  {
+    decode(fromA, _options, ast) {
+      return Effect.try({
+        try() {
+          return Buffer.from(fromA).toString("utf-8")
+        },
+        catch(err) {
+          return new ParseResult.Type(ast, fromA, `Unexpected error trying to decode buffer: ${err}`)
+        },
+      })
+    },
+    encode(toI, _options, ast) {
+      return Effect.try({
+        try() {
+          return Uint8Array.from(toI)
+        },
+        catch(err) {
+          return new ParseResult.Type(ast, toI, `Unexpected error trying to encode buffer: ${err}`)
+        },
+      })
+    },
+  },
+)

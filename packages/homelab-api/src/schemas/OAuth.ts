@@ -2,10 +2,11 @@ import { Schema } from "effect"
 import { OptionalUnixDateTime } from "./UnixDateTime.js"
 
 import { Constants } from "homelab-shared"
-import { Base64Url, OptionalBase64Url } from "./Base64.js"
-import { OptionalBufferFromBase64 } from "./Buffer.js"
+import { Base64, Base64Url, OptionalBase64Url } from "./Base64.js"
+import { StringFromUint8Array } from "./Buffer.js"
 import * as Crypto from "./Crypto.js"
-import { OptionalString, OptionalUrl } from "./optionals.js"
+import { EnsureArray } from "./EnsureArray.js"
+import { OptionalArray, OptionalString, OptionalUrl } from "./optionals.js"
 import { ScopeGroupSetSchema } from "./scope-groups.js"
 
 // ----------
@@ -55,7 +56,7 @@ export const HomelabIdentityJWT = JWT.pipe(
 // JWKs
 // ----------
 
-export const KeyOps = Schema.Literal(
+export const KeyOp = Schema.Literal(
   "sign",
   "verify",
   "encrypt",
@@ -65,7 +66,12 @@ export const KeyOps = Schema.Literal(
   "deriveKey",
   "deriveBits",
 )
-  .pipe(Schema.optionalWith({ exact: true }))
+
+export const KeyOps = EnsureArray(KeyOp).pipe(
+  Schema.optionalWith({
+    exact: true,
+  }),
+)
 
 export const KeyUse = Schema.Literal("sig", "enc").pipe(Schema.optionalWith({ exact: true }))
 
@@ -74,24 +80,30 @@ export const BaseJWK = Schema.Struct({
   kid: OptionalString,
   key_ops: KeyOps,
   x5u: OptionalUrl,
-  x5c: OptionalBufferFromBase64,
+  x5c: OptionalArray(Base64),
   x5t: OptionalBase64Url,
 })
 
-export const ECJWK = Schema.Struct({
-  kty: Schema.Literal("EC"),
-  alg: Schema.Union(Crypto.ECDSAId, Crypto.PSSDSId),
-  crv: Crypto.EllipticCurveId,
-  x: Base64Url,
-  y: Base64Url,
-})
+export const ECJWK = BaseJWK.pipe(
+  Schema.extend(
+    Schema.Struct({
+      kty: Schema.Literal("EC"),
+      alg: Schema.Union(Crypto.ECDSAId, Crypto.PSSDSId),
+      crv: Crypto.EllipticCurveId,
+      x: Base64Url,
+      y: Base64Url,
+    }),
+  ),
+)
 
-export const RSAJWK = Schema.Struct({
-  kty: Schema.Literal("RSA"),
-  alg: Schema.Union(Crypto.RSADSId, Crypto.PSSDSId),
-  mod: OptionalBase64Url,
-  exp: OptionalBase64Url,
-})
+export const RSAJWK = BaseJWK.pipe(
+  Schema.extend(Schema.Struct({
+    kty: Schema.Literal("RSA"),
+    alg: Schema.Union(Crypto.RSADSId, Crypto.PSSDSId),
+    mod: OptionalBase64Url,
+    exp: OptionalBase64Url,
+  })),
+)
 
 export const JWK = Schema.Union(
   ECJWK,
@@ -101,3 +113,10 @@ export const JWK = Schema.Union(
 export const JWKs = Schema.Struct({
   jwks: Schema.NonEmptyArray(JWK),
 })
+
+export type JWKs = typeof JWKs.Type
+
+export const JWKsFromUint8Array = Schema.compose(
+  StringFromUint8Array,
+  Schema.parseJson(JWKs),
+)
