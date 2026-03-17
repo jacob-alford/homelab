@@ -1,3 +1,4 @@
+export * as Config from "./config/index.js"
 export * as ApiErrors from "./errors/http-errors.js"
 export * as Homelab from "./homelab/index.js"
 export * as Identity from "./identity.js"
