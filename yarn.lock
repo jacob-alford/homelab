@@ -4853,7 +4853,7 @@ __metadata:
     "@vitest/coverage-v8": "npm:3.2.4"
     effect: "npm:^3.x"
     homelab-data: "workspace:*"
-    homelab-shared: "workspace:^"
+    homelab-shared: "workspace:*"
     jose: "npm:^6.2.1"
     madge: "npm:^8.x"
     type-fest: "npm:^5.4.4"
@@ -4899,7 +4899,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"homelab-shared@workspace:^, homelab-shared@workspace:packages/homelab-shared":
+"homelab-shared@workspace:*, homelab-shared@workspace:packages/homelab-shared":
   version: 0.0.0-use.local
   resolution: "homelab-shared@workspace:packages/homelab-shared"
   dependencies:
