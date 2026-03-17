@@ -24,3 +24,11 @@ export const OptionalUnknown = Schema.Unknown.pipe(
     exact: true,
   }),
 )
+
+export function OptionalArray<A, I, R>(schema: Schema.Schema<A, I, R>) {
+  return Schema.Array(schema).pipe(
+    Schema.optionalWith({
+      exact: true,
+    }),
+  )
+}

@@ -1,9 +1,10 @@
 import { Effect, Layer } from "effect"
 
+import { AcmeConfigOptions } from "../../config/acme-config.js"
+import { UuidDictionaryService } from "../../config/uuid-config.js"
 import type * as Schemas from "../../schemas/index.js"
-import { UuidDictionaryService } from "../uuid-dictionary-service/index.js"
 import type { AcmeConfigServiceDef } from "./definition.js"
-import { AcmeConfigOptions, AcmeConfigService } from "./definition.js"
+import { AcmeConfigService } from "./definition.js"
 
 export const AcmeConfigServiceLive = Layer.effect(
   AcmeConfigService,

@@ -14,39 +14,25 @@ import { Constants } from "homelab-shared"
 import * as ApiErrors from "../../errors/http-errors.js"
 import * as Identity from "../../identity.js"
 import { HomelabIdentityJWT } from "../../schemas/OAuth.js"
-import type { OIDCWellKnown } from "../../schemas/OIDC.js"
-import type { AuthenticationServiceDef } from "../authentication-service/definition.js"
-import { AuthenticationService } from "../authentication-service/definition.js"
-import { JoseJWKService } from "../jose-jwk-service/definition.js"
-import { OIDCWellKnownDetailsService } from "../oidc-well-known-details-service/definition.js"
+import type { OIDCAuthenticationServiceDef } from "./definition.js"
+import { OIDCAuthenticationService } from "./definition.js"
 
 export const OIDCAuthenticationServiceLive = Layer.effect(
-  AuthenticationService,
+  OIDCAuthenticationService,
   Effect.gen(function*() {
-    const joseJwkService = yield* JoseJWKService
-
-    return new OIDCAuthenticationServiceImpl(
-      yield* joseJwkService.getJWK(),
-      yield* OIDCWellKnownDetailsService,
-    )
+    yield* Effect.succeed(false)
+    return new OIDCAuthenticationServiceImpl()
   }),
 )
 
-class OIDCAuthenticationServiceImpl implements AuthenticationServiceDef {
-  constructor(
-    private readonly jwk: JWTVerifyGetKey,
-    private readonly oidcConfig: OIDCWellKnown,
-  ) {}
-
-  authenticate(jwt: Buffer) {
-    const jwk = this.jwk
-    const oidcIssuer = this.oidcConfig.issuer
+class OIDCAuthenticationServiceImpl implements OIDCAuthenticationServiceDef {
+  authorizeOIDC(jwt: Buffer, jwk: JWTVerifyGetKey, issuer: string) {
     return Effect.gen(function*() {
       const rawJwt = yield* Effect.tryPromise({
         try() {
           return jwtVerify(jwt, jwk, {
             audience: Constants.JWT_HOMELAB_API_AUD,
-            issuer: oidcIssuer,
+            issuer,
             requiredClaims: ["email", Constants.JWT_ROLES_KEY],
           })
         },
@@ -92,7 +78,7 @@ class OIDCAuthenticationServiceImpl implements AuthenticationServiceDef {
 
       const parsedJwt = yield* pipe(rawJwt.payload, Schema.decodeUnknown(HomelabIdentityJWT))
 
-      return new Identity.OIDCIdentity(parsedJwt.email, parsedJwt["plato-splunk.jwt.roles"])
+      return new Identity.OIDCIdentity(parsedJwt.email, parsedJwt[Constants.JWT_ROLES_KEY])
     }).pipe(
       Effect.catchTag(
         "ParseError",

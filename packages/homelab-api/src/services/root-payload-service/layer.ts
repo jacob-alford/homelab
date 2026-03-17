@@ -1,7 +1,7 @@
 import { Effect, Layer } from "effect"
 
+import { UuidDictionaryService } from "../../config/uuid-config.js"
 import type * as Schemas from "../../schemas/index.js"
-import { UuidDictionaryService } from "../uuid-dictionary-service/index.js"
 import type { RootPayloadServiceDef } from "./definition.js"
 import { RootPayloadService } from "./definition.js"
 

@@ -34,6 +34,10 @@ export class GuestIdentity extends IdentityBase implements Permissions {
   readonly [IdentityTag] = IdentityType.Guest
   readonly principle = "guest"
 
+  constructor() {
+    super("guest")
+  }
+
   hasPermission(identifier: ScopeOrGroup): boolean {
     return HashSet.has(this.permissions, identifier)
   }

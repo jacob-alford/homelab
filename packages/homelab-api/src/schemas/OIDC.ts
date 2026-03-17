@@ -1,4 +1,5 @@
 import { Schema } from "effect"
+import { StringFromUint8Array } from "./Buffer.js"
 
 export const OIDCWellKnownWire = Schema.Struct({
   issuer: Schema.String,
@@ -22,3 +23,8 @@ export const OIDCWellKnown = OIDCWellKnownWire.pipe(
 )
 
 export type OIDCWellKnown = typeof OIDCWellKnown.Type
+
+export const OIDCWellKnownFromUint8Array = Schema.compose(
+  StringFromUint8Array,
+  Schema.parseJson(OIDCWellKnown),
+)
