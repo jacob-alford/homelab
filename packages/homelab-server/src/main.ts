@@ -1,7 +1,7 @@
 import { HttpApiBuilder, HttpApiSwagger, HttpMiddleware, Path } from "@effect/platform"
 import { NodeFileSystem, NodeHttpServer, NodePath, NodeRuntime } from "@effect/platform-node"
 import { Config, Console, Effect, Layer } from "effect"
-import { Services } from "homelab-api"
+import { Config as HomelabConfig, Services } from "homelab-api"
 import { createServer } from "http"
 import { ApiLive } from "./api.js"
 
@@ -31,7 +31,7 @@ const HomeLabApiLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   ),
   Layer.provide(
     Layer.succeed(
-      Services.AcmeConfigService.AcmeConfigOptions,
+      HomelabConfig.AcmeConfig.AcmeConfigOptions,
       {
         acmeUrl: "https://ca.plato-splunk.media/acme/acme/directory",
         hardwareBound: true,
@@ -56,7 +56,7 @@ const HomeLabApiLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
     Services.UuidService.UuidServiceLive,
   ),
   Layer.provide(
-    Services.UuidDictionaryService.UuidDictionaryServiceLive,
+    HomelabConfig.UUIDConfig.UuidDictionaryServiceLive,
   ),
   Layer.provide(
     NodeFileSystem.layer,
