@@ -20,7 +20,7 @@ import { OIDCAuthenticationService } from "./definition.js"
 export const OIDCAuthenticationServiceLive = Layer.effect(
   OIDCAuthenticationService,
   Effect.gen(function*() {
-    yield* Effect.succeed(false)
+    yield* Effect.succeed(true)
     return new OIDCAuthenticationServiceImpl()
   }),
 )
