@@ -1,8 +1,5 @@
 import { FileSystem } from "@effect/platform"
-import { Array, Context, Effect, flow, Layer, pipe, Record, Schema } from "effect"
-import { Utils } from "homelab-shared"
-import type { JSONWebKeySet, JWTVerifyGetKey } from "jose"
-import { createLocalJWKSet } from "jose"
+import { Context, Effect, Layer, pipe, Record, Schema } from "effect"
 import type { OIDCProviders } from "../oidc-providers.js"
 import type { JWKs } from "../schemas/OAuth.js"
 import { JWKsFromUint8Array } from "../schemas/OAuth.js"
@@ -12,7 +9,7 @@ import { LocalOIDCProviderPathMap } from "./oidc-config-local.js"
 export const LocalOIDCJWKConfigId = "homelab-api/config/oidc-jwk-config-local-jose/LocalOIDCJWKConfig"
 
 export type LocalOIDCJWKConfigDef = {
-  [K in keyof LocalOIDCConfig]: JWTVerifyGetKey
+  [K in keyof LocalOIDCConfig]: JWKs
 }
 
 export class LocalOIDCJWKConfig extends Context.Tag(LocalOIDCJWKConfigId)<LocalOIDCJWKConfig, LocalOIDCJWKConfigDef>() {
@@ -34,7 +31,6 @@ export const LocalOIDCJWKConfigLive = Layer.effect(
                 JWKsFromUint8Array,
               ),
             ),
-            Effect.map(flow(fixJwksForJose, createLocalJWKSet)),
             Effect.map((_) => [provider, _] as const),
           ),
         {
@@ -46,18 +42,6 @@ export const LocalOIDCJWKConfigLive = Layer.effect(
   }),
 )
 
-function fixJwksForJose({ jwks }: JWKs): JSONWebKeySet {
-  return Utils.asMutable({
-    keys: Array.map(
-      jwks,
-      ({ x5u, ...rest }) => ({
-        ...rest,
-        ...(x5u ? { x5u: x5u.toString() } : undefined),
-      }),
-    ),
-  })
-}
-
-function collectJwks(jwks: ReadonlyArray<readonly [OIDCProviders, JWTVerifyGetKey]>): LocalOIDCJWKConfigDef {
+function collectJwks(jwks: ReadonlyArray<readonly [OIDCProviders, JWKs]>): LocalOIDCJWKConfigDef {
   return Record.fromEntries(jwks) as LocalOIDCJWKConfigDef
 }

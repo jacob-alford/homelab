@@ -110,6 +110,8 @@ export const JWK = Schema.Union(
   RSAJWK,
 )
 
+export type JWK = typeof JWK.Type
+
 export const JWKs = Schema.Struct({
   jwks: Schema.NonEmptyArray(JWK),
 })

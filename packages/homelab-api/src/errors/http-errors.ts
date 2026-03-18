@@ -71,6 +71,7 @@ export const AuthenticationErrorReasonsSchema = Schema.Literal(
   "expired-credential",
   "invalid-claims",
   "signature-validation-failed",
+  "unrecognized-issuer",
 )
 
 export class AuthenticationError extends Schema.TaggedError<AuthenticationError>()(
