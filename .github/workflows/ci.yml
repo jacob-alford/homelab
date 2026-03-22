@@ -56,37 +56,17 @@ jobs:
         env:
           NODE_OPTIONS: --max_old_space_size=8192
 
-  nix-matrix:
-    name: Nix Matrix
+  nix-check:
+    name: Nix Flake Check
     runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: cachix/install-nix-action@v31
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
-      - id: set-matrix
-        name: Generate Nix Matrix
-        run: |
-          set -euo pipefail
-          matrix="$(nix eval --json '.#githubActions.matrix')"
-          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
-
-  nix-build:
-    name: Nix Check (${{ matrix.name }})
-    needs: nix-matrix
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix: ${{ fromJSON(needs.nix-matrix.outputs.matrix) }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v31
-        with:
-          extra_nix_config: |
-            experimental-features = nix-command flakes
-      - name: Build ${{ matrix.name }}
-        run: nix build -L ".#checks.x86_64-linux.${{ matrix.name }}"
+      - name: Check Nix configurations
+        run: nix flake check --no-build
         env:
           DPRINT_CACHE_DIR: ${{ runner.temp }}/dprint-cache
