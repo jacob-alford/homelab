@@ -375,13 +375,13 @@
             extraOptions = {
               init_options = {
                 plugins = with pkgs.dprint-plugins; [
-                  "${dprint-plugin-typescript}"
-                  "${dprint-plugin-json}"
-                  "${dprint-plugin-markdown}"
-                  "${dprint-plugin-toml}"
-                  "${g-plane-malva}"
-                  "${g-plane-markup_fmt}"
-                  "${g-plane-pretty_yaml}"
+                  "${dprint-plugin-typescript}/plugin.wasm"
+                  "${dprint-plugin-json}/plugin.wasm"
+                  "${dprint-plugin-markdown}/plugin.wasm"
+                  "${dprint-plugin-toml}/plugin.wasm"
+                  "${g-plane-malva}/plugin.wasm"
+                  "${g-plane-markup_fmt}/plugin.wasm"
+                  "${g-plane-pretty_yaml}/plugin.wasm"
                 ];
               };
             };
