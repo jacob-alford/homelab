@@ -62,15 +62,33 @@
 
         perSystem =
           { pkgs, ... }:
+          let
+            dprintPlugins = with pkgs.dprint-plugins; [
+              dprint-plugin-typescript
+              dprint-plugin-json
+              dprint-plugin-markdown
+              dprint-plugin-toml
+              g-plane-malva
+              g-plane-markup_fmt
+              g-plane-pretty_yaml
+            ];
+            pluginArgs = builtins.concatStringsSep " " dprintPlugins;
+          in
           {
             formatter = pkgs.dprint;
 
             checks = {
-              formatting = pkgs.runCommand "check-formatting" { } ''
-                export DPRINT_CACHE_DIR=$(mktemp -d)
-                ${pkgs.dprint}/bin/dprint check --config ${./dprint.json} ${./.}
-                touch $out
-              '';
+              formatting =
+                pkgs.runCommand "check-formatting"
+                  {
+                    buildInputs = [ pkgs.dprint ];
+                    src = ./.;
+                  }
+                  ''
+                    cd $src
+                    ${pkgs.dprint}/bin/dprint check --allow-no-files --plugins ${pluginArgs}
+                    touch $out
+                  '';
 
               nix-config =
                 pkgs.runCommand "check-nix-config"
@@ -110,7 +128,7 @@
               typescript
               typescript-language-server
               python3
-            ];
+            ] ++ dprintPlugins;
             env = [
               {
                 name = "EDITOR";
@@ -118,6 +136,11 @@
               }
             ];
             commands = [
+              {
+                name = "dprint";
+                help = "Format code with dprint using Nix store plugins";
+                command = "${pkgs.dprint}/bin/dprint \"$@\" --plugins ${pluginArgs}";
+              }
               {
                 name = "remote-build-cicero";
                 help = "Rebuild Cicero over ssh";
