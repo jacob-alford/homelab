@@ -1,6 +1,6 @@
 export default {
   "*": [
-    "dprint fmt --incremental --allow-no-files",
+    "fmt --incremental --allow-no-files",
   ],
   "*.{ts,tsx,js,jsx,mjs}": [
     "eslint --fix",

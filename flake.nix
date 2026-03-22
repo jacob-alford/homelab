@@ -141,7 +141,7 @@
               {
                 name = "fmt";
                 help = "Format code with dprint using Nix store plugins";
-                command = "${pkgs.dprint}/bin/dprint \"$@\" --plugins ${pluginArgs}";
+                command = "${pkgs.dprint}/bin/dprint fmt --plugins ${pluginArgs}";
               }
               {
                 name = "remote-build-cicero";
