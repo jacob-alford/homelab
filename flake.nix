@@ -16,6 +16,7 @@
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {
           packages = with pkgs; [
+            dprint
             yarn-berry
             nodejs_24
             typescript
