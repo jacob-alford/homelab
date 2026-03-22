@@ -1,7 +1,7 @@
 {
   "recommendations": [
-      "effectful-tech.effect-vscode",
-      "dbaeumer.vscode-eslint",
-      "astro-build.astro-vscode"
-    ]
+    "effectful-tech.effect-vscode",
+    "dbaeumer.vscode-eslint",
+    "astro-build.astro-vscode"
+  ]
 }
