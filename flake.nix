@@ -72,7 +72,8 @@
               g-plane-markup_fmt
               g-plane-pretty_yaml
             ];
-            pluginArgs = builtins.concatStringsSep " " dprintPlugins;
+            pluginPaths = map (p: "${p}/plugin.wasm") dprintPlugins;
+            pluginArgs = builtins.concatStringsSep " " pluginPaths;
           in
           {
             formatter = pkgs.dprint;
@@ -128,7 +129,7 @@
               typescript
               typescript-language-server
               python3
-            ] ++ dprintPlugins;
+            ];
             env = [
               {
                 name = "EDITOR";
@@ -137,7 +138,7 @@
             ];
             commands = [
               {
-                name = "dprint";
+                name = "fmt";
                 help = "Format code with dprint using Nix store plugins";
                 command = "${pkgs.dprint}/bin/dprint \"$@\" --plugins ${pluginArgs}";
               }
