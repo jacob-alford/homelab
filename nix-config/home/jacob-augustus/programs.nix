@@ -19,9 +19,13 @@
 
   programs.git = {
     enable = true;
-    userName = "Jacob Alford";
-    userEmail = "github.scouting378@passmail.net";
-    extraConfig = {
+    settings = {
+      user = {
+        name = "Jacob Alford";
+        email = "github.scouting378@passmail.net";
+        signingkey = "~/.ssh/id_ed25519";
+      };
+
       init = {
         defaultBranch = "main";
       };
@@ -44,10 +48,6 @@
 
       commit = {
         gpgsign = true;
-      };
-
-      user = {
-        signingkey = "~/.ssh/id_ed25519";
       };
     };
   };

@@ -15,7 +15,7 @@
         # Doesn't currently support 2.10.2
         # "github.com/mholt/caddy-l4@v0.0.0-20250829174953-ad3e83c51edb"
       ];
-      hash = "sha256-XQpSWgI/7E9FvWw2EMEOyl/rkddgLWd3SSusCmViMwo=";
+      hash = "sha256-wrG0IbxZqR6UQxLImCnfra0tl9tSBk75E5WxgtVucsI=";
     };
 
     enable = true;

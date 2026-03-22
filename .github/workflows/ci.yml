@@ -88,3 +88,5 @@ jobs:
             experimental-features = nix-command flakes
       - name: Build ${{ matrix.name }}
         run: nix build -L ".#checks.x86_64-linux.${{ matrix.name }}"
+        env:
+          DPRINT_CACHE_DIR: ${{ runner.temp }}/dprint-cache

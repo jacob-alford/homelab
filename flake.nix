@@ -78,45 +78,38 @@
           {
             formatter = pkgs.dprint;
 
-            checks = {
-              formatting =
-                pkgs.runCommand "check-formatting"
-                  {
-                    buildInputs = [ pkgs.dprint ];
-                    src = ./.;
-                  }
-                  ''
-                    cd $src
-                    export DPRINT_CACHE_DIR=$(mktemp -d)
-                    ${pkgs.dprint}/bin/dprint check --allow-no-files --plugins ${pluginArgs}
-                    touch $out
-                  '';
+            checks =
+              let
+                nixosConfigs = [
+                  config.flake.nixosConfigurations.nixos.config.system.build.toplevel
+                  config.flake.nixosConfigurations.augustus.config.system.build.toplevel
+                  config.flake.nixosConfigurations.cicero.config.system.build.toplevel
+                ];
+                homeConfigs = [
+                  config.flake.homeConfigurations."jacob@nixos".activationPackage
+                  config.flake.homeConfigurations."jacob@augustus".activationPackage
+                  config.flake.homeConfigurations."jacob@cicero".activationPackage
+                ];
+              in
+              {
+                formatting = pkgs.runCommand "check-formatting" {
+                  buildInputs = [ pkgs.dprint ];
+                  src = ./.;
+                } ''
+                  cd $src
+                  export DPRINT_CACHE_DIR=${"\${DPRINT_CACHE_DIR:-$TMPDIR/dprint-cache}"}
+                  ${pkgs.dprint}/bin/dprint check --allow-no-files --plugins ${pluginArgs}
+                  touch $out
+                '';
 
-              nix-config =
-                pkgs.runCommand "check-nix-config"
-                  {
-                    buildInputs = [ pkgs.nixos-rebuild ];
-                  }
-                  ''
-                    # Check that NixOS configurations evaluate
-                    ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
-                      ${self}#nixosConfigurations.nixos.config.system.build.toplevel
-                    ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
-                      ${self}#nixosConfigurations.augustus.config.system.build.toplevel
-                    ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
-                      ${self}#nixosConfigurations.cicero.config.system.build.toplevel
-
-                    # Check that home-manager configurations evaluate
-                    ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
-                      ${self}#homeConfigurations."jacob@nixos".activationPackage
-                    ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
-                      ${self}#homeConfigurations."jacob@augustus".activationPackage
-                    ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
-                      ${self}#homeConfigurations."jacob@cicero".activationPackage
-
-                    touch $out
-                  '';
-            };
+                nix-config = pkgs.runCommand "check-nix-config" {
+                  nixosConfigPaths = nixosConfigs;
+                  homeConfigPaths = homeConfigs;
+                } ''
+                  echo "All NixOS and home-manager configurations evaluated successfully"
+                  touch $out
+                '';
+              };
 
             devshells.default = {
             packages = with pkgs; [
@@ -135,6 +128,10 @@
               {
                 name = "EDITOR";
                 value = "nvim";
+              }
+              {
+                name = "DPRINT_CACHE_DIR";
+                value = "$HOME/.cache/dprint";
               }
             ];
             commands = [
