@@ -1,0 +1,13 @@
+keys:
+  - &jacob_nixos age1ekm5suakvqtxapudwy0cwjgafvywvtepnmlqjykxd9q9cl5jpghqqg9y6c
+  - &jacob_mini age1p3tsxcsa70q09fz3clrnvjwfyne8v9e6nzdx965m5qs3e8v8heyq0grz8f
+  - &jacob_augustus age1syqnex2sfaa3h2v0gjp553tf8cgc24a3k5y3qz3ww2nvh3cc8cssxwvyg7
+  - &jacob_cicero age1zvql35wdg0kf69a9e6rhs5u8yc29jpwq350wp45jhtt9xmhr6qtqvxm9nr
+creation_rules:
+  - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
+    key_groups:
+      - age:
+          - *jacob_nixos
+          - *jacob_mini
+          - *jacob_augustus
+          - *jacob_cicero
