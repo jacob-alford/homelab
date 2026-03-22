@@ -67,6 +67,7 @@
 
             checks = {
               formatting = pkgs.runCommand "check-formatting" { } ''
+                export DPRINT_CACHE_DIR=$(mktemp -d)
                 ${pkgs.dprint}/bin/dprint check --config ${./dprint.json} ${./.}
                 touch $out
               '';
