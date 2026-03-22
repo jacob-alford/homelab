@@ -372,6 +372,19 @@
               "json"
               "astro"
             ];
+            extraOptions = {
+              init_options = {
+                plugins = with pkgs.dprint-plugins; [
+                  "${dprint-plugin-typescript}"
+                  "${dprint-plugin-json}"
+                  "${dprint-plugin-markdown}"
+                  "${dprint-plugin-toml}"
+                  "${g-plane-malva}"
+                  "${g-plane-markup_fmt}"
+                  "${g-plane-pretty_yaml}"
+                ];
+              };
+            };
           };
         };
       };
