@@ -10,7 +10,7 @@
 {
   imports = [
     inputs.catppuccin.homeModules.catppuccin
-    inputs.nixvim.homeManagerModules.nixvim
+    inputs.nixvim.homeModules.nixvim
     ../../shared/programs/nixvim.nix
     ../../shared/programs/zsh.nix
     ../../shared/programs/git.nix
