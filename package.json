@@ -53,5 +53,8 @@
   "dependencies": {
     "@effect/typeclass": "^0.38.0",
     "fast-xml-parser": "^5.3.7"
+  },
+  "resolutions": {
+    "@astrojs/solid-js@npm:6.0.1/solid-devtools": "0.34.5"
   }
 }
