@@ -1,4 +1,5 @@
 import { Schema } from "effect"
+import { Optional } from "./optionals.js"
 
 export const Base64 = Schema.String.pipe(
   // https://regex101.com/library/lXFWqM
@@ -9,8 +10,4 @@ export const Base64Url = Schema.String.pipe(
   Schema.pattern(/^[A-Za-z0-9_-]+$/g),
 )
 
-export const OptionalBase64Url = Base64Url.pipe(
-  Schema.optionalWith({
-    exact: true,
-  }),
-)
+export const OptionalBase64Url = Optional(Base64Url)
