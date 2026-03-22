@@ -1,10 +1,11 @@
-name: Check
+name: CI
+
 on:
   workflow_dispatch:
-  pull_request:
-    branches: [main]
   push:
-    branches: [main]
+    branches:
+      - main
+  pull_request:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -54,3 +55,30 @@ jobs:
       - run: yarn test
         env:
           NODE_OPTIONS: --max_old_space_size=8192
+
+  nix-matrix:
+    name: Nix Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+      - id: set-matrix
+        name: Generate Nix Matrix
+        run: |
+          set -euo pipefail
+          matrix="$(nix eval --json '.#githubActions.matrix')"
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
+  nix-build:
+    name: Nix Check (${{ matrix.name }})
+    needs: nix-matrix
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix: ${{ fromJSON(needs.nix-matrix.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+      - name: Build ${{ matrix.name }}
+        run: nix build -L ".#checks.x86_64-linux.${{ matrix.name }}"

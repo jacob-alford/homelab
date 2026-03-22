@@ -27,6 +27,9 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
 
     devshell.url = "github:numtide/devshell";
+
+    nix-github-actions.url = "github:nix-community/nix-github-actions";
+    nix-github-actions.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -44,51 +47,57 @@
       nix-minecraft,
       flake-parts,
       devshell,
+      nix-github-actions,
       ...
     }@inputs:
     let
       inherit (self) outputs;
     in
-    flake-parts.lib.mkFlake { inherit inputs; } (_: {
-      imports = [
-        inputs.devshell.flakeModule
-      ];
+    flake-parts.lib.mkFlake { inherit inputs; } (
+      { config, ... }:
+      {
+        imports = [
+          inputs.devshell.flakeModule
+        ];
 
-      perSystem =
-        { pkgs, ... }:
-        {
-          formatter = pkgs.dprint;
+        perSystem =
+          { pkgs, ... }:
+          {
+            formatter = pkgs.dprint;
 
-          checks = {
-            formatting = pkgs.runCommand "check-formatting" { } ''
-              ${pkgs.dprint}/bin/dprint check --config ${./dprint.json} ${./.}
-              touch $out
-            '';
-            
-            nix-config = pkgs.runCommand "check-nix-config" {
-              buildInputs = [ pkgs.nixos-rebuild ];
-            } ''
-              # Check that NixOS configurations evaluate
-              ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
-                ${self}#nixosConfigurations.nixos.config.system.build.toplevel
-              ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
-                ${self}#nixosConfigurations.augustus.config.system.build.toplevel
-              ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
-                ${self}#nixosConfigurations.cicero.config.system.build.toplevel
-              
-              # Check that home-manager configurations evaluate
-              ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
-                ${self}#homeConfigurations."jacob@nixos".activationPackage
-              ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
-                ${self}#homeConfigurations."jacob@augustus".activationPackage
-              ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
-                ${self}#homeConfigurations."jacob@cicero".activationPackage
-              
-              touch $out
-            '';
-          };
+            checks = {
+              formatting = pkgs.runCommand "check-formatting" { } ''
+                ${pkgs.dprint}/bin/dprint check --config ${./dprint.json} ${./.}
+                touch $out
+              '';
 
-          devshells.default = {
+              nix-config =
+                pkgs.runCommand "check-nix-config"
+                  {
+                    buildInputs = [ pkgs.nixos-rebuild ];
+                  }
+                  ''
+                    # Check that NixOS configurations evaluate
+                    ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
+                      ${self}#nixosConfigurations.nixos.config.system.build.toplevel
+                    ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
+                      ${self}#nixosConfigurations.augustus.config.system.build.toplevel
+                    ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
+                      ${self}#nixosConfigurations.cicero.config.system.build.toplevel
+
+                    # Check that home-manager configurations evaluate
+                    ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
+                      ${self}#homeConfigurations."jacob@nixos".activationPackage
+                    ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
+                      ${self}#homeConfigurations."jacob@augustus".activationPackage
+                    ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
+                      ${self}#homeConfigurations."jacob@cicero".activationPackage
+
+                    touch $out
+                  '';
+            };
+
+            devshells.default = {
             packages = with pkgs; [
               # NixOS tooling
               sops
@@ -128,6 +137,10 @@
       ];
 
       flake = {
+        githubActions = nix-github-actions.lib.mkGithubMatrix {
+          checks.x86_64-linux = config.allSystems.x86_64-linux.checks;
+        };
+
         nixosConfigurations = {
           nixos = nixpkgs.lib.nixosSystem {
             specialArgs = {
@@ -246,5 +259,6 @@
           };
         };
       };
-    });
+    }
+  );
 }
