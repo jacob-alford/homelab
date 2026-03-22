@@ -7,7 +7,7 @@
   "packageManager": "yarn@4.12.0",
   "scripts": {
     "clean": "node scripts/clean.mjs",
-    "build": "yarn workspaces foreach -Apt build",
+    "build": "yarn workspaces foreach -Apt run build",
     "typecheck": "yarn workspaces foreach -Apt run typecheck",
     "test": "yarn workspaces foreach -Apt run test",
     "test:staged": "yarn workspaces foreach -Apt run test:staged",
