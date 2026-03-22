@@ -87,6 +87,7 @@
                   }
                   ''
                     cd $src
+                    export DPRINT_CACHE_DIR=$(mktemp -d)
                     ${pkgs.dprint}/bin/dprint check --allow-no-files --plugins ${pluginArgs}
                     touch $out
                   '';
