@@ -59,6 +59,35 @@
         {
           formatter = pkgs.dprint;
 
+          checks = {
+            formatting = pkgs.runCommand "check-formatting" { } ''
+              ${pkgs.dprint}/bin/dprint check --config ${./dprint.json} ${./.}
+              touch $out
+            '';
+            
+            nix-config = pkgs.runCommand "check-nix-config" {
+              buildInputs = [ pkgs.nixos-rebuild ];
+            } ''
+              # Check that NixOS configurations evaluate
+              ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
+                ${self}#nixosConfigurations.nixos.config.system.build.toplevel
+              ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
+                ${self}#nixosConfigurations.augustus.config.system.build.toplevel
+              ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
+                ${self}#nixosConfigurations.cicero.config.system.build.toplevel
+              
+              # Check that home-manager configurations evaluate
+              ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
+                ${self}#homeConfigurations."jacob@nixos".activationPackage
+              ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
+                ${self}#homeConfigurations."jacob@augustus".activationPackage
+              ${pkgs.nix}/bin/nix eval --no-eval-cache --show-trace \
+                ${self}#homeConfigurations."jacob@cicero".activationPackage
+              
+              touch $out
+            '';
+          };
+
           devshells.default = {
             packages = with pkgs; [
               # NixOS tooling

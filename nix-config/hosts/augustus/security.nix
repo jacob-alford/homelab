@@ -10,7 +10,7 @@
 {
   security.sudo.execWheelOnly = true;
 
-  security.pki.certificateFiles = [ ../../certs/alford-root.crt ];
+  security.pki.certificateFiles = [ ../../../certs/alford-root.crt ];
 
   networking.firewall = {
     enable = true;

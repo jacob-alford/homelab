@@ -10,7 +10,7 @@
 {
   security.sudo.execWheelOnly = true;
 
-  security.pki.certificateFiles = [ ../../certs/alford-root.crt ];
+  security.pki.certificateFiles = [ ../../../certs/alford-root.crt ];
 
   # Enable PC/SC daemon for YubiKey support
   services.pcscd.enable = true;
