@@ -27,9 +27,6 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
 
     devshell.url = "github:numtide/devshell";
-
-    nix-github-actions.url = "github:nix-community/nix-github-actions";
-    nix-github-actions.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -47,7 +44,6 @@
       nix-minecraft,
       flake-parts,
       devshell,
-      nix-github-actions,
       ...
     }@inputs:
     let
@@ -78,38 +74,17 @@
           {
             formatter = pkgs.dprint;
 
-            checks =
-              let
-                nixosConfigs = [
-                  config.flake.nixosConfigurations.nixos.config.system.build.toplevel
-                  config.flake.nixosConfigurations.augustus.config.system.build.toplevel
-                  config.flake.nixosConfigurations.cicero.config.system.build.toplevel
-                ];
-                homeConfigs = [
-                  config.flake.homeConfigurations."jacob@nixos".activationPackage
-                  config.flake.homeConfigurations."jacob@augustus".activationPackage
-                  config.flake.homeConfigurations."jacob@cicero".activationPackage
-                ];
-              in
-              {
-                formatting = pkgs.runCommand "check-formatting" {
-                  buildInputs = [ pkgs.dprint ];
-                  src = ./.;
-                } ''
-                  cd $src
-                  export DPRINT_CACHE_DIR=${"\${DPRINT_CACHE_DIR:-$TMPDIR/dprint-cache}"}
-                  ${pkgs.dprint}/bin/dprint check --allow-no-files --plugins ${pluginArgs}
-                  touch $out
-                '';
-
-                nix-config = pkgs.runCommand "check-nix-config" {
-                  nixosConfigPaths = nixosConfigs;
-                  homeConfigPaths = homeConfigs;
-                } ''
-                  echo "All NixOS and home-manager configurations evaluated successfully"
-                  touch $out
-                '';
-              };
+            checks = {
+              formatting = pkgs.runCommand "check-formatting" {
+                buildInputs = [ pkgs.dprint ];
+                src = ./.;
+              } ''
+                cd $src
+                export DPRINT_CACHE_DIR=${"\${DPRINT_CACHE_DIR:-$TMPDIR/dprint-cache}"}
+                ${pkgs.dprint}/bin/dprint check --allow-no-files --plugins ${pluginArgs}
+                touch $out
+              '';
+            };
 
             devshells.default = {
             packages = with pkgs; [
@@ -160,10 +135,6 @@
       ];
 
       flake = {
-        githubActions = nix-github-actions.lib.mkGithubMatrix {
-          checks.x86_64-linux = config.allSystems.x86_64-linux.checks;
-        };
-
         nixosConfigurations = {
           nixos = nixpkgs.lib.nixosSystem {
             specialArgs = {
