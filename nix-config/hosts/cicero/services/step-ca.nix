@@ -12,8 +12,8 @@ let
   postgresHost = "postgres-augustus.plato-splunk.media";
   clientId = "step-ca";
 
-  rootCert = ../../../certs/alford-root.crt;
-  intermediateCert = ../../../certs/intermediate_ca_2.crt;
+  rootCert = ../../../../certs/alford-root.crt;
+  intermediateCert = ../../../../certs/intermediate_ca_2.crt;
 
   dbClientCert = "/var/lib/step-ca/certs/db-client.crt";
   dbClientKey = "/var/lib/step-ca/certs/db-client.key";

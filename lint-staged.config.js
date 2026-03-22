@@ -10,4 +10,7 @@ export default {
     () => "yarn lint",
     () => "yarn typecheck",
   ],
+  "*.nix": [
+    () => "nix flake check --no-build",
+  ],
 }

@@ -20,7 +20,7 @@ in
       PasswordAuthentication = false;
       KbdInteractiveAuthentication = false;
       AllowUsers = [ "jacob" ];
-      TrustedUserCAKeys = "${../../../certs/ssh_user_ca_key.pub}";
+      TrustedUserCAKeys = "${../../../../certs/ssh_user_ca_key.pub}";
     };
     hostKeys = [
       {

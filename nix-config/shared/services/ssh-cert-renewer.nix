@@ -8,7 +8,7 @@
 }:
 let
   cfg = config.services.ssh-cert-renewer;
-  rootCert = ../../certs/alford-root.crt;
+  rootCert = ../../../certs/alford-root.crt;
   caUrl = "https://ca.plato-splunk.media";
 in
 {
