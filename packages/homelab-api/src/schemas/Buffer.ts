@@ -1,5 +1,6 @@
 import { Effect, ParseResult, Schema } from "effect"
 import { Base64 } from "./Base64.js"
+import { Optional } from "./optionals.js"
 
 export const BufferSchema = Schema.declare(
   (input): input is Buffer => input instanceof Buffer,
@@ -37,11 +38,7 @@ export const BufferFromBase64 = Schema.transformOrFail(
   },
 )
 
-export const OptionalBufferFromBase64 = BufferFromBase64.pipe(
-  Schema.optionalWith({
-    exact: true,
-  }),
-)
+export const OptionalBufferFromBase64 = Optional(BufferFromBase64)
 
 export const StringFromUint8Array = Schema.transformOrFail(
   Schema.Uint8ArrayFromSelf,
