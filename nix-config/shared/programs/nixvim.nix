@@ -40,7 +40,22 @@
       }
 
       {
-        action = "<cmd>lua vim.lsp.buf.format({ async = true, filter = function(client) local disallowed = { ts_ls = true, astro = true }; return not disallowed[client.name] end })<CR>";
+        action = ''
+          <cmd>lua
+            local clients = vim.lsp.get_clients({ bufnr = 0 });
+            local has_dprint = false;
+            for _, c in ipairs(clients) do
+              if c.name == 'dprint' then has_dprint = true; break end
+            end;
+            vim.lsp.buf.format({
+              async = true,
+              filter = function(client)
+                if has_dprint then return client.name == 'dprint' end;
+                local disallowed = { ts_ls = true, astro = true };
+                return not disallowed[client.name]
+              end
+            })
+          <CR>'';
         key = "<C-f>";
         options.desc = "Format code";
       }
