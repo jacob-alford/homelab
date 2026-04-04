@@ -229,6 +229,13 @@
         autoLoad = true;
       };
 
+      highlight-colors = {
+        enable = true;
+        settings = {
+          enable_named_colors = true;
+        };
+      };
+
       telescope = {
         enable = true;
         keymaps = {
@@ -276,7 +283,6 @@
           top_down = true;
           fps = 60;
           render = "default";
-          timeout = 500;
         };
       };
 
@@ -337,10 +343,13 @@
           svelte.enable = false; # Svelte
           # Not supported in 25.11 :(
           # vuels.enable = false; # Vue
-          volar.enable = true;
+          # volar.enable = true;
           pyright.enable = true; # Python
           marksman.enable = true; # Markdown
-          nil_ls.enable = true; # Nix
+          nil_ls = {
+            enable = true; # Nix
+            settings.nix.flake.autoArchive = true;
+          };
           dockerls.enable = true; # Docker
           bashls.enable = true; # Bash
           clangd.enable = true; # C/C++
