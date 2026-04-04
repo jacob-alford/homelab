@@ -1,0 +1,111 @@
+@layer theme {
+  :root {
+    --color-neutral-50: oklab(0.985 0 0);
+    --color-neutral-100: oklab(0.97 0 0);
+    --color-neutral-200: oklab(0.92 0 0);
+    --color-neutral-300: oklab(0.86 0 0);
+    --color-neutral-400: oklab(0.7 0 0);
+    --color-neutral-500: oklab(0.55 0 0);
+    --color-neutral-600: oklab(0.42 0 0);
+    --color-neutral-700: oklab(0.33 0 0);
+    --color-neutral-800: oklab(0.23 0 0);
+    --color-neutral-900: oklab(0.16 0 0);
+    --color-neutral-950: oklab(0.1 0 0);
+
+    --color-teal-50: oklab(0.96 -0.003 -0.008);
+    --color-teal-100: oklab(0.92 -0.005 -0.014);
+    --color-teal-200: oklab(0.84 -0.008 -0.02);
+    --color-teal-300: oklab(0.74 -0.01 -0.026);
+    --color-teal-400: oklab(0.64 -0.012 -0.031);
+    --color-teal-500: oklab(0.54 -0.013 -0.034);
+    --color-teal-600: oklab(0.45 -0.0135 -0.035);
+    --color-teal-700: oklab(0.356 -0.014 -0.036);
+    --color-teal-800: oklab(0.28 -0.013 -0.032);
+    --color-teal-900: oklab(0.21 -0.011 -0.026);
+    --color-teal-950: oklab(0.16 -0.009 -0.02);
+
+    --color-lavender-50: oklab(0.96 0.006 -0.008);
+    --color-lavender-100: oklab(0.92 0.011 -0.015);
+    --color-lavender-200: oklab(0.84 0.017 -0.024);
+    --color-lavender-300: oklab(0.76 0.023 -0.032);
+    --color-lavender-400: oklab(0.69 0.027 -0.037);
+    --color-lavender-500: oklab(0.619 0.031 -0.042);
+    --color-lavender-600: oklab(0.54 0.028 -0.038);
+    --color-lavender-700: oklab(0.46 0.024 -0.033);
+    --color-lavender-800: oklab(0.38 0.019 -0.027);
+    --color-lavender-900: oklab(0.3 0.015 -0.021);
+    --color-lavender-950: oklab(0.23 0.011 -0.016);
+
+    --color-peach-50: oklab(0.98 0.012 0.008);
+    --color-peach-100: oklab(0.96 0.021 0.014);
+    --color-peach-200: oklab(0.92 0.037 0.024);
+    --color-peach-300: oklab(0.88 0.055 0.036);
+    --color-peach-400: oklab(0.833 0.079 0.05);
+    --color-peach-500: oklab(0.76 0.082 0.052);
+    --color-peach-600: oklab(0.68 0.08 0.051);
+    --color-peach-700: oklab(0.59 0.073 0.046);
+    --color-peach-800: oklab(0.49 0.063 0.038);
+    --color-peach-900: oklab(0.39 0.05 0.03);
+    --color-peach-950: oklab(0.31 0.039 0.023);
+
+    --color-yellow-50: oklab(0.98 0.002 0.013);
+    --color-yellow-100: oklab(0.96 0.004 0.024);
+    --color-yellow-200: oklab(0.94 0.008 0.042);
+    --color-yellow-300: oklab(0.92 0.011 0.059);
+    --color-yellow-400: oklab(0.913 0.015 0.079);
+    --color-yellow-500: oklab(0.87 0.016 0.084);
+    --color-yellow-600: oklab(0.81 0.016 0.085);
+    --color-yellow-700: oklab(0.73 0.015 0.082);
+    --color-yellow-800: oklab(0.63 0.013 0.072);
+    --color-yellow-900: oklab(0.51 0.01 0.058);
+    --color-yellow-950: oklab(0.4 0.008 0.045);
+
+    --color-cyan-50: oklab(0.97 -0.007 -0.006);
+    --color-cyan-100: oklab(0.94 -0.013 -0.01);
+    --color-cyan-200: oklab(0.9 -0.023 -0.017);
+    --color-cyan-300: oklab(0.87 -0.03 -0.023);
+    --color-cyan-400: oklab(0.856 -0.038 -0.031);
+    --color-cyan-500: oklab(0.82 -0.042 -0.034);
+    --color-cyan-600: oklab(0.76 -0.044 -0.036);
+    --color-cyan-700: oklab(0.68 -0.043 -0.035);
+    --color-cyan-800: oklab(0.58 -0.039 -0.031);
+    --color-cyan-900: oklab(0.47 -0.033 -0.026);
+    --color-cyan-950: oklab(0.37 -0.026 -0.02);
+
+    --color-blue-50: oklab(0.97 -0.007 -0.028);
+    --color-blue-100: oklab(0.94 -0.013 -0.048);
+    --color-blue-200: oklab(0.88 -0.022 -0.078);
+    --color-blue-300: oklab(0.81 -0.029 -0.102);
+    --color-blue-400: oklab(0.73 -0.034 -0.118);
+    --color-blue-500: oklab(0.65 -0.038 -0.13);
+    --color-blue-600: oklab(0.56 -0.037 -0.125);
+    --color-blue-700: oklab(0.47 -0.033 -0.11);
+    --color-blue-800: oklab(0.38 -0.027 -0.09);
+    --color-blue-900: oklab(0.3 -0.021 -0.07);
+    --color-blue-950: oklab(0.23 -0.016 -0.053);
+
+    --color-green-50: oklab(0.98 -0.012 0.012);
+    --color-green-100: oklab(0.95 -0.022 0.022);
+    --color-green-200: oklab(0.9 -0.038 0.038);
+    --color-green-300: oklab(0.84 -0.056 0.056);
+    --color-green-400: oklab(0.77 -0.074 0.074);
+    --color-green-500: oklab(0.69 -0.09 0.09);
+    --color-green-600: oklab(0.6 -0.092 0.092);
+    --color-green-700: oklab(0.5 -0.084 0.084);
+    --color-green-800: oklab(0.41 -0.07 0.07);
+    --color-green-900: oklab(0.32 -0.054 0.054);
+    --color-green-950: oklab(0.25 -0.041 0.041);
+
+    --color-red-50: oklab(0.98 0.016 0.012);
+    --color-red-100: oklab(0.95 0.029 0.022);
+    --color-red-200: oklab(0.9 0.051 0.038);
+    --color-red-300: oklab(0.84 0.075 0.056);
+    --color-red-400: oklab(0.77 0.098 0.073);
+    --color-red-500: oklab(0.69 0.118 0.088);
+    --color-red-600: oklab(0.6 0.121 0.09);
+    --color-red-700: oklab(0.5 0.111 0.083);
+    --color-red-800: oklab(0.41 0.093 0.069);
+    --color-red-900: oklab(0.32 0.072 0.054);
+    --color-red-950: oklab(0.25 0.055 0.041);
+  }
+}
