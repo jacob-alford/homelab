@@ -17,7 +17,7 @@ in
       inputs.nixvim.homeModules.nixvim
 
       hm.git
-      hm.nixvim
+      hm.nixvim-complete
       hm.vscode
       hm.zsh
       hm.desktop-theming

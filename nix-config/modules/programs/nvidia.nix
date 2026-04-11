@@ -1,3 +1,7 @@
+{ config, ... }:
+let
+  c = config.constants;
+in
 {
   flake.modules.nixos.nvidia =
     { config, lib, pkgs, ... }:
@@ -18,9 +22,9 @@
         nvidiaSettings = false;
 
         package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
-          version = "595.45.04";
-          sha256_64bit = "sha256-zUllSSRsuio7dSkcbBTuxF+dN12d6jEPE0WgGvVOj14=";
-          openSha256 = "sha256-uqNfImwTKhK8gncUdP1TPp0D6Gog4MSeIJMZQiJWDoE=";
+          version = c.nvidia.version;
+          sha256_64bit = c.nvidia.sha256_64bit;
+          openSha256 = c.nvidia.openSha256;
           settingsSha256 = "";
           persistencedSha256 = "";
         };

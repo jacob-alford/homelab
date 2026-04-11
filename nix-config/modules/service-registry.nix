@@ -103,6 +103,15 @@ in
         backupRepository = "/mnt/backups/minecraft-backup";
         stateDir = "/srv/minecraft";
       };
+
+      ollama = {
+        port = 11434;
+      };
+
+      wyoming = {
+        whisperPort = 10300;
+        piperPort = 10200;
+      };
     };
   };
 }

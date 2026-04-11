@@ -223,7 +223,7 @@ let nixos = inputs.self.modules.nixos; in
 
 4. **Move remaining host-specific service config out of `_private/programs.nix`**: The Augustus `_private/programs.nix` contains PostgreSQL, Kanidm, and Restic configuration that conceptually belongs closer to the service aspects. Consider using the **Collector Aspect** pattern.
 
-### Low Priority
+### ~~Low Priority~~ Not planned
 
 5. **Evaluate `flake-file`** if flake.nix input management becomes a burden.
 

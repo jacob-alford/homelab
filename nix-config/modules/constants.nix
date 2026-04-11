@@ -21,11 +21,9 @@
   config.constants = {
     hosts = {
       augustus = {
-        ip = "10.76.100.x";
         system = "x86_64-linux";
       };
       cicero = {
-        ip = "10.76.100.y";
         system = "x86_64-linux";
       };
       nixos = {
@@ -34,6 +32,12 @@
       mini = {
         system = "aarch64-darwin";
       };
+    };
+
+    nvidia = {
+      version = "595.45.04";
+      sha256_64bit = "sha256-zUllSSRsuio7dSkcbBTuxF+dN12d6jEPE0WgGvVOj14=";
+      openSha256 = "sha256-uqNfImwTKhK8gncUdP1TPp0D6Gog4MSeIJMZQiJWDoE=";
     };
 
     users = {

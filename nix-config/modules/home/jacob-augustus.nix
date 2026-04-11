@@ -13,7 +13,7 @@ in
       inputs.catppuccin.homeModules.catppuccin
       inputs.nixvim.homeModules.nixvim
 
-      hm.nixvim
+      hm.nixvim-complete
       hm.zsh
 
       ({ inputs, lib, config, pkgs, pkgs-unstable, ... }: {

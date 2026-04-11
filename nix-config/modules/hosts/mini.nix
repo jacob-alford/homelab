@@ -12,7 +12,7 @@ in
       inputs.nixvim.nixDarwinModules.nixvim
 
       darwin.darwin-base
-      darwin.nixvim
+      darwin.nixvim-complete
 
       ./../_private/mini/sops.nix
       ./../_private/mini/programs.nix

@@ -21,7 +21,6 @@ in
       nixos.system-base
       nixos.gnome-desktop
       nixos.nvidia
-      nixos.ai
       nixos.virtualization
       nixos.cifs
       nixos.restic
