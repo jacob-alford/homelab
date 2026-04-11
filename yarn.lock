@@ -880,7 +880,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@effect/typeclass@npm:^0.38.0":
+"@effect/typeclass@npm:^0.38, @effect/typeclass@npm:^0.38.0":
   version: 0.38.0
   resolution: "@effect/typeclass@npm:0.38.0"
   peerDependencies:
@@ -3159,6 +3159,15 @@ __metadata:
   dependencies:
     undici-types: "npm:~6.21.0"
   checksum: 10c0/4b274acf27ec31aa83b50ef22088f83c783e6bcd7dcb40b4834f64f44868b6bf68725214220f15a0c776928f7c0f7f26f03c05cd5868f0526340af3f4af4b58b
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^24":
+  version: 24.12.2
+  resolution: "@types/node@npm:24.12.2"
+  dependencies:
+    undici-types: "npm:~7.16.0"
+  checksum: 10c0/710050c42f89075c4479e4e1e4c2532486b0c41b1e2a8a13ad88641c88b88cdaea87414e19224f30028719737bd70e327edcaa184d50e86b9418941edd7eb02b
   languageName: node
   linkType: hard
 
@@ -6640,6 +6649,7 @@ __metadata:
     "@effect/sql": "npm:^0.49.x"
     "@effect/vitest": "npm:^0.27.x"
     "@effect/workflow": "npm:^0.16.x"
+    "@types/node": "npm:^24"
     "@vitest/coverage-v8": "npm:3.2.4"
     effect: "npm:^3.x"
     homelab-data: "workspace:*"
@@ -6661,8 +6671,10 @@ __metadata:
     "@effect/platform-node": "npm:^0.104.x"
     "@effect/rpc": "npm:^0.73.x"
     "@effect/sql": "npm:^0.49.x"
+    "@effect/typeclass": "npm:^0.38"
     "@effect/vitest": "npm:^0.27.x"
     "@effect/workflow": "npm:^0.16.x"
+    "@types/node": "npm:^24"
     effect: "npm:^3.x"
     madge: "npm:^8.0.0"
     vitest: "npm:^3.x"
@@ -6715,6 +6727,7 @@ __metadata:
     "@effect/sql": "npm:^0.49.x"
     "@effect/vitest": "npm:^0.27.x"
     "@effect/workflow": "npm:^0.16.x"
+    "@types/node": "npm:^24"
     effect: "npm:^3.x"
     madge: "npm:^8.0.0"
     type-fest: "npm:^5.4.4"
@@ -11374,6 +11387,13 @@ __metadata:
   version: 6.21.0
   resolution: "undici-types@npm:6.21.0"
   checksum: 10c0/c01ed51829b10aa72fc3ce64b747f8e74ae9b60eafa19a7b46ef624403508a54c526ffab06a14a26b3120d055e1104d7abe7c9017e83ced038ea5cf52f8d5e04
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~7.16.0":
+  version: 7.16.0
+  resolution: "undici-types@npm:7.16.0"
+  checksum: 10c0/3033e2f2b5c9f1504bdc5934646cb54e37ecaca0f9249c983f7b1fc2e87c6d18399ebb05dc7fd5419e02b2e915f734d872a65da2e3eeed1813951c427d33cc9a
   languageName: node
   linkType: hard
 

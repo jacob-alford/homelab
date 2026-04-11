@@ -8,9 +8,11 @@ let
         servers = {
           ts_ls.enable = true;
           eslint = {
-            package = pkgs.eslint;
-            packageFallback = true;
-            enable = false;
+            enable = true;
+            settings = {
+              packageManager = "yarn";
+              nodePath = ".yarn/sdks";
+            };
           };
           cssls.enable = true;
           tailwindcss.enable = true;
