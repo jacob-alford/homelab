@@ -21,6 +21,7 @@
       nixvim-lsp
       nixvim-barbar
       nixvim-alpha
+      nixvim-rzip
     ];
   };
 
@@ -45,6 +46,7 @@
       nixvim-lsp
       nixvim-barbar
       nixvim-alpha
+      nixvim-rzip
     ];
   };
 }
