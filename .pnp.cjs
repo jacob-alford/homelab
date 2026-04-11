@@ -7428,12 +7428,32 @@ const RAW_RUNTIME_STATE = "{\
         \"linkType\": \"HARD\"\
       }]\
     ]],\
+    [\"fast-xml-builder\", [\
+      [\"npm:1.1.4\", {\
+        \"packageLocation\": \"./.yarn/cache/fast-xml-builder-npm-1.1.4-abdb1d2cae-d5dfc0660f.zip/node_modules/fast-xml-builder/\",\
+        \"packageDependencies\": [\
+          [\"fast-xml-builder\", \"npm:1.1.4\"],\
+          [\"path-expression-matcher\", \"npm:1.5.0\"]\
+        ],\
+        \"linkType\": \"HARD\"\
+      }]\
+    ]],\
     [\"fast-xml-parser\", [\
       [\"npm:5.3.7\", {\
         \"packageLocation\": \"./.yarn/cache/fast-xml-parser-npm-5.3.7-8b2e6bb2a1-2452b8d455.zip/node_modules/fast-xml-parser/\",\
         \"packageDependencies\": [\
           [\"fast-xml-parser\", \"npm:5.3.7\"],\
           [\"strnum\", \"npm:2.1.2\"]\
+        ],\
+        \"linkType\": \"HARD\"\
+      }],\
+      [\"npm:5.5.11\", {\
+        \"packageLocation\": \"./.yarn/cache/fast-xml-parser-npm-5.5.11-189857eca8-979f84d3ef.zip/node_modules/fast-xml-parser/\",\
+        \"packageDependencies\": [\
+          [\"fast-xml-builder\", \"npm:1.1.4\"],\
+          [\"fast-xml-parser\", \"npm:5.5.11\"],\
+          [\"path-expression-matcher\", \"npm:1.5.0\"],\
+          [\"strnum\", \"npm:2.2.3\"]\
         ],\
         \"linkType\": \"HARD\"\
       }]\
@@ -8210,6 +8230,7 @@ const RAW_RUNTIME_STATE = "{\
           [\"@types/node\", \"npm:24.12.2\"],\
           [\"@vitest/coverage-v8\", \"virtual:2ee56ea4266043f8e3ba20cb1a9f98332c1b0967fb4b6b06151bc934a95ab3fc906e21ac110fdd5258f91cb79f3299c4c75d9e0b193a68801cd9de613a021b2f#npm:3.2.4\"],\
           [\"effect\", \"npm:3.19.19\"],\
+          [\"fast-xml-parser\", \"npm:5.5.11\"],\
           [\"homelab-api\", \"workspace:packages/homelab-api\"],\
           [\"homelab-data\", \"workspace:packages/homelab-data\"],\
           [\"homelab-shared\", \"workspace:packages/homelab-shared\"],\
@@ -8271,6 +8292,7 @@ const RAW_RUNTIME_STATE = "{\
           [\"@effect/rpc\", \"virtual:3d4e67d8dcf2f2c7965b8e67f35a2e7fa9e98f1ca51963152151c3c755127894a32946117f8feb2e8fca7c0b92f4dc46b0f323e7551c1eb3a18a35a834e69321#npm:0.73.2\"],\
           [\"@effect/sql\", \"virtual:3d4e67d8dcf2f2c7965b8e67f35a2e7fa9e98f1ca51963152151c3c755127894a32946117f8feb2e8fca7c0b92f4dc46b0f323e7551c1eb3a18a35a834e69321#npm:0.49.0\"],\
           [\"@effect/workflow\", \"virtual:3d4e67d8dcf2f2c7965b8e67f35a2e7fa9e98f1ca51963152151c3c755127894a32946117f8feb2e8fca7c0b92f4dc46b0f323e7551c1eb3a18a35a834e69321#npm:0.16.0\"],\
+          [\"@types/node\", \"npm:24.12.2\"],\
           [\"effect\", \"npm:3.19.19\"],\
           [\"homelab-api\", \"workspace:packages/homelab-api\"],\
           [\"homelab-server\", \"workspace:packages/homelab-server\"],\
@@ -11125,6 +11147,15 @@ const RAW_RUNTIME_STATE = "{\
         \"linkType\": \"HARD\"\
       }]\
     ]],\
+    [\"path-expression-matcher\", [\
+      [\"npm:1.5.0\", {\
+        \"packageLocation\": \"./.yarn/cache/path-expression-matcher-npm-1.5.0-73d258a112-646cb5bc66.zip/node_modules/path-expression-matcher/\",\
+        \"packageDependencies\": [\
+          [\"path-expression-matcher\", \"npm:1.5.0\"]\
+        ],\
+        \"linkType\": \"HARD\"\
+      }]\
+    ]],\
     [\"path-is-absolute\", [\
       [\"npm:1.0.1\", {\
         \"packageLocation\": \"./.yarn/cache/path-is-absolute-npm-1.0.1-31bc695ffd-127da03c82.zip/node_modules/path-is-absolute/\",\
@@ -12891,6 +12922,13 @@ const RAW_RUNTIME_STATE = "{\
         \"packageLocation\": \"./.yarn/cache/strnum-npm-2.1.2-ab87a75952-4e04753b79.zip/node_modules/strnum/\",\
         \"packageDependencies\": [\
           [\"strnum\", \"npm:2.1.2\"]\
+        ],\
+        \"linkType\": \"HARD\"\
+      }],\
+      [\"npm:2.2.3\", {\
+        \"packageLocation\": \"./.yarn/cache/strnum-npm-2.2.3-3aa06fd3c4-1ee78101f1.zip/node_modules/strnum/\",\
+        \"packageDependencies\": [\
+          [\"strnum\", \"npm:2.2.3\"]\
         ],\
         \"linkType\": \"HARD\"\
       }]\
