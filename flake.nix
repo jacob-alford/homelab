@@ -97,6 +97,7 @@
                 age
                 # TypeScript/Node development
                 dprint
+                eslint
                 yarn-berry
                 nodejs_24
                 typescript

@@ -1,6 +1,12 @@
 let
   nixvimConfig =
-    { inputs, lib, config, pkgs, ... }:
+    {
+      inputs,
+      lib,
+      config,
+      pkgs,
+      ...
+    }:
     {
       programs.nixvim = {
         enable = true;
@@ -327,7 +333,11 @@ let
             inlayHints = true;
             servers = {
               ts_ls.enable = true;
-              eslint.enable = true;
+              eslint = {
+                package = pkgs.eslint;
+                packageFallback = true;
+                enable = false;
+              };
               cssls.enable = true;
               tailwindcss.enable = true;
               html.enable = true;
