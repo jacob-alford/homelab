@@ -1,11 +1,12 @@
 import { Schema } from "effect"
-import { OptionalUnixDateTime } from "./UnixDateTime.js"
+import { OptionalUnixDateTime, UnixDateTime } from "./UnixDateTime.js"
 
 import { Constants } from "homelab-shared"
 import { Base64, Base64Url, OptionalBase64Url } from "./Base64.js"
 import { StringFromUint8Array } from "./Buffer.js"
 import * as Crypto from "./Crypto.js"
 import { EnsureArray } from "./EnsureArray.js"
+import { HTTPMethod } from "./HTTPMethod.js"
 import { Optional, OptionalArray, OptionalString, OptionalUrl } from "./optionals.js"
 import { ScopeGroupSetSchema } from "./scope-groups.js"
 
@@ -30,7 +31,7 @@ export const KeyUse = Optional(Schema.Literal("sig", "enc"))
 
 export const BaseJWK = Schema.Struct({
   use: KeyUse,
-  kid: OptionalString,
+  kid: Schema.String,
   key_ops: KeyOps,
   x5u: OptionalUrl,
   x5c: OptionalArray(Base64),
@@ -101,8 +102,7 @@ export const JWSAlgorithms = Schema.Union(
 
 export const BaseJOSEHeader = Schema.Struct({
   alg: JWSAlgorithms,
-  jwk: JWK,
-
+  jwk: OptionalJWK,
   jku: OptionalUrl,
   kid: OptionalString,
   x5u: OptionalUrl,
@@ -110,11 +110,12 @@ export const BaseJOSEHeader = Schema.Struct({
 })
 
 export const DPoPJOSEHeader = BaseJOSEHeader.pipe(
-  Schema.omit("alg"),
+  Schema.omit("alg", "jwk"),
   Schema.extend(
     Schema.Struct({
       alg: AsymmetricJWSAlg,
-      type: Schema.Literal("dpop+jwt"),
+      typ: Schema.Literal("dpop+jwt"),
+      jwk: JWK,
     }),
   ),
 )
@@ -136,6 +137,20 @@ export const IdJWT = BaseJWT.pipe(
       nonce: OptionalString,
       amr: OptionalString,
       azp: OptionalString,
+    }),
+  ),
+)
+
+export const DPoPProofJWT = BaseJWT.pipe(
+  Schema.omit("jti", "iat"),
+  Schema.extend(
+    Schema.Struct({
+      jti: Schema.String,
+      htm: HTTPMethod,
+      htu: Schema.URL,
+      iat: UnixDateTime,
+      ath: OptionalBase64Url,
+      nonce: OptionalString,
     }),
   ),
 )

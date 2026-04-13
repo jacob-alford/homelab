@@ -8291,14 +8291,18 @@ const RAW_RUNTIME_STATE = "{\
           [\"@effect/platform-node\", \"virtual:3d4e67d8dcf2f2c7965b8e67f35a2e7fa9e98f1ca51963152151c3c755127894a32946117f8feb2e8fca7c0b92f4dc46b0f323e7551c1eb3a18a35a834e69321#npm:0.104.1\"],\
           [\"@effect/rpc\", \"virtual:3d4e67d8dcf2f2c7965b8e67f35a2e7fa9e98f1ca51963152151c3c755127894a32946117f8feb2e8fca7c0b92f4dc46b0f323e7551c1eb3a18a35a834e69321#npm:0.73.2\"],\
           [\"@effect/sql\", \"virtual:3d4e67d8dcf2f2c7965b8e67f35a2e7fa9e98f1ca51963152151c3c755127894a32946117f8feb2e8fca7c0b92f4dc46b0f323e7551c1eb3a18a35a834e69321#npm:0.49.0\"],\
+          [\"@effect/vitest\", \"virtual:3d4e67d8dcf2f2c7965b8e67f35a2e7fa9e98f1ca51963152151c3c755127894a32946117f8feb2e8fca7c0b92f4dc46b0f323e7551c1eb3a18a35a834e69321#npm:0.27.0\"],\
           [\"@effect/workflow\", \"virtual:3d4e67d8dcf2f2c7965b8e67f35a2e7fa9e98f1ca51963152151c3c755127894a32946117f8feb2e8fca7c0b92f4dc46b0f323e7551c1eb3a18a35a834e69321#npm:0.16.0\"],\
           [\"@types/node\", \"npm:24.12.2\"],\
           [\"effect\", \"npm:3.19.19\"],\
           [\"homelab-api\", \"workspace:packages/homelab-api\"],\
           [\"homelab-server\", \"workspace:packages/homelab-server\"],\
+          [\"homelab-shared\", \"workspace:packages/homelab-shared\"],\
+          [\"jose\", \"npm:6.2.2\"],\
           [\"madge\", \"virtual:3d4e67d8dcf2f2c7965b8e67f35a2e7fa9e98f1ca51963152151c3c755127894a32946117f8feb2e8fca7c0b92f4dc46b0f323e7551c1eb3a18a35a834e69321#npm:8.0.0\"],\
           [\"rolldown\", \"npm:1.0.0-rc.7\"],\
-          [\"tsx\", \"npm:4.21.0\"]\
+          [\"tsx\", \"npm:4.21.0\"],\
+          [\"vitest\", \"virtual:3d4e67d8dcf2f2c7965b8e67f35a2e7fa9e98f1ca51963152151c3c755127894a32946117f8feb2e8fca7c0b92f4dc46b0f323e7551c1eb3a18a35a834e69321#npm:3.2.4\"]\
         ],\
         \"linkType\": \"SOFT\"\
       }]\
@@ -9219,6 +9223,13 @@ const RAW_RUNTIME_STATE = "{\
         \"packageLocation\": \"./.yarn/cache/jose-npm-6.2.1-0eb7b8055f-456822e00a.zip/node_modules/jose/\",\
         \"packageDependencies\": [\
           [\"jose\", \"npm:6.2.1\"]\
+        ],\
+        \"linkType\": \"HARD\"\
+      }],\
+      [\"npm:6.2.2\", {\
+        \"packageLocation\": \"./.yarn/cache/jose-npm-6.2.2-ef66087bea-201f4776d7.zip/node_modules/jose/\",\
+        \"packageDependencies\": [\
+          [\"jose\", \"npm:6.2.2\"]\
         ],\
         \"linkType\": \"HARD\"\
       }]\

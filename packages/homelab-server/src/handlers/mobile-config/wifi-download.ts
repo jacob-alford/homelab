@@ -1,14 +1,21 @@
 import { HttpApp, HttpServerResponse } from "@effect/platform"
 import { Effect } from "effect"
 import type { Homelab } from "homelab-api"
-import { handleWifi } from "./wifi.js"
+import { Middleware, Services } from "homelab-api"
+import { generateWifiProfile } from "./wifi.js"
 
 export const handleWifiDownload = Effect.fn("handleWifiDownload")(
   function*(args: Homelab.MobileConfigEndpoints.WifiDownload.WifiMobileConfigDownloadHandlerArgs) {
-    const response = yield* handleWifi({
+    const identity = yield* Middleware.CurrentIdentity
+
+    const wifiArgs = {
       ...args,
       payload: args.urlParams,
-    })
+    }
+
+    yield* Services.AuthorizationService.canView(identity, "Config.Wifi", wifiArgs)
+
+    const response = yield* generateWifiProfile(wifiArgs)
 
     yield* HttpApp.appendPreResponseHandler(
       (_, res) =>

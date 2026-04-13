@@ -2,14 +2,12 @@ import type { Option } from "effect"
 import { Context, Effect } from "effect"
 import type { AuthenticationError, InternalServerError } from "../../errors/http-errors.js"
 import type { Identity } from "../../identity.js"
-import type { OIDCProviders } from "../../oidc-providers.js"
 
 export const AuthenticationServiceId = "homelab-api/services/authentication-service/AuthenticationService"
 
 export type AuthenticationServiceDef = {
   readonly authenticate: (
     jwt: Option.Option<Buffer>,
-    provider: OIDCProviders,
   ) => Effect.Effect<Identity, AuthenticationError | InternalServerError>
 }
 

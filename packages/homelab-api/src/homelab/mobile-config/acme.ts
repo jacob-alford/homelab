@@ -25,6 +25,9 @@ export const AcmeMobileConfig = HttpApiEndpoint.put("acme")`/acme/${ClientIdenti
   .addError(
     HttpApiError.HttpApiDecodeError,
   )
+  .addError(
+    ApiErrors.AuthorizationError,
+  )
 
 export type AcmeMobileConfigEndpoint = typeof AcmeMobileConfig
 

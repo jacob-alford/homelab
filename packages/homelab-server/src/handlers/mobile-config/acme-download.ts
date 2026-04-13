@@ -1,11 +1,15 @@
 import { HttpApp, HttpServerResponse } from "@effect/platform"
 import { Effect } from "effect"
 import type { Homelab } from "homelab-api"
-import { handleAcme } from "./acme.js"
+import { Middleware, Services } from "homelab-api"
+import { generateAcmeProfile } from "./acme.js"
 
 export const handleAcmeDownload = Effect.fn("handleAcmeDownload")(
   function*(args: Homelab.MobileConfigEndpoints.AcmeDownload.AcmeDownloadMobileConfigHandlerArgs) {
-    const response = yield* handleAcme(args)
+    const identity = yield* Middleware.CurrentIdentity
+    yield* Services.AuthorizationService.canView(identity, "Config.ACME", args)
+
+    const response = yield* generateAcmeProfile(args)
 
     yield* HttpApp.appendPreResponseHandler(
       (_, res) =>

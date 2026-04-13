@@ -20,7 +20,7 @@ export const OIDCIssuerResolverLive = Layer.effect(
     return {
       kanidm: oidcConfig.kanidm.issuer,
       homelab: Constants.JWT_HOMELAB_API_ISSUER,
-      tests: Constants.JWT_HOMELAB_API_ISSUER,
+      testing: Constants.JWT_HOMELAB_API_TESTING_ISSUER,
     }
   }),
 ).pipe(

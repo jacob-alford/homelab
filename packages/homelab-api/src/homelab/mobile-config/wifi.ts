@@ -47,6 +47,9 @@ export const WifiMobileConfig = HttpApiEndpoint.put("wifi")`/wifi/${SSIDParam}/$
   .addError(
     HttpApiError.HttpApiDecodeError,
   )
+  .addError(
+    ApiErrors.AuthorizationError,
+  )
 
 export type WifiMobileConfigEndpoint = typeof WifiMobileConfig
 

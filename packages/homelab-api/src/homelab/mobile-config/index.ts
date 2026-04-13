@@ -1,4 +1,5 @@
 import { HttpApiGroup } from "@effect/platform"
+import { AuthMiddleware } from "../../middleware/auth-middleware.js"
 import * as AcmeDownload from "./acme-download.js"
 import * as Acme from "./acme.js"
 import * as Certs from "./certs.js"
@@ -12,6 +13,7 @@ export const MobileConfigApi = HttpApiGroup.make("mobile-config")
   .add(Wifi.WifiMobileConfig)
   .add(WifiDownload.WifiMobileConfigDownload)
   .prefix("/mobile-config")
+  .middleware(AuthMiddleware)
 
 export * as AcmeDownload from "./acme-download.js"
 export * as Acme from "./acme.js"

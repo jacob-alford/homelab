@@ -1,13 +1,13 @@
 import { Console, Effect, flow, Match } from "effect"
 import type { Homelab } from "homelab-api"
-import { ApiErrors, Services } from "homelab-api"
+import { ApiErrors, Middleware, Services } from "homelab-api"
 
 const blacklistedAcmeClientIdentifiers = new Set([
   "root",
   "postgres",
 ])
 
-export const handleAcme = Effect.fn("handleAcme")(
+export const generateAcmeProfile = Effect.fn("generateAcmeProfile")(
   function*(args: Homelab.MobileConfigEndpoints.Acme.AcmeMobileConfigHandlerArgs) {
     const { clientIdentifier } = args.path
 
@@ -37,4 +37,13 @@ export const handleAcme = Effect.fn("handleAcme")(
       Match.orElse((_) => _),
     ),
   ),
+)
+
+export const handleAcme = Effect.fn("handleAcme")(
+  function*(args: Homelab.MobileConfigEndpoints.Acme.AcmeMobileConfigHandlerArgs) {
+    const identity = yield* Middleware.CurrentIdentity
+    yield* Services.AuthorizationService.canCreate(identity, "Config.ACME", args)
+
+    return yield* generateAcmeProfile(args)
+  },
 )

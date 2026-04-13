@@ -20,6 +20,9 @@ export const Certs = HttpApiEndpoint.get("certs")`/certs`
   .addError(
     HttpApiError.HttpApiDecodeError,
   )
+  .addError(
+    ApiErrors.AuthorizationError,
+  )
 
 export type CertsEndpoint = typeof Certs
 

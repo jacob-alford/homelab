@@ -1,9 +1,12 @@
 import { Effect, Schema } from "effect"
 import type { Homelab } from "homelab-api"
-import { ApiErrors, Schemas } from "homelab-api"
+import { ApiErrors, Middleware, Schemas, Services } from "homelab-api"
 
 export const handleHealth = Effect.fn("handleHealth")(
-  function*(_args: Homelab.StatusEndpoints.Health.HealthEndpointHandlerArgs) {
+  function*(args: Homelab.StatusEndpoints.Health.HealthEndpointHandlerArgs) {
+    const identity = yield* Middleware.CurrentIdentity
+    yield* Services.AuthorizationService.canView(identity, "Status.Health", args)
+
     const response = yield* Schema.encode(Schemas.Health.HealthResponseSchema)({
       Jellyfin: "Healthy",
       Kanidm: "Healthy",

@@ -12,7 +12,9 @@
     "serve": "dotenvx run -f .env -- node ./dist/main.js",
     "lint": "eslint src",
     "typecheck": "tsc -b tsconfig.json --noEmit",
-    "test:staged": "echo 'No tests for homelab-server'"
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "test:staged": "vitest --run"
   },
   "dependencies": {
     "@dotenvx/dotenvx": "^1.54.1",
@@ -25,11 +27,15 @@
     "@effect/workflow": "^0.16.x",
     "effect": "^3.x",
     "homelab-api": "workspace:*",
+    "homelab-shared": "workspace:*",
     "tsx": "^4.21.0"
   },
   "devDependencies": {
+    "@effect/vitest": "^0.27.x",
     "@types/node": "^24",
+    "jose": "^6.x",
     "madge": "^8.0.0",
-    "rolldown": "^1.0.0-rc.7"
+    "rolldown": "^1.0.0-rc.7",
+    "vitest": "^3.x"
   }
 }

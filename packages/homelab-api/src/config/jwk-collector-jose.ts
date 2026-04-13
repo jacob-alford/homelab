@@ -1,10 +1,9 @@
 import { FetchHttpClient } from "@effect/platform"
 import type { Option } from "effect"
-import { Array, Context, Effect, HashMap, Layer } from "effect"
-import { Utils } from "homelab-shared"
-import type { JSONWebKeySet, JWTVerifyGetKey } from "jose"
+import { Array, Context, Data, Effect, HashMap, Layer, pipe } from "effect"
+import type { JWTVerifyGetKey } from "jose"
 import { createLocalJWKSet, createRemoteJWKSet, customFetch } from "jose"
-import type { JWKs } from "../schemas/OAuth.js"
+import { fixJwksForJose } from "../utils/fix-jwks-for-jose.js"
 import { RemoteOIDCWellKnownDetailsService, RemoteOIDCWellKnownDetailsServiceLive } from "./oidc-config-remote.js"
 import { OIDCIssuerResolver, OIDCIssuerResolverLive } from "./oidc-issuer-resolver.js"
 import { LocalOIDCJWKConfig } from "./oidc-jwk-config-local.js"
@@ -34,8 +33,21 @@ export const JoseJWKCollectorLive = Layer.effect(
             [customFetch]: fetch,
           }),
         ],
-        [issuerResolver.homelab, createLocalJWKSet(fixJwksForJose(localJwks.homelab))],
-        [issuerResolver.tests, createLocalJWKSet(fixJwksForJose(localJwks.tests))],
+
+        ...pipe(
+          [
+            localJwks.getIssuerJwk("homelab"),
+            localJwks.getIssuerJwk("testing"),
+          ],
+          Array.getSomes,
+          Array.map(
+            ([issuer, jwk]) =>
+              Data.tuple(
+                issuer,
+                createLocalJWKSet(fixJwksForJose(jwk)),
+              ),
+          ),
+        ),
       ]),
     )
   }),
@@ -53,16 +65,4 @@ class JoseJWKCollectorImpl implements JoseJWKCollectorDef {
     private readonly jwkMap: HashMap.HashMap<string, JWTVerifyGetKey>,
   ) {
   }
-}
-
-function fixJwksForJose({ jwks }: JWKs): JSONWebKeySet {
-  return Utils.asMutable({
-    keys: Array.map(
-      jwks,
-      ({ x5u, ...rest }) => ({
-        ...rest,
-        ...(x5u ? { x5u: x5u.toString() } : undefined),
-      }),
-    ),
-  })
 }

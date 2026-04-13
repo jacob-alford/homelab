@@ -26,6 +26,9 @@ export const WifiMobileConfigDownload = HttpApiEndpoint.get(
   .addError(
     HttpApiError.HttpApiDecodeError,
   )
+  .addError(
+    ApiErrors.AuthorizationError,
+  )
 
 export type WifiMobileConfigDownloadEndpoint = typeof WifiMobileConfigDownload
 

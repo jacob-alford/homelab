@@ -1,4 +1,5 @@
 export * as AcmeConfig from "./acme-config.js"
+export * as ApiKeyConfig from "./api-key-config.js"
 export * as JWKCollectorJose from "./jwk-collector-jose.js"
 export * as OIDCConfigLocal from "./oidc-config-local.js"
 export * as OIDCConfigRemote from "./oidc-config-remote.js"

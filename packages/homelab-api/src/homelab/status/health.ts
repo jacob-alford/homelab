@@ -8,6 +8,9 @@ export const HealthEndpoint = HttpApiEndpoint.put("health")`/health`
   .addError(
     ApiErrors.HttpApiEncodeError,
   )
+  .addError(
+    ApiErrors.AuthorizationError,
+  )
 
 export type HealthEndpoint = typeof HealthEndpoint
 

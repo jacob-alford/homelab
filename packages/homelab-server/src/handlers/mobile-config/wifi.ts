@@ -1,8 +1,8 @@
 import { Console, Effect, flow, Match } from "effect"
 import type { Homelab } from "homelab-api"
-import { ApiErrors, Services } from "homelab-api"
+import { ApiErrors, Middleware, Services } from "homelab-api"
 
-export const handleWifi = Effect.fn("handleWifi")(
+export const generateWifiProfile = Effect.fn("generateWifiProfile")(
   function*(args: Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigHandlerArgs) {
     const { encryption, ssid } = args.path
     const { disableMACRandomization, enterpriseClientType, password, username } = args.payload
@@ -72,4 +72,13 @@ export const handleWifi = Effect.fn("handleWifi")(
       Match.orElse((_) => _),
     ),
   ),
+)
+
+export const handleWifi = Effect.fn("handleWifi")(
+  function*(args: Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigHandlerArgs) {
+    const identity = yield* Middleware.CurrentIdentity
+    yield* Services.AuthorizationService.canCreate(identity, "Config.Wifi", args)
+
+    return yield* generateWifiProfile(args)
+  },
 )
