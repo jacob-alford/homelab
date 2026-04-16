@@ -1,10 +1,10 @@
-import { Config, DateTime, Effect, flow, HashSet, Layer, Option, pipe, Schema } from "effect"
+import { Array, DateTime, Effect, flow, HashSet, Layer, Option, pipe } from "effect"
 import { Constants } from "homelab-shared"
-import { importJWK, SignJWT } from "jose"
+import { decodeJwt, importJWK, SignJWT } from "jose"
 import * as Crypto from "node:crypto"
 import { ApiKeyConfig } from "../../config/api-key-config.js"
-import { LocalOIDCProvidersSchema } from "../../config/oidc-config-local.js"
-import { LocalOIDCJWKConfig } from "../../config/oidc-jwk-config-local.js"
+import * as Env from "../../config/env.js"
+import * as IssuerJwkResolver from "../../config/issuer-jwk-resolver-jose.js"
 import * as ApiErrors from "../../errors/http-errors.js"
 import type { HTTPMethod } from "../../schemas/HTTPMethod.js"
 import type * as OAuth from "../../schemas/OAuth.js"
@@ -17,32 +17,23 @@ import { TokenIssuerService } from "./definition.js"
 export const TokenIssuerServiceLive = Layer.effect(
   TokenIssuerService,
   Effect.gen(function*() {
-    const localJwkConfig = yield* LocalOIDCJWKConfig
+    const origin = yield* Env.originUrl
 
-    const localJwkProvider = yield* Config.option(
-      Schema.Config(
-        "TOKEN_ISSUER_JWK_CONFIG",
-        LocalOIDCProvidersSchema,
+    const [issuer, jwks] = yield* IssuerJwkResolver.getJwk(origin.href).pipe(
+      Effect.andThen(
+        Option.match({
+          onSome(jwk) {
+            return Effect.succeed([origin.href, jwk] as const)
+          },
+          onNone() {
+            return Effect.fail(
+              new ApiErrors.InternalServerError({
+                message: "Token issuer JWK not found for origin",
+              }),
+            )
+          },
+        }),
       ),
-    ).pipe(
-      Effect.map(
-        Option.getOrElse(() => "homelab" as const),
-      ),
-    )
-
-    const [issuer, jwks] = yield* localJwkConfig.getIssuerJwk(localJwkProvider).pipe(
-      Option.match({
-        onSome(issuerJwk) {
-          return Effect.succeed(issuerJwk)
-        },
-        onNone() {
-          return Effect.fail(
-            new ApiErrors.InternalServerError({
-              message: `${localJwkProvider} JWK not provided`,
-            }),
-          )
-        },
-      }),
     )
 
     return new TokenIssuerServiceImpl(
@@ -65,17 +56,17 @@ class TokenIssuerServiceImpl implements TokenIssuerServiceDef {
   ) {}
 
   issueToken(
-    expectedHtu: URL,
-    expectedHtm: HTTPMethod,
     apiKey: Option.Option<string>,
     dpopTokens: ReadonlyArray<string>,
   ) {
     return Effect.gen(this, function*() {
       const apiKeyScopes = yield* this.getApiKeyRoles(apiKey)
 
+      const { htu, htm } = yield* this.extractHtuHtm(dpopTokens)
+
       const { headers: { jwk } } = yield* this.dpopTokenValidator.validateDPoPToken(
-        expectedHtu,
-        expectedHtm,
+        htu,
+        htm,
         dpopTokens,
       )
 
@@ -86,6 +77,33 @@ class TokenIssuerServiceImpl implements TokenIssuerServiceDef {
 
       return { accessToken, nonce }
     })
+  }
+
+  private extractHtuHtm(dpopTokens: ReadonlyArray<string>) {
+    return Array.head(dpopTokens).pipe(
+      Option.match({
+        onNone: () =>
+          Effect.fail(
+            new ApiErrors.BadRequest({
+              reason: "eap-client-username-required",
+              message: "DPoP token is required",
+            }),
+          ),
+        onSome: (token) =>
+          Effect.try({
+            try: () => {
+              const { htm, htu } = decodeJwt(token)
+              return { htm: htm as HTTPMethod, htu: new URL(htu as string) }
+            },
+            catch: (error) =>
+              new ApiErrors.AuthenticationError({
+                reason: "invalid-credential",
+                message: "Failed to decode DPoP token claims",
+                error,
+              }),
+          }),
+      }),
+    )
   }
 
   private getApiKeyRoles(apiKey: Option.Option<string>) {

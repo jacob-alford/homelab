@@ -12,13 +12,17 @@ export class NonceValidationError extends Data.TaggedError("NonceValidationError
 > {}
 
 export interface NonceServiceDef {
+  /** Generates a time-bound nonce HMAC string for the given datetime. */
   readonly withTime: (time: DateTime.DateTime) => Effect.Effect<string, HMACDigestError>
+
+  /** Validates a nonce, returning the embedded datetime if valid. */
   readonly validateNonce: (nonce: string) => Effect.Effect<DateTime.DateTime, NonceValidationError | HMACDigestError>
 }
 
 export class NonceService extends Context.Tag(NonceServiceId)<NonceService, NonceServiceDef>() {
 }
 
+/** {@inheritDoc NonceServiceDef.withTime} */
 export function withTime(
   time: DateTime.DateTime,
 ): Effect.Effect<string, HMACDigestError, NonceService> {
@@ -29,6 +33,7 @@ export function withTime(
   )
 }
 
+/** {@inheritDoc NonceServiceDef.validateNonce} */
 export function validateNonce(
   nonce: string,
 ): Effect.Effect<DateTime.DateTime, NonceValidationError | HMACDigestError, NonceService> {

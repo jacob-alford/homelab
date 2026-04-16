@@ -8,12 +8,18 @@ import type { NonceValidationError } from "../nonce-service/definition.js"
 export const DPoPTokenValidatorServiceId = "homelab-api/services/dpop-token-validator-service/DPoPTokenValidatorService"
 
 export interface DPoPValidationResult {
+  /** The parsed DPoP JOSE header from the validated proof. */
   readonly headers: typeof OAuth.DPoPJOSEHeader.Type
+
+  /** The parsed DPoP proof JWT claims. */
   readonly token: typeof OAuth.DPoPProofJWT.Type
+
+  /** The raw DPoP proof JWT string. */
   readonly raw: string
 }
 
 export interface DPoPTokenValidatorServiceDef {
+  /** Validates a DPoP proof token, checking the binding, HTU/HTM claims, and optionally the nonce. */
   readonly validateDPoPToken: (
     expectedHtu: URL,
     expectedHtm: HTTPMethod,
@@ -27,6 +33,7 @@ export class DPoPTokenValidatorService
 {
 }
 
+/** {@inheritDoc DPoPTokenValidatorServiceDef.validateDPoPToken} */
 export function validateDPoPToken(
   ...params: Parameters<DPoPTokenValidatorServiceDef["validateDPoPToken"]>
 ): Effect.Effect<

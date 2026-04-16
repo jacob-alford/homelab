@@ -8,6 +8,10 @@ export const FineGrainedAuthorizationServiceId =
   "homelab-api/services/fine-grained-authorization-service/FineGrainedAuthorizationService"
 
 export interface FineGrainedAuthorizationServiceDef {
+  /**
+   * Returns an effect transformer that applies resource-level authorization checks on top of a coarse-grained allow.
+   * @remarks The transformer fails with `AuthorizationError` if the identity is not permitted to perform the operation on the specific resource.
+   */
   refine<Res extends ResourceURIs, E, R>(
     operation: Operation,
     identity: Identity,
@@ -22,6 +26,7 @@ export class FineGrainedAuthorizationService extends Context.Tag(FineGrainedAuth
 >() {
 }
 
+/** {@inheritDoc FineGrainedAuthorizationServiceDef.refine} */
 export function refine<Res extends ResourceURIs, E, R>(
   operation: Operation,
   identity: Identity,

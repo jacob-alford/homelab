@@ -1,9 +1,29 @@
 import { NodeFileSystem, NodePath } from "@effect/platform-node"
 import { ConfigProvider, Layer } from "effect"
-import { Config, Services } from "homelab-api"
-import { Constants } from "homelab-shared"
+import {
+  IntegrationTestLayer as ApiIntegrationTestLayer,
+  TestDPoPProofBuilderService,
+  TestIssuerJwkResolver,
+  TestHMACService,
+  TestNonceService,
+  TestDPoPTokenValidatorService,
+  TestApiKeyConfig,
+} from "homelab-api/test-utils"
+import { Services } from "homelab-api"
 import * as path from "node:path"
-import { DPoPProofBuilderServiceLive } from "./dpop.js"
+import { EnvLive } from "../src/env.js"
+import { ProfileUuidConfigLive } from "../src/uuids.js"
+
+export {
+  TestDPoPProofBuilderService,
+  TestIssuerJwkResolver,
+  TestHMACService,
+  TestNonceService,
+  TestDPoPTokenValidatorService,
+  TestApiKeyConfig,
+} from "homelab-api/test-utils"
+
+export { DPoPProofBuilderService, buildProof, getPublicJWK } from "homelab-api/test-utils"
 
 const privateDir = path.resolve(import.meta.dirname, "..", "private")
 const certsDir = path.resolve(import.meta.dirname, "..", "..", "..", "certs")
@@ -11,104 +31,54 @@ const certsDir = path.resolve(import.meta.dirname, "..", "..", "..", "certs")
 const TestConfigProvider = Layer.setConfigProvider(
   ConfigProvider.fromMap(
     new Map([
-      ["HOMELAB_JWK_PRIVATE_KEY_PATH", path.join(privateDir, "jwk.json")],
+      ["HOMELAB_ORIGIN_URL", "http://localhost:3000"],
+      ["TOKEN_ISSUER_PRIVATE_KEY_PATH", path.join(privateDir, "jwk.json")],
       ["HOMELAB_SECRET_FILE", path.join(privateDir, "hmac-secret")],
       ["API_KEYS_FILE", path.join(privateDir, "api-keys")],
       ["FEATURE_FLAGS", "*"],
+      ["ROOT_CERT_DER", path.join(certsDir, "alford-root.crt")],
+      ["INTERMEDIATE_CERT_DER", path.join(certsDir, "intermediate_ca_2.crt")],
+      ["KANIDM_OIDC_URL", "https://kanidm.test/oauth2/openid/test/.well-known/openid-configuration"],
     ]),
   ),
 )
 
-const TestOIDCIssuerResolver = Layer.succeed(
-  Config.OIDCIssuerResolver.OIDCIssuerResolver,
-  {
-    kanidm: "https://kanidm.test/oauth2/openid/test",
-    homelab: Constants.JWT_HOMELAB_API_ISSUER,
-    testing: Constants.JWT_HOMELAB_API_TESTING_ISSUER,
-  },
-)
-
-export const TestLocalOIDCJWKConfig = Config.OIDCJWKConfigLocal.LocalOIDCJWKConfigLive.pipe(
-  Layer.provide(Config.OIDCConfigLocal.LocalOIDCEnvLayer),
-  Layer.provide(TestOIDCIssuerResolver),
-  Layer.provide(NodeFileSystem.layer),
-  Layer.provide(TestConfigProvider),
-)
-
-export const TestHMACService = Services.HMACService.HMACServiceLive.pipe(
-  Layer.provide(NodeFileSystem.layer),
-  Layer.provide(TestConfigProvider),
-)
-
-export const TestNonceService = Services.NonceService.NonceServiceLive.pipe(
-  Layer.provideMerge(TestHMACService),
-)
-
-export const TestDPoPTokenValidatorService = Services.DPoPTokenValidatorService.DPoPTokenValidatorServiceLive.pipe(
-  Layer.provideMerge(TestNonceService),
-)
-
-export const TestApiKeyConfig = Config.ApiKeyConfig.ApiKeyConfigLive.pipe(
-  Layer.provide(NodeFileSystem.layer),
-  Layer.provide(TestConfigProvider),
-)
+const TestEnvLive = EnvLive.pipe(Layer.provide(TestConfigProvider))
 
 export const TestAuthenticationService = Services.AuthenticationService.AuthenticationServiceLive.pipe(
-  Layer.provide(TestLocalOIDCJWKConfig),
+  Layer.provide(TestIssuerJwkResolver),
 )
 
 export const TestAuthorizationService = Services.AuthorizationService.AuthorizationServiceLive.pipe(
   Layer.provideMerge(Services.FeatureFlagService.FeatureFlagServiceLive),
   Layer.provideMerge(Services.FineGrainedAuthorizationService.FineGrainedAuthorizationServiceLive),
-  Layer.provide(TestConfigProvider),
-)
-
-export const TestDPoPProofBuilderService = DPoPProofBuilderServiceLive
-
-const TestCertificateServiceConfig = Layer.succeed(
-  Services.CertificateService.CertificateServiceConfig,
-  {
-    rootCert: path.join(certsDir, "alford-root.crt"),
-    intermediateCert: path.join(certsDir, "intermediate_ca_2.crt"),
-  },
+  Layer.provide(TestEnvLive),
 )
 
 const TestCertificateService = Services.CertificateService.CertificateServiceLive.pipe(
   Layer.provide(NodeFileSystem.layer),
-  Layer.provide(TestCertificateServiceConfig),
+  Layer.provide(TestEnvLive),
 )
 
-const TestAcmeConfigOptions = Layer.succeed(
-  Config.AcmeConfig.AcmeConfigOptions,
-  {
-    acmeUrl: "https://ca.test/acme/acme/directory",
-    hardwareBound: true,
-    keyType: "ECSECPrimeRandom",
-    keySize: 384,
-  },
+const TestAcmeConfigService = Services.AcmeConfigService.AcmeConfigServiceLive.pipe(
+  Layer.provide(ProfileUuidConfigLive),
+  Layer.provide(TestEnvLive),
 )
 
-const TestUuidDictionaryService = Config.UUIDConfig.UuidDictionaryServiceLive
+const TestCertConfigService = Services.CertConfigService.CertConfigServiceLive.pipe(
+  Layer.provide(ProfileUuidConfigLive),
+)
 
 const TestXmlPrintingService = Services.XmlPrintingProviderApplePlist.AppleMdmXmlPrintingLive.pipe(
   Layer.provide(Services.XmlPrintingProviderApplePlist.AppleMdmXmlPrintingConfigDefault),
 )
 
 const TestRootPayloadService = Services.RootPayloadService.RootPayloadServiceLive.pipe(
-  Layer.provide(TestUuidDictionaryService),
+  Layer.provide(ProfileUuidConfigLive),
 )
 
 const TestWifiConfigService = Services.WifiConfigService.WifiConfigServiceLive.pipe(
-  Layer.provide(TestUuidDictionaryService),
-)
-
-const TestAcmeConfigService = Services.AcmeConfigService.AcmeConfigServiceLive.pipe(
-  Layer.provide(TestUuidDictionaryService),
-  Layer.provide(TestAcmeConfigOptions),
-)
-
-const TestCertConfigService = Services.CertConfigService.CertConfigServiceLive.pipe(
-  Layer.provide(TestUuidDictionaryService),
+  Layer.provide(ProfileUuidConfigLive),
 )
 
 const TestWifiProfileGeneratorService = Services.WifiProfileGeneratorService.WifiProfileServiceLive.pipe(
@@ -145,13 +115,7 @@ export const HandlerTestLayer = Layer.mergeAll(
 )
 
 export const IntegrationTestLayer = Layer.mergeAll(
-  TestLocalOIDCJWKConfig,
-  TestHMACService,
-  TestNonceService,
-  TestDPoPTokenValidatorService,
-  TestApiKeyConfig,
+  ApiIntegrationTestLayer,
   TestAuthenticationService,
   TestAuthorizationService,
-  TestDPoPProofBuilderService,
-  NodeFileSystem.layer,
 )

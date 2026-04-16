@@ -1,13 +1,16 @@
 import { HttpApi } from "@effect/platform"
 import { MobileConfigApi } from "./mobile-config/index.js"
+import { OAuthApi } from "./oauth/index.js"
 import { StatusApi } from "./status/index.js"
+import { WellKnownApi } from "./well-known/index.js"
 
 export const HomelabApi = HttpApi.make("homelab")
   .add(MobileConfigApi)
+  .add(OAuthApi)
   .add(StatusApi)
-  .prefix("/homelab")
+  .add(WellKnownApi)
 
 export * as MobileConfigEndpoints from "./mobile-config/index.js"
+export * as OAuthEndpoints from "./oauth/index.js"
 export * as StatusEndpoints from "./status/index.js"
-
-export { MobileConfigApi }
+export * as WellKnownEndpoints from "./well-known/index.js"

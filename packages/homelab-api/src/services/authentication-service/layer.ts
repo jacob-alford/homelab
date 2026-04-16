@@ -1,10 +1,14 @@
 import { Effect, flow, Layer, Option } from "effect"
 import type { JWTVerifyGetKey } from "jose"
 import { decodeJwt } from "jose"
-import { JoseJWKCollector, JoseJWKCollectorLive } from "../../config/jwk-collector-jose.js"
-import type { AuthenticationError, InternalServerError } from "../../errors/http-errors.js"
+import { IssuerJwkResolver } from "../../config/issuer-jwk-resolver-jose.js"
+import type { AuthenticationError, BadRequest, InternalServerError } from "../../errors/http-errors.js"
 import * as ApiErrors from "../../errors/http-errors.js"
 import * as Identity from "../../identity.js"
+import type { HMACDigestError } from "../hmac-service/definition.js"
+import type { NonceValidationError } from "../nonce-service/definition.js"
+import type { HTTPMethod } from "../../schemas/HTTPMethod.js"
+import { DPoPTokenValidatorService } from "../dpop-token-validator-service/definition.js"
 import { OIDCAuthenticationService } from "../oidc-authentication-service/definition.js"
 import { OIDCAuthenticationServiceLive } from "../oidc-authentication-service/layer.js"
 import type { AuthenticationServiceDef } from "./definition.js"
@@ -15,23 +19,27 @@ export const AuthenticationServiceLive = Layer.effect(
   Effect.gen(function*() {
     return new AuthenticationServiceImpl(
       yield* OIDCAuthenticationService,
-      yield* JoseJWKCollector,
+      yield* IssuerJwkResolver,
+      yield* DPoPTokenValidatorService,
     )
   }),
 ).pipe(
-  Layer.provide(JoseJWKCollectorLive),
   Layer.provide(OIDCAuthenticationServiceLive),
 )
 
 class AuthenticationServiceImpl implements AuthenticationServiceDef {
   constructor(
     private readonly oidcService: typeof OIDCAuthenticationService.Service,
-    private readonly joseJwkCollector: typeof JoseJWKCollector.Service,
+    private readonly issuerJwkResolver: typeof IssuerJwkResolver.Service,
+    private readonly dpopValidator: typeof DPoPTokenValidatorService.Service,
   ) {}
 
   authenticate(
     jwt: Option.Option<Buffer>,
-  ): Effect.Effect<Identity.Identity, AuthenticationError | InternalServerError> {
+    expectedHtu: URL,
+    expectedHtm: HTTPMethod,
+    dpopTokens: ReadonlyArray<string>,
+  ): Effect.Effect<Identity.Identity, AuthenticationError | BadRequest | InternalServerError | NonceValidationError | HMACDigestError> {
     return Option.match(
       jwt,
       {
@@ -41,16 +49,21 @@ class AuthenticationServiceImpl implements AuthenticationServiceDef {
         onSome: (jwt) =>
           Effect.gen(this, function*() {
             const issuer = yield* this.getJwtIssuer(jwt)
-            const jwk = yield* this.getJwk(issuer)
+            const jwkKey = yield* this.getJwkKey(issuer)
 
-            return yield* this.oidcService.authorizeOIDC(jwt, jwk, issuer)
+            const isLocalIssuer = Option.isSome(this.issuerJwkResolver.getJwk(issuer))
+            if (isLocalIssuer) {
+              yield* this.dpopValidator.validateDPoPToken(expectedHtu, expectedHtm, dpopTokens)
+            }
+
+            return yield* this.oidcService.authorizeOIDC(jwt, jwkKey, issuer)
           }),
       },
     )
   }
 
-  private getJwk(issuer: string): Effect.Effect<JWTVerifyGetKey, ApiErrors.AuthenticationError> {
-    return this.joseJwkCollector.getJwkKey(issuer).pipe(
+  private getJwkKey(issuer: string): Effect.Effect<JWTVerifyGetKey, ApiErrors.AuthenticationError> {
+    return this.issuerJwkResolver.getJwkKey(issuer).pipe(
       Option.match({
         onNone: () =>
           new ApiErrors.AuthenticationError({

@@ -1,5 +1,5 @@
 import { HttpApiGroup } from "@effect/platform"
-import { AuthMiddleware } from "../../middleware/auth-middleware.js"
+import { AuthMiddleware } from "../../middleware/bearer-auth-middleware.js"
 import * as AcmeDownload from "./acme-download.js"
 import * as Acme from "./acme.js"
 import * as Certs from "./certs.js"

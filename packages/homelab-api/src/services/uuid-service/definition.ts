@@ -18,6 +18,7 @@ export const UUIDSchema = Schema.UUID.pipe(
 export type UUID = typeof UUIDSchema.Type
 
 export interface UuidServiceDef {
+  /** Generates a new random UUID. */
   uuid(): Effect.Effect<UUID, UuidGenerationError>
 }
 

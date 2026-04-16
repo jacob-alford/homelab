@@ -6,6 +6,7 @@ import type * as Schemas from "../../schemas/index.js"
 export const RootPayloadServiceId = "homelab-api/services/root-payload-service/RootPayloadService"
 
 export interface RootPayloadServiceDef {
+  /** Assembles the top-level MDM configuration profile from the provided payload entries. */
   rootPayload(
     ...additionalPayloads: ReadonlyArray<Schemas.RootPayload.AllPayloads>
   ): Effect.Effect<Schemas.RootPayload.RootPayload>

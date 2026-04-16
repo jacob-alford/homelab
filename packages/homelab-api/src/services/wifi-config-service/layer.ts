@@ -1,6 +1,6 @@
 import { Effect, Layer } from "effect"
 
-import { UuidDictionaryService } from "../../config/uuid-config.js"
+import { ProfileUuidConfig } from "../../config/profile-uuid-config.js"
 import type * as Schemas from "../../schemas/index.js"
 import type { WifiConfigServiceDef } from "./definition.js"
 import { WifiConfigGenerationError, WifiConfigService } from "./definition.js"
@@ -9,14 +9,14 @@ export const WifiConfigServiceLive = Layer.effect(
   WifiConfigService,
   Effect.gen(function*() {
     return new WifiConfigServiceImpl(
-      yield* UuidDictionaryService,
+      yield* ProfileUuidConfig,
     )
   }),
 )
 
 class WifiConfigServiceImpl implements WifiConfigServiceDef {
   constructor(
-    private readonly uuids: typeof UuidDictionaryService.Service,
+    private readonly uuids: typeof ProfileUuidConfig.Service,
   ) {}
 
   wpaPersonalWifi(

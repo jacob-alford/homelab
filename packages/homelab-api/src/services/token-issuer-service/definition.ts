@@ -1,21 +1,23 @@
 import type { Option } from "effect"
 import { Context, Effect } from "effect"
 import type { AuthenticationError, BadRequest, InternalServerError } from "../../errors/http-errors.js"
-import { type HTTPMethod } from "../../schemas/HTTPMethod.js"
 import type { HMACDigestError } from "../hmac-service/definition.js"
 import type { NonceValidationError } from "../nonce-service/definition.js"
 
 export const TokenIssuerServiceId = "homelab-api/services/token-issuer-service/TokenIssuerService"
 
 export interface TokenIssueResult {
+  /** The signed JWT access token. */
   readonly accessToken: string
+
+  /** The server-generated nonce embedded in the token. */
   readonly nonce: string
 }
 
 export interface TokenIssuerServiceDef {
+  /** Issues a DPoP-bound access token after validating the DPoP proof and API key.
+   * The HTU and HTM are inferred from the DPoP proof itself. */
   readonly issueToken: (
-    expectedHtu: URL,
-    expectedHtm: HTTPMethod,
     apiKey: Option.Option<string>,
     dpopTokens: ReadonlyArray<string>,
   ) => Effect.Effect<
@@ -27,6 +29,7 @@ export interface TokenIssuerServiceDef {
 export class TokenIssuerService extends Context.Tag(TokenIssuerServiceId)<TokenIssuerService, TokenIssuerServiceDef>() {
 }
 
+/** {@inheritDoc TokenIssuerServiceDef.issueToken} */
 export function issueToken(
   ...params: Parameters<TokenIssuerServiceDef["issueToken"]>
 ): Effect.Effect<

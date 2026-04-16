@@ -9,6 +9,7 @@ export class XmlPrintingError extends Data.TaggedError("XmlPrintingError")<{
 }> {}
 
 export interface XmlPrintingServiceImpl {
+  /** Serializes a JSON record to an Apple MDM plist XML string. */
   printXml(json: Record<string, Schemas.JSONExt.JSONExt>): Effect.Effect<Schemas.XML.XML, XmlPrintingError>
 }
 
@@ -17,6 +18,7 @@ export class XmlPrintingService extends Context.Tag(XmlPrintingServiceId)<
   XmlPrintingServiceImpl
 >() {}
 
+/** {@inheritDoc XmlPrintingServiceImpl.printXml} */
 export function printXml(
   ...args: Parameters<XmlPrintingServiceImpl["printXml"]>
 ): Effect.Effect<Schemas.XML.XML, XmlPrintingError, XmlPrintingService> {

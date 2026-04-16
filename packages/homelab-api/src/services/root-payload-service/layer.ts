@@ -1,6 +1,6 @@
 import { Effect, Layer } from "effect"
 
-import { UuidDictionaryService } from "../../config/uuid-config.js"
+import { ProfileUuidConfig } from "../../config/profile-uuid-config.js"
 import type * as Schemas from "../../schemas/index.js"
 import type { RootPayloadServiceDef } from "./definition.js"
 import { RootPayloadService } from "./definition.js"
@@ -9,14 +9,14 @@ export const RootPayloadServiceLive = Layer.effect(
   RootPayloadService,
   Effect.gen(function*() {
     return new RootPayloadServiceImpl(
-      yield* UuidDictionaryService,
+      yield* ProfileUuidConfig,
     )
   }),
 )
 
 class RootPayloadServiceImpl implements RootPayloadServiceDef {
   constructor(
-    private readonly uuids: typeof UuidDictionaryService.Service,
+    private readonly uuids: typeof ProfileUuidConfig.Service,
   ) {}
 
   rootPayload(

@@ -9,12 +9,14 @@ export class HMACDigestError extends Data.TaggedError("HMACDigestError")<
 > {}
 
 export interface HMACServiceDef {
+  /** Computes an HMAC digest of the given string using the configured secret. */
   readonly hmacDigest: (data: string) => Effect.Effect<string, HMACDigestError>
 }
 
 export class HMACService extends Context.Tag(HMACServiceId)<HMACService, HMACServiceDef>() {
 }
 
+/** {@inheritDoc HMACServiceDef.hmacDigest} */
 export function hmacDigest(
   data: string,
 ): Effect.Effect<string, HMACDigestError, HMACService> {

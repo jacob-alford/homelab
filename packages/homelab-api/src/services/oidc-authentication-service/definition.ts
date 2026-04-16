@@ -6,6 +6,7 @@ import type { Identity } from "../../identity.js"
 export const OIDCAuthenticationServiceId = "homelab-api/services/oidc-authentication-service/OIDCAuthenticationService"
 
 export interface OIDCAuthenticationServiceDef {
+  /** Validates an OIDC JWT using the provided JWK and returns the authenticated identity. */
   authorizeOIDC(
     jwt: Buffer,
     jwk: JWTVerifyGetKey,
@@ -18,6 +19,7 @@ export class OIDCAuthenticationService
 {
 }
 
+/** {@inheritDoc OIDCAuthenticationServiceDef.authorizeOIDC} */
 export function authorizeOIDC(
   ...params: Parameters<OIDCAuthenticationServiceDef["authorizeOIDC"]>
 ): Effect.Effect<Identity, AuthenticationError | InternalServerError, OIDCAuthenticationService> {

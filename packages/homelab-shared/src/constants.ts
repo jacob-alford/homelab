@@ -4,9 +4,9 @@ export const JWT_ROLES_KEY = `${BASE_KEY}.jwt.roles`
 
 export const JWT_HOMELAB_API_AUD = `${BASE_KEY}.jwt.audience`
 
-export const JWT_HOMELAB_API_ISSUER = `${BASE_KEY}.jwt.jwt-issuer.issuer`
+export const JWT_HOMELAB_API_ISSUER = `https://homelab.plato-splunk.media`
 
-export const JWT_HOMELAB_API_TESTING_ISSUER = `${JWT_HOMELAB_API_ISSUER}.test`
+export const JWT_HOMELAB_API_TESTING_ISSUER = `https://homelab-local.plato-splunk.media`
 
 export const ONE_HOUR_SECONDS = 3600
 

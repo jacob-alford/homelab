@@ -100,8 +100,8 @@
                 eslint
                 yarn-berry
                 nodejs_24
-                typescript
-                typescript-language-server
+                # typescript
+                # typescript-language-server
                 python3
               ];
               env = [

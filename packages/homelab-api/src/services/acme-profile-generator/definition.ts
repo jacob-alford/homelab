@@ -7,6 +7,7 @@ import type { AcmeConfigService } from "../acme-config-service/definition.js"
 export const AcmeProfileServiceId = "homelab-api/services/acme-profile-generator/AcmeProfileGenerator"
 
 export interface AcmeProfileServiceDef {
+  /** Generates a complete root MDM profile payload containing the ACME configuration. */
   acmeProfile(
     ...params: Parameters<typeof AcmeConfigService.Service.acmeConfig>
   ): Effect.Effect<Schemas.RootPayload.RootPayloadWire, ApiErrors.HttpApiEncodeError>
@@ -15,6 +16,7 @@ export interface AcmeProfileServiceDef {
 export class AcmeProfileService extends Context.Tag(AcmeProfileServiceId)<AcmeProfileService, AcmeProfileServiceDef>() {
 }
 
+/** {@inheritDoc AcmeProfileServiceDef.acmeProfile} */
 export function acmeProfile(
   ...args: Parameters<AcmeProfileServiceDef["acmeProfile"]>
 ): Effect.Effect<

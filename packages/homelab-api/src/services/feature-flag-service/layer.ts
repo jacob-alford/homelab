@@ -1,15 +1,15 @@
-import { Effect, HashSet, Layer, Schema } from "effect"
-
+import { Effect, HashSet, Layer } from "effect"
+import * as Env from "../../config/env.js"
 import type { Operation } from "../../operation.js"
 import type { ResourceURIs } from "../../resource-uris.js"
-import { type FeatureFlagsSet, FeatureFlagsSetSchema } from "../../schemas/feature-flags.js"
+import type { FeatureFlagsSet } from "../../schemas/feature-flags.js"
 import type { FeatureFlagServiceDef } from "./definition.js"
 import { FeatureFlagService } from "./definition.js"
 
 export const FeatureFlagServiceLive = Layer.effect(
   FeatureFlagService,
   Effect.gen(function*() {
-    const flags = yield* Schema.Config("FEATURE_FLAGS", FeatureFlagsSetSchema)
+    const flags = yield* Env.featureFlags
 
     return new FeatureFlagServiceImpl(
       flags,

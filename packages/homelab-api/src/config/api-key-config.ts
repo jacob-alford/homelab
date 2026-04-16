@@ -1,7 +1,6 @@
 import { FileSystem } from "@effect/platform"
 import {
   Array,
-  Config,
   Context,
   Data,
   Effect,
@@ -16,14 +15,23 @@ import {
   Tuple,
 } from "effect"
 import { StringFromUint8Array } from "../schemas/Buffer.js"
+import * as Env from "./env.js"
 
 export const ApiKeyConfigId = "homelab-api/config/api-key-config/ApiKeyConfig"
 
 export interface ApiKeyConfigDef {
+  /** Returns the set of roles associated with the given API key, or `None` if the key is unrecognized. */
   readonly getRoles: (apiKey: string) => Option.Option<HashSet.HashSet<string>>
 }
 
 export class ApiKeyConfig extends Context.Tag(ApiKeyConfigId)<ApiKeyConfig, ApiKeyConfigDef>() {}
+
+/** {@inheritDoc ApiKeyConfigDef.getRoles} */
+export function getRoles(
+  apiKey: string,
+): Effect.Effect<Option.Option<HashSet.HashSet<string>>, never, ApiKeyConfig> {
+  return ApiKeyConfig.pipe(Effect.map((_) => _.getRoles(apiKey)))
+}
 
 /**
  * Reads API_KEYS_FILE and then parses it according to the following format:
@@ -36,7 +44,7 @@ export const ApiKeyConfigLive = Layer.effect(
   ApiKeyConfig,
   Effect.gen(function*() {
     const fs = yield* FileSystem.FileSystem
-    const apiKeysFilePath = yield* Config.string("API_KEYS_FILE")
+    const apiKeysFilePath = yield* Env.apiKeysFilePath
 
     const apiKeys = yield* pipe(
       fs.readFile(apiKeysFilePath),

@@ -1,12 +1,13 @@
 import { FileSystem } from "@effect/platform"
-import { Config, Effect, Layer } from "effect"
+import { Effect, Layer } from "effect"
 import * as Crypto from "node:crypto"
+import * as Env from "../../config/env.js"
 import { HMACDigestError, HMACService, type HMACServiceDef } from "./definition.js"
 
 export const HMACServiceLive = Layer.effect(
   HMACService,
   Effect.gen(function*() {
-    const secretFilePath = yield* Config.string("HOMELAB_SECRET_FILE")
+    const secretFilePath = yield* Env.hmacSecretFilePath
     const fs = yield* FileSystem.FileSystem
     const secret = yield* fs.readFileString(secretFilePath)
 

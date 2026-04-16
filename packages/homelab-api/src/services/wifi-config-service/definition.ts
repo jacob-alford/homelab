@@ -11,6 +11,7 @@ export class WifiConfigGenerationError extends Data.TaggedError("WifiConfigGener
 }> {}
 
 export interface WifiConfigServiceDef {
+  /** Generates an MDM Wi-Fi payload for WPA3-Enterprise PEAP authentication. */
   wpa3EnterprisePeapWifi(
     ssidString: string,
     username: string,
@@ -18,6 +19,7 @@ export interface WifiConfigServiceDef {
     disableMACRandomization?: boolean,
   ): Effect.Effect<Schemas.WifiConfig.WifiConfig, WifiConfigGenerationError>
 
+  /** Generates an MDM Wi-Fi payload for WPA2/WPA3 personal authentication. */
   wpaPersonalWifi(
     wpaPersonalWifi: Schemas.WifiConfig.WifiEncryptionType,
     ssidString: string,

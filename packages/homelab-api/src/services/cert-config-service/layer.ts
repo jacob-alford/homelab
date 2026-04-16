@@ -1,6 +1,6 @@
 import { Effect, Layer } from "effect"
 
-import { UuidDictionaryService } from "../../config/uuid-config.js"
+import { ProfileUuidConfig } from "../../config/profile-uuid-config.js"
 import type * as Schemas from "../../schemas/index.js"
 import type { UUID } from "../uuid-service/definition.js"
 import type { CertConfigServiceDef } from "./definition.js"
@@ -10,14 +10,14 @@ export const CertConfigServiceLive = Layer.effect(
   CertConfigService,
   Effect.gen(function*() {
     return new CertConfigServiceImpl(
-      yield* UuidDictionaryService,
+      yield* ProfileUuidConfig,
     )
   }),
 )
 
 class CertConfigServiceImpl implements CertConfigServiceDef {
   constructor(
-    private readonly uuids: typeof UuidDictionaryService.Service,
+    private readonly uuids: typeof ProfileUuidConfig.Service,
   ) {}
 
   intermediateCert(filename: string, payload: Buffer): Effect.Effect<Schemas.CertificatePayload.CertificateConfig> {

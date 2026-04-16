@@ -1,0 +1,38 @@
+import { HttpApp, HttpServerResponse } from "@effect/platform"
+import { Console, Effect, flow, Match } from "effect"
+import type { Homelab } from "homelab-api"
+import { ApiErrors, Middleware, Services } from "homelab-api"
+
+export const handleToken = Effect.fn("handleToken")(
+  function*(_args: Homelab.OAuthEndpoints.Token.TokenEndpointHandlerArgs) {
+    const { apiKey, dpopTokens } = yield* Middleware.BasicAuthCredentials
+
+    const { accessToken, nonce } = yield* Services.TokenIssuerService.issueToken(
+      apiKey,
+      dpopTokens,
+    )
+
+    yield* HttpApp.appendPreResponseHandler(
+      (_, res) => Effect.succeed(HttpServerResponse.setHeader(res, "DPoP-Nonce", nonce)),
+    )
+
+    return { access_token: accessToken, token_type: "DPoP" as const }
+  },
+  Effect.tapError(Console.error),
+  Effect.mapError(
+    flow(
+      Match.value,
+      Match.tag("NonceValidationError", (e) =>
+        new ApiErrors.AuthenticationError({
+          reason: "invalid-credential",
+          message: e.message,
+        })),
+      Match.tag("HMACDigestError", (e) =>
+        new ApiErrors.InternalServerError({
+          message: "HMAC digest error during token issuance",
+          error: e,
+        })),
+      Match.orElse((_) => _),
+    ),
+  ),
+)

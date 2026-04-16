@@ -1,7 +1,7 @@
 import { Effect, Layer } from "effect"
 
-import { AcmeConfigOptions } from "../../config/acme-config.js"
-import { UuidDictionaryService } from "../../config/uuid-config.js"
+import * as Env from "../../config/env.js"
+import { ProfileUuidConfig } from "../../config/profile-uuid-config.js"
 import type * as Schemas from "../../schemas/index.js"
 import type { AcmeConfigServiceDef } from "./definition.js"
 import { AcmeConfigService } from "./definition.js"
@@ -9,28 +9,33 @@ import { AcmeConfigService } from "./definition.js"
 export const AcmeConfigServiceLive = Layer.effect(
   AcmeConfigService,
   Effect.gen(function*() {
-    return new AcmeConfigServiceImpl(
-      yield* UuidDictionaryService,
-      yield* AcmeConfigOptions,
-    )
+    const uuids = yield* ProfileUuidConfig
+    const acmeUrl = yield* Env.acmeUrl
+    const hardwareBound = yield* Env.hardwareBound
+    const keyType = yield* Env.keyType
+    const keySize = yield* Env.keySize
+    return new AcmeConfigServiceImpl(uuids, acmeUrl, hardwareBound, keyType, keySize)
   }),
 )
 
 class AcmeConfigServiceImpl implements AcmeConfigServiceDef {
   constructor(
-    private readonly uuids: typeof UuidDictionaryService.Service,
-    private readonly options: typeof AcmeConfigOptions.Service,
+    private readonly uuids: typeof ProfileUuidConfig.Service,
+    private readonly acmeUrl: URL,
+    private readonly hardwareBound: boolean,
+    private readonly keyType: string,
+    private readonly keySize: number,
   ) {}
 
   acmeConfig(clientIdentifier: string): Effect.Effect<Schemas.ACME.AcmeConfig> {
     return Effect.succeed(
       {
-        Attest: this.options.hardwareBound,
+        Attest: this.hardwareBound,
         ClientIdentifer: clientIdentifier,
-        DirectoryURL: new URL(this.options.acmeUrl),
-        HardwareBound: this.options.hardwareBound,
-        KeySize: this.options.keySize,
-        KeyType: this.options.keyType,
+        DirectoryURL: this.acmeUrl,
+        HardwareBound: this.hardwareBound,
+        KeySize: this.keySize,
+        KeyType: this.keyType,
         PayloadDescription: "Configures ACME settings",
         PayloadDisplayName: "ACME",
         PayloadIdentifier: `com.apple.security.acme.${this.uuids.platoSplunkAcmePayloadUuid}`,

@@ -5,6 +5,7 @@ import type { PartialDeep } from "type-fest"
 import type { ResourceURIs, Schemas } from "../src/index.js"
 import { Identity, Operation, Services } from "../src/index.js"
 import { ResourceURILiterals } from "../src/schemas/resource-uris.js"
+import { NonceServiceLive } from "../src/services/nonce-service/layer.js"
 
 const allOperations = Object.values(Operation)
 
@@ -372,6 +373,7 @@ function TestLayer(
     Layer.provideMerge(Services.FeatureFlagService.FeatureFlagServiceLive),
     Layer.provideMerge(Services.FineGrainedAuthorizationService.FineGrainedAuthorizationServiceLive),
     Layer.provideMerge(createFeatureFlagConfig(flags)),
+    Layer.provideMerge(NonceServiceLive),
   )
 }
 
