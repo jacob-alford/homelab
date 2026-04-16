@@ -155,6 +155,10 @@ export const DPoPProofJWT = BaseJWT.pipe(
   ),
 )
 
+export const DPoPProofHTTPParams = DPoPProofJWT.pipe(
+  Schema.pick("htm", "htu"),
+)
+
 export const HomelabIdentityJWT = IdJWT.pipe(
   Schema.extend(
     Schema.Struct({

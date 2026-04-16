@@ -13,4 +13,3 @@ export const ConfigLive = Layer.mergeAll(
   ApiKeyConfigLive,
   IssuerJwkResolverLive.pipe(Layer.provide(RemoteOIDCWellKnownDetailsServiceLive)),
 )
-

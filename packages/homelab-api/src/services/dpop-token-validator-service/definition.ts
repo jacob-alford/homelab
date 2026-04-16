@@ -1,5 +1,5 @@
 import { Context, Effect } from "effect"
-import type { AuthenticationError, BadRequest } from "../../errors/http-errors.js"
+import type { AuthenticationError, BadRequest, InternalServerError } from "../../errors/http-errors.js"
 import type { HTTPMethod } from "../../schemas/HTTPMethod.js"
 import type * as OAuth from "../../schemas/OAuth.js"
 import type { HMACDigestError } from "../hmac-service/definition.js"
@@ -19,13 +19,17 @@ export interface DPoPValidationResult {
 }
 
 export interface DPoPTokenValidatorServiceDef {
-  /** Validates a DPoP proof token, checking the binding, HTU/HTM claims, and optionally the nonce. */
+  /** Validates a DPoP proof token, checking the binding, HTU/HTM claims, optionally the nonce, and hash of the access token (ath, SHA256). */
   readonly validateDPoPToken: (
     expectedHtu: URL,
     expectedHtm: HTTPMethod,
     dpopTokens: ReadonlyArray<string>,
+    accessToken?: string,
     requireNonce?: boolean,
-  ) => Effect.Effect<DPoPValidationResult, AuthenticationError | BadRequest | NonceValidationError | HMACDigestError>
+  ) => Effect.Effect<
+    DPoPValidationResult,
+    AuthenticationError | BadRequest | InternalServerError
+  >
 }
 
 export class DPoPTokenValidatorService
@@ -38,7 +42,7 @@ export function validateDPoPToken(
   ...params: Parameters<DPoPTokenValidatorServiceDef["validateDPoPToken"]>
 ): Effect.Effect<
   DPoPValidationResult,
-  AuthenticationError | BadRequest | NonceValidationError | HMACDigestError,
+  AuthenticationError | BadRequest | NonceValidationError | HMACDigestError | InternalServerError,
   DPoPTokenValidatorService
 > {
   return DPoPTokenValidatorService.pipe(

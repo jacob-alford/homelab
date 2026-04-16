@@ -2,9 +2,9 @@ import type { Option } from "effect"
 import { Context, Effect } from "effect"
 import type { AuthenticationError, BadRequest, InternalServerError } from "../../errors/http-errors.js"
 import type { Identity } from "../../identity.js"
+import type { HTTPMethod } from "../../schemas/HTTPMethod.js"
 import type { HMACDigestError } from "../hmac-service/definition.js"
 import type { NonceValidationError } from "../nonce-service/definition.js"
-import type { HTTPMethod } from "../../schemas/HTTPMethod.js"
 
 export const AuthenticationServiceId = "homelab-api/services/authentication-service/AuthenticationService"
 
@@ -16,7 +16,10 @@ export type AuthenticationServiceDef = {
     expectedHtu: URL,
     expectedHtm: HTTPMethod,
     dpopTokens: ReadonlyArray<string>,
-  ) => Effect.Effect<Identity, AuthenticationError | BadRequest | InternalServerError | NonceValidationError | HMACDigestError>
+  ) => Effect.Effect<
+    Identity,
+    AuthenticationError | BadRequest | InternalServerError | NonceValidationError | HMACDigestError
+  >
 }
 
 export class AuthenticationService
@@ -27,7 +30,11 @@ export class AuthenticationService
 /** {@inheritDoc AuthenticationServiceDef.authenticate} */
 export function authenticate(
   ...params: Parameters<AuthenticationServiceDef["authenticate"]>
-): Effect.Effect<Identity, AuthenticationError | BadRequest | InternalServerError | NonceValidationError | HMACDigestError, AuthenticationService> {
+): Effect.Effect<
+  Identity,
+  AuthenticationError | BadRequest | InternalServerError | NonceValidationError | HMACDigestError,
+  AuthenticationService
+> {
   return AuthenticationService.pipe(
     Effect.flatMap(
       (_) => _.authenticate(...params),

@@ -14,7 +14,7 @@
     "typecheck": "node ../../.yarn/sdks/typescript/bin/tsc -b tsconfig.json --noEmit",
     "test": "vitest --run",
     "test:watch": "vitest",
-    "test:staged": "vitest --run"
+    "test:staged": "vitest related --run"
   },
   "dependencies": {
     "@dotenvx/dotenvx": "^1.54.1",

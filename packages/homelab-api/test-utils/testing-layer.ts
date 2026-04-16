@@ -1,10 +1,11 @@
 import { NodeFileSystem } from "@effect/platform-node"
-import { Config, ConfigProvider, Effect, Layer, Schema } from "effect"
+import { Config, ConfigProvider, Effect, HashSet, Layer, Schema } from "effect"
 import * as path from "node:path"
 import { ApiKeyConfigLive } from "../src/config/api-key-config.js"
 import { Env } from "../src/config/env.js"
 import { IssuerJwkResolverLive } from "../src/config/issuer-jwk-resolver-jose.js"
 import { RemoteOIDCWellKnownDetailsService } from "../src/config/oidc-config-remote.js"
+import type { FeatureFlagsSet } from "../src/schemas/feature-flags.js"
 import { FeatureFlagsSetSchema } from "../src/schemas/feature-flags.js"
 import { DPoPTokenValidatorServiceLive } from "../src/services/dpop-token-validator-service/index.js"
 import { HMACServiceLive } from "../src/services/hmac-service/index.js"
@@ -36,7 +37,10 @@ const TestEnvLive = Layer.effect(
     const hmacSecretFilePath = yield* Config.string("HOMELAB_SECRET_FILE")
     const featureFlags = yield* Schema.Config("FEATURE_FLAGS", FeatureFlagsSetSchema)
     const kanidmOidcUrl = yield* Schema.Config("KANIDM_OIDC_URL", Schema.URL)
-    const caUrl = yield* Config.withDefault(Schema.Config("CA_URL", Schema.URL), new URL("https://ca.plato-splunk.media"))
+    const caUrl = yield* Config.withDefault(
+      Schema.Config("CA_URL", Schema.URL),
+      new URL("https://ca.plato-splunk.media"),
+    )
     const acmeDirectoryPath = yield* Config.withDefault(Config.string("ACME_DIRECTORY_PATH"), "/acme/acme/directory")
     const hardwareBound = yield* Config.withDefault(Config.boolean("ACME_HARDWARE_BOUND"), true)
     const keyType = yield* Config.withDefault(Config.string("ACME_KEY_TYPE"), "ECSECPrimeRandom")
@@ -61,6 +65,23 @@ const TestEnvLive = Layer.effect(
     }
   }),
 ).pipe(Layer.provide(TestConfigProvider))
+
+export const makeTestEnvWithFlags = (featureFlags: FeatureFlagsSet): Layer.Layer<Env> =>
+  Layer.succeed(Env, {
+    originUrl: new URL("http://localhost:3000"),
+    tokenIssuerPrivateKeyPath: path.join(privateDir, "jwk.json"),
+    hmacSecretFilePath: path.join(privateDir, "hmac-secret"),
+    featureFlags,
+    kanidmOidcUrl: new URL("https://kanidm.test/oauth2/openid/test/.well-known/openid-configuration"),
+    caUrl: new URL("https://ca.plato-splunk.media"),
+    acmeDirectoryPath: "/acme/acme/directory",
+    hardwareBound: true,
+    keyType: "ECSECPrimeRandom",
+    keySize: 384,
+    apiKeysFilePath: path.join(privateDir, "api-keys"),
+    rootCertDerPath: path.join(privateDir, "root.crt"),
+    intermediateCertDerPath: path.join(privateDir, "intermediate.crt"),
+  })
 
 const TestRemoteOIDCWellKnownDetails = Layer.succeed(RemoteOIDCWellKnownDetailsService, {
   kanidm: {

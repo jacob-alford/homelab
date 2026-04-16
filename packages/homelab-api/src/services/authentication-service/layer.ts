@@ -5,10 +5,10 @@ import { IssuerJwkResolver } from "../../config/issuer-jwk-resolver-jose.js"
 import type { AuthenticationError, BadRequest, InternalServerError } from "../../errors/http-errors.js"
 import * as ApiErrors from "../../errors/http-errors.js"
 import * as Identity from "../../identity.js"
-import type { HMACDigestError } from "../hmac-service/definition.js"
-import type { NonceValidationError } from "../nonce-service/definition.js"
 import type { HTTPMethod } from "../../schemas/HTTPMethod.js"
 import { DPoPTokenValidatorService } from "../dpop-token-validator-service/definition.js"
+import type { HMACDigestError } from "../hmac-service/definition.js"
+import type { NonceValidationError } from "../nonce-service/definition.js"
 import { OIDCAuthenticationService } from "../oidc-authentication-service/definition.js"
 import { OIDCAuthenticationServiceLive } from "../oidc-authentication-service/layer.js"
 import type { AuthenticationServiceDef } from "./definition.js"
@@ -39,7 +39,10 @@ class AuthenticationServiceImpl implements AuthenticationServiceDef {
     expectedHtu: URL,
     expectedHtm: HTTPMethod,
     dpopTokens: ReadonlyArray<string>,
-  ): Effect.Effect<Identity.Identity, AuthenticationError | BadRequest | InternalServerError | NonceValidationError | HMACDigestError> {
+  ): Effect.Effect<
+    Identity.Identity,
+    AuthenticationError | BadRequest | InternalServerError | NonceValidationError | HMACDigestError
+  > {
     return Option.match(
       jwt,
       {
@@ -52,8 +55,15 @@ class AuthenticationServiceImpl implements AuthenticationServiceDef {
             const jwkKey = yield* this.getJwkKey(issuer)
 
             const isLocalIssuer = Option.isSome(this.issuerJwkResolver.getJwk(issuer))
+
             if (isLocalIssuer) {
-              yield* this.dpopValidator.validateDPoPToken(expectedHtu, expectedHtm, dpopTokens)
+              yield* this.dpopValidator.validateDPoPToken(
+                expectedHtu,
+                expectedHtm,
+                dpopTokens,
+                jwt.toString("utf8"),
+                true,
+              )
             }
 
             return yield* this.oidcService.authorizeOIDC(jwt, jwkKey, issuer)

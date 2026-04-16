@@ -1,11 +1,10 @@
 import { describe, expect, it } from "@effect/vitest"
-import type { ConfigError } from "effect"
-import { ConfigProvider, Effect, HashSet, Layer } from "effect"
+import { Effect, HashSet, Layer } from "effect"
 import type { PartialDeep } from "type-fest"
 import type { ResourceURIs, Schemas } from "../src/index.js"
 import { Identity, Operation, Services } from "../src/index.js"
 import { ResourceURILiterals } from "../src/schemas/resource-uris.js"
-import { NonceServiceLive } from "../src/services/nonce-service/layer.js"
+import { makeTestEnvWithFlags, TestNonceService } from "../test-utils/index.js"
 
 const allOperations = Object.values(Operation)
 
@@ -353,27 +352,12 @@ function createMTLSIdentity(commonName: string, scopes: Array<Schemas.ScopeGroup
   return new Identity.MTLSIdentity(commonName, HashSet.fromIterable(scopes))
 }
 
-function createFeatureFlagConfig(flags: Array<Schemas.FeatureFlags.FeatureFlags>) {
-  return Layer.setConfigProvider(
-    ConfigProvider.fromMap(
-      new Map([["FEATURE_FLAGS", flags.join(",")]]),
-    ),
-  )
-}
-
-function TestLayer(
-  flags: Array<Schemas.FeatureFlags.FeatureFlags>,
-): Layer.Layer<
-  | Services.AuthorizationService.AuthorizationService
-  | Services.FeatureFlagService.FeatureFlagService
-  | Services.FineGrainedAuthorizationService.FineGrainedAuthorizationService,
-  ConfigError.ConfigError
-> {
+function TestLayer(flags: Array<Schemas.FeatureFlags.FeatureFlags>) {
   return Services.AuthorizationService.AuthorizationServiceLive.pipe(
     Layer.provideMerge(Services.FeatureFlagService.FeatureFlagServiceLive),
     Layer.provideMerge(Services.FineGrainedAuthorizationService.FineGrainedAuthorizationServiceLive),
-    Layer.provideMerge(createFeatureFlagConfig(flags)),
-    Layer.provideMerge(NonceServiceLive),
+    Layer.provideMerge(makeTestEnvWithFlags(HashSet.fromIterable(flags))),
+    Layer.provideMerge(TestNonceService),
   )
 }
 

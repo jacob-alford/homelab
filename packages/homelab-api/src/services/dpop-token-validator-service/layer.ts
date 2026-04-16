@@ -1,6 +1,7 @@
 import { Array, DateTime, Effect, Layer, Option, pipe, Schema } from "effect"
 import { Constants } from "homelab-shared"
 import { decodeJwt, decodeProtectedHeader, jwtVerify } from "jose"
+import * as Crypto from "node:crypto"
 import * as ApiErrors from "../../errors/http-errors.js"
 import type { HTTPMethod } from "../../schemas/HTTPMethod.js"
 import * as OAuth from "../../schemas/OAuth.js"
@@ -25,6 +26,7 @@ class DPoPTokenValidatorServiceImpl implements DPoPTokenValidatorServiceDef {
     expectedHtu: URL,
     expectedHtm: HTTPMethod,
     dpopTokens: ReadonlyArray<string>,
+    accessToken?: string,
     requireNonce = false,
   ) {
     if (dpopTokens.length > 1) {
@@ -112,6 +114,10 @@ class DPoPTokenValidatorServiceImpl implements DPoPTokenValidatorServiceDef {
 
           yield* this.validateNonce(parsedToken.nonce, requireNonce)
 
+          if (accessToken) {
+            yield* this.validateAth(parsedToken.ath, accessToken)
+          }
+
           return { headers: parsedHeaders, token: parsedToken, raw: token } satisfies DPoPValidationResult
         },
         Effect.catchTags({
@@ -127,6 +133,33 @@ class DPoPTokenValidatorServiceImpl implements DPoPTokenValidatorServiceDef {
     })
   }
 
+  private validateAth(ath: typeof OAuth.DPoPProofJWT.Type["ath"], accessToken: string) {
+    return Effect.gen(function*() {
+      if (ath === undefined) {
+        return yield* new ApiErrors.AuthenticationError({
+          reason: "invalid-credential",
+          message: "access token header missing",
+        })
+      }
+
+      const atHash = yield* Effect.try({
+        try: () => Crypto.createHash("sha256").update(accessToken, "ascii").digest("base64url"),
+        catch: (error) =>
+          new ApiErrors.InternalServerError({
+            message: "failed to hash access token",
+            error,
+          }),
+      })
+
+      if (atHash !== ath) {
+        return yield* new ApiErrors.AuthenticationError({
+          reason: "invalid-credential",
+          message: "access token doesn't match",
+        })
+      }
+    })
+  }
+
   private validateNonce(nonce: typeof OAuth.DPoPProofJWT.Type["nonce"], requireNonce: boolean) {
     return Effect.gen(this, function*() {
       if (nonce === undefined) {
@@ -139,7 +172,23 @@ class DPoPTokenValidatorServiceImpl implements DPoPTokenValidatorServiceDef {
         return
       }
 
-      const nonceTime = yield* this.nonceService.validateNonce(nonce)
+      const nonceTime = yield* this.nonceService.validateNonce(nonce).pipe(
+        Effect.catchTags({
+          NonceValidationError(err) {
+            return new ApiErrors.AuthenticationError({
+              reason: "invalid-credential",
+              message: "failed to validate nonce",
+              error: err,
+            })
+          },
+          HMACDigestError(err) {
+            return new ApiErrors.InternalServerError({
+              message: "Error creating HMAC digest",
+              error: err,
+            })
+          },
+        }),
+      )
 
       const now = yield* DateTime.now
       const nonceExpiry = DateTime.addDuration(nonceTime, "5 minutes")

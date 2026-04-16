@@ -1,5 +1,5 @@
 import { Headers, HttpApiMiddleware, HttpServerRequest } from "@effect/platform"
-import { Array, Context, Effect, flow, Layer, Option, pipe, Record, RegExp, Schema, String, Tuple } from "effect"
+import { Array, Context, Effect, flow, Layer, Option, Schema, String } from "effect"
 import * as Env from "../config/env.js"
 import * as ApiErrors from "../errors/http-errors.js"
 import type { Identity } from "../identity.js"

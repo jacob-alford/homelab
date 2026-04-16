@@ -1,31 +1,9 @@
-import { NodeFileSystem } from "@effect/platform-node"
 import { describe, expect, it } from "@effect/vitest"
-import { ConfigProvider, DateTime, Effect, Layer } from "effect"
-import * as fs from "node:fs"
-import * as os from "node:os"
-import * as path from "node:path"
+import { DateTime, Effect } from "effect"
 import { Services } from "../src/index.js"
+import { TestNonceService } from "../test-utils/index.js"
 
-function createTestSecretFile(): string {
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "nonce-test-"))
-  const secretPath = path.join(tmpDir, "secret")
-  fs.writeFileSync(secretPath, "test-hmac-secret-key")
-  return secretPath
-}
-
-const secretFilePath = createTestSecretFile()
-
-const TestConfigProvider = Layer.setConfigProvider(
-  ConfigProvider.fromMap(
-    new Map([["HOMELAB_SECRET_FILE", secretFilePath]]),
-  ),
-)
-
-const TestLayer = Services.NonceService.NonceServiceLive.pipe(
-  Layer.provideMerge(Services.HMACService.HMACServiceLive),
-  Layer.provideMerge(NodeFileSystem.layer),
-  Layer.provideMerge(TestConfigProvider),
-)
+const TestLayer = TestNonceService
 
 describe("NonceService", () => {
   describe("withTime", () => {

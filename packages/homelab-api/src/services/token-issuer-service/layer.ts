@@ -1,4 +1,4 @@
-import { Array, DateTime, Effect, flow, HashSet, Layer, Option, pipe } from "effect"
+import { DateTime, Effect, flow, HashSet, Layer, Option, pipe, Schema } from "effect"
 import { Constants } from "homelab-shared"
 import { decodeJwt, importJWK, SignJWT } from "jose"
 import * as Crypto from "node:crypto"
@@ -6,8 +6,7 @@ import { ApiKeyConfig } from "../../config/api-key-config.js"
 import * as Env from "../../config/env.js"
 import * as IssuerJwkResolver from "../../config/issuer-jwk-resolver-jose.js"
 import * as ApiErrors from "../../errors/http-errors.js"
-import type { HTTPMethod } from "../../schemas/HTTPMethod.js"
-import type * as OAuth from "../../schemas/OAuth.js"
+import * as OAuth from "../../schemas/OAuth.js"
 import { fixJwksForJose } from "../../utils/fix-jwks-for-jose.js"
 import { DPoPTokenValidatorService } from "../dpop-token-validator-service/definition.js"
 import { NonceService } from "../nonce-service/definition.js"
@@ -62,7 +61,19 @@ class TokenIssuerServiceImpl implements TokenIssuerServiceDef {
     return Effect.gen(this, function*() {
       const apiKeyScopes = yield* this.getApiKeyRoles(apiKey)
 
-      const { htu, htm } = yield* this.extractHtuHtm(dpopTokens)
+      const { htm, htu } = yield* this.extractDpop(dpopTokens).pipe(
+        Effect.andThen(
+          Schema.decodeUnknown(
+            OAuth.DPoPProofHTTPParams,
+          ),
+        ),
+        Effect.catchTag("ParseError", (err) =>
+          new ApiErrors.AuthenticationError({
+            reason: "invalid-credential",
+            message: "Received invalid DPoP",
+            error: err.toString(),
+          })),
+      )
 
       const { headers: { jwk } } = yield* this.dpopTokenValidator.validateDPoPToken(
         htu,
@@ -79,29 +90,28 @@ class TokenIssuerServiceImpl implements TokenIssuerServiceDef {
     })
   }
 
-  private extractHtuHtm(dpopTokens: ReadonlyArray<string>) {
-    return Array.head(dpopTokens).pipe(
-      Option.match({
-        onNone: () =>
-          Effect.fail(
-            new ApiErrors.BadRequest({
-              reason: "eap-client-username-required",
-              message: "DPoP token is required",
-            }),
-          ),
-        onSome: (token) =>
-          Effect.try({
-            try: () => {
-              const { htm, htu } = decodeJwt(token)
-              return { htm: htm as HTTPMethod, htu: new URL(htu as string) }
-            },
-            catch: (error) =>
-              new ApiErrors.AuthenticationError({
-                reason: "invalid-credential",
-                message: "Failed to decode DPoP token claims",
-                error,
-              }),
+  private extractDpop(dpopTokens: ReadonlyArray<string>) {
+    return pipe(
+      dpopTokens,
+      Effect.liftPredicate(
+        (tokens): tokens is [string] => tokens.length === 1,
+        (tokens) =>
+          new ApiErrors.AuthenticationError({
+            reason: tokens.length === 0 ? "not-authenticated" : "invalid-credential",
+            message: tokens.length === 0 ? "DPoP proof is required" : "Received multiple DPoP tokens",
           }),
+      ),
+      Effect.tryMap({
+        try([dpopToken]) {
+          return decodeJwt(dpopToken)
+        },
+        catch(error) {
+          return new ApiErrors.AuthenticationError({
+            reason: "invalid-credential",
+            message: "Failed to decode DPoP token claims",
+            error,
+          })
+        },
       }),
     )
   }

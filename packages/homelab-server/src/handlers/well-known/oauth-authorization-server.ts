@@ -3,7 +3,7 @@ import type { Homelab } from "homelab-api"
 import { Config } from "homelab-api"
 
 export const handleOAuthAuthorizationWellKnown = Effect.fn("handleOAuthAuthorizationWellKnown")(
-  function*(args: Homelab.WellKnownEndpoints.OAuthAuthorizationServer.HealthEndpointHandlerArgs) {
+  function*(_args: Homelab.WellKnownEndpoints.OAuthAuthorizationServer.HealthEndpointHandlerArgs) {
     const origin = yield* Config.Env.originUrl
 
     return {
