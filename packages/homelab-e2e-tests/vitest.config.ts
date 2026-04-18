@@ -1,6 +1,11 @@
 import { mergeConfig, type UserConfigExport } from "vitest/config"
 import shared from "../../vitest.shared.js"
 
-const config: UserConfigExport = {}
+const config: UserConfigExport = {
+  test: {
+    globals: true,
+    include: ["src/**/*.test.ts"],
+  },
+}
 
 export default mergeConfig(shared, config)

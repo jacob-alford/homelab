@@ -1,10 +1,15 @@
 import { describe, expect, it } from "@effect/vitest"
 import { Effect, HashSet, Layer } from "effect"
-import { Identity, Middleware } from "homelab-api"
+import type { Homelab } from "homelab-api"
+import { Identity, Middleware } from "homelab-services"
 import { handleCerts } from "../../../src/handlers/mobile-config/certs.js"
 import { HandlerTestLayer } from "../../../test-utils/testing-layer.js"
 
 const withIdentity = (identity: Identity.Identity) => Layer.succeed(Middleware.CurrentIdentity, identity)
+
+const certsArgs = (): Homelab.MobileConfigEndpoints.Certs.CertsHandlerArgs => ({
+  request: {} as any,
+})
 
 const authorizedIdentity = new Identity.OIDCIdentity(
   "user@example.com",
@@ -15,7 +20,7 @@ describe("handleCerts", () => {
   describe("authorization", () => {
     it.effect("should deny access when identity lacks Config.Certs permission", () =>
       Effect.gen(function*() {
-        const result = yield* Effect.flip(handleCerts({}))
+        const result = yield* Effect.flip(handleCerts(certsArgs()))
 
         expect(result._tag).toBe("AuthorizationError")
         expect(result.resource).toBe("Config.Certs")
@@ -28,7 +33,7 @@ describe("handleCerts", () => {
 
     it.effect("should deny access with empty permissions", () =>
       Effect.gen(function*() {
-        const result = yield* Effect.flip(handleCerts({}))
+        const result = yield* Effect.flip(handleCerts(certsArgs()))
 
         expect(result._tag).toBe("AuthorizationError")
       }).pipe(
@@ -40,7 +45,7 @@ describe("handleCerts", () => {
 
     it.effect("should allow guest identity to view certs", () =>
       Effect.gen(function*() {
-        const result = yield* handleCerts({})
+        const result = yield* handleCerts(certsArgs())
 
         expect(result).toContain("<?xml")
         expect(result).toContain("plist")
@@ -53,7 +58,7 @@ describe("handleCerts", () => {
   describe("happy path", () => {
     it.effect("should generate certificate profile", () =>
       Effect.gen(function*() {
-        const result = yield* handleCerts({})
+        const result = yield* handleCerts(certsArgs())
 
         expect(result).toContain("<?xml")
         expect(result).toContain("plist")
@@ -64,7 +69,7 @@ describe("handleCerts", () => {
 
     it.effect("should allow mTLS identity with Config.Certs permission", () =>
       Effect.gen(function*() {
-        const result = yield* handleCerts({})
+        const result = yield* handleCerts(certsArgs())
 
         expect(result).toContain("<?xml")
         expect(result).toContain("plist")

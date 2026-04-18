@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@effect/vitest"
 import { Effect, HashSet, Layer } from "effect"
-import { Identity, Middleware } from "homelab-api"
+import { Identity, Middleware } from "homelab-services"
 import { handleAcmeDownload } from "../../../src/handlers/mobile-config/acme-download.js"
 import { generateAcmeProfile } from "../../../src/handlers/mobile-config/acme.js"
 import { HandlerTestLayer } from "../../../test-utils/testing-layer.js"

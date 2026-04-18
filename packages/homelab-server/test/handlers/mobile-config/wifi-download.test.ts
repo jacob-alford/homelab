@@ -1,6 +1,7 @@
 import { describe, expect, it } from "@effect/vitest"
 import { Effect, HashSet, Layer } from "effect"
-import { Identity, Middleware } from "homelab-api"
+import type { Homelab } from "homelab-api"
+import { Identity, Middleware } from "homelab-services"
 import { handleWifiDownload } from "../../../src/handlers/mobile-config/wifi-download.js"
 import { generateWifiProfile } from "../../../src/handlers/mobile-config/wifi.js"
 import { HandlerTestLayer } from "../../../test-utils/testing-layer.js"
@@ -11,7 +12,7 @@ const downloadArgs = (overrides?: {
   ssid?: string
   encryption?: "WPA3" | "WPA2"
   password?: string
-}) => ({
+}): Homelab.MobileConfigEndpoints.WifiDownload.WifiMobileConfigDownloadHandlerArgs => ({
   path: {
     ssid: overrides?.ssid ?? "0x676179",
     encryption: overrides?.encryption ?? "WPA3" as const,
@@ -20,6 +21,7 @@ const downloadArgs = (overrides?: {
     password: overrides?.password ?? "test-password",
     disableMACRandomization: false,
   },
+  request: {} as any,
 })
 
 const viewOnlyIdentity = new Identity.OIDCIdentity(
@@ -79,6 +81,7 @@ describe("generateWifiProfile (shared logic)", () => {
       const result = yield* generateWifiProfile({
         path: { ssid: "dialup-express", encryption: "WPA3" as const },
         payload: { password: "secret", disableMACRandomization: false },
+        request: {} as any,
       })
 
       expect(result).toContain("<?xml")

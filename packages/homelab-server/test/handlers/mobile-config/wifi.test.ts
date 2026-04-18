@@ -1,6 +1,7 @@
 import { describe, expect, it } from "@effect/vitest"
 import { Effect, HashSet, Layer } from "effect"
-import { Identity, Middleware } from "homelab-api"
+import type { Homelab } from "homelab-api"
+import { Identity, Middleware } from "homelab-services"
 import { handleWifi } from "../../../src/handlers/mobile-config/wifi.js"
 import { HandlerTestLayer } from "../../../test-utils/testing-layer.js"
 
@@ -13,7 +14,7 @@ const wifiArgs = (overrides?: {
   username?: string
   disableMACRandomization?: boolean
   enterpriseClientType?: "PEAP" | "EAP-TLS"
-}) => ({
+}): Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigHandlerArgs => ({
   path: {
     ssid: overrides?.ssid ?? "0x676179",
     encryption: overrides?.encryption ?? "WPA3" as const,
@@ -26,6 +27,7 @@ const wifiArgs = (overrides?: {
       ? { enterpriseClientType: overrides.enterpriseClientType }
       : {}),
   },
+  request: {} as any,
 })
 
 const authorizedIdentity = new Identity.OIDCIdentity(

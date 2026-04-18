@@ -1,15 +1,10 @@
 import { NodeFileSystem, NodePath } from "@effect/platform-node"
 import { ConfigProvider, Layer } from "effect"
-import { Services } from "homelab-api"
+import { Layers } from "homelab-services-node"
 import {
   IntegrationTestLayer as ApiIntegrationTestLayer,
-  TestApiKeyConfig,
-  TestDPoPProofBuilderService,
-  TestDPoPTokenValidatorService,
-  TestHMACService,
   TestIssuerJwkResolver,
-  TestNonceService,
-} from "homelab-api/test-utils"
+} from "homelab-services-node/test-utils"
 import * as path from "node:path"
 import { EnvLive } from "../src/env.js"
 import { ProfileUuidConfigLive } from "../src/uuids.js"
@@ -21,9 +16,9 @@ export {
   TestHMACService,
   TestIssuerJwkResolver,
   TestNonceService,
-} from "homelab-api/test-utils"
+} from "homelab-services-node/test-utils"
 
-export { buildProof, DPoPProofBuilderService, getPublicJWK } from "homelab-api/test-utils"
+export { buildProof, DPoPProofBuilderService, getPublicJWK } from "homelab-services-node/test-utils"
 
 const privateDir = path.resolve(import.meta.dirname, "..", "private")
 const certsDir = path.resolve(import.meta.dirname, "..", "..", "..", "certs")
@@ -45,63 +40,63 @@ const TestConfigProvider = Layer.setConfigProvider(
 
 const TestEnvLive = EnvLive.pipe(Layer.provide(TestConfigProvider))
 
-export const TestAuthenticationService = Services.AuthenticationService.AuthenticationServiceLive.pipe(
+export const TestAuthenticationService = Layers.AuthenticationService.AuthenticationServiceLive.pipe(
   Layer.provide(TestIssuerJwkResolver),
 )
 
-export const TestAuthorizationService = Services.AuthorizationService.AuthorizationServiceLive.pipe(
-  Layer.provideMerge(Services.FeatureFlagService.FeatureFlagServiceLive),
-  Layer.provideMerge(Services.FineGrainedAuthorizationService.FineGrainedAuthorizationServiceLive),
+export const TestAuthorizationService = Layers.AuthorizationService.AuthorizationServiceLive.pipe(
+  Layer.provideMerge(Layers.FeatureFlagService.FeatureFlagServiceLive),
+  Layer.provideMerge(Layers.FineGrainedAuthorizationService.FineGrainedAuthorizationServiceLive),
   Layer.provide(TestEnvLive),
 )
 
-const TestCertificateService = Services.CertificateService.CertificateServiceLive.pipe(
+const TestCertificateService = Layers.CertificateService.CertificateServiceLive.pipe(
   Layer.provide(NodeFileSystem.layer),
   Layer.provide(TestEnvLive),
 )
 
-const TestAcmeConfigService = Services.AcmeConfigService.AcmeConfigServiceLive.pipe(
+const TestAcmeConfigService = Layers.AcmeConfigService.AcmeConfigServiceLive.pipe(
   Layer.provide(ProfileUuidConfigLive),
   Layer.provide(TestEnvLive),
 )
 
-const TestCertConfigService = Services.CertConfigService.CertConfigServiceLive.pipe(
+const TestCertConfigService = Layers.CertConfigService.CertConfigServiceLive.pipe(
   Layer.provide(ProfileUuidConfigLive),
 )
 
-const TestXmlPrintingService = Services.XmlPrintingProviderApplePlist.AppleMdmXmlPrintingLive.pipe(
-  Layer.provide(Services.XmlPrintingProviderApplePlist.AppleMdmXmlPrintingConfigDefault),
+const TestXmlPrintingService = Layers.XmlPrintingAppleMdm.AppleMdmXmlPrintingLive.pipe(
+  Layer.provide(Layers.XmlPrintingAppleMdm.AppleMdmXmlPrintingConfigDefault),
 )
 
-const TestRootPayloadService = Services.RootPayloadService.RootPayloadServiceLive.pipe(
+const TestRootPayloadService = Layers.RootPayloadService.RootPayloadServiceLive.pipe(
   Layer.provide(ProfileUuidConfigLive),
 )
 
-const TestWifiConfigService = Services.WifiConfigService.WifiConfigServiceLive.pipe(
+const TestWifiConfigService = Layers.WifiConfigService.WifiConfigServiceLive.pipe(
   Layer.provide(ProfileUuidConfigLive),
 )
 
-const TestWifiProfileGeneratorService = Services.WifiProfileGeneratorService.WifiProfileServiceLive.pipe(
+const TestWifiProfileGeneratorService = Layers.WifiProfileGeneratorService.WifiProfileServiceLive.pipe(
   Layer.provide(TestCertConfigService),
   Layer.provide(TestCertificateService),
   Layer.provide(TestRootPayloadService),
   Layer.provide(TestWifiConfigService),
 )
 
-const TestAcmeProfileGeneratorService = Services.AcmeProfileGeneratorService.AcmeProfileServiceLive.pipe(
+const TestAcmeProfileGeneratorService = Layers.AcmeProfileGeneratorService.AcmeProfileServiceLive.pipe(
   Layer.provide(TestAcmeConfigService),
   Layer.provide(TestCertConfigService),
   Layer.provide(TestCertificateService),
   Layer.provide(TestRootPayloadService),
 )
 
-const TestCertProfileGeneratorService = Services.CertProfileGeneratorService.CertProfileServiceLive.pipe(
+const TestCertProfileGeneratorService = Layers.CertProfileGeneratorService.CertProfileServiceLive.pipe(
   Layer.provide(TestCertConfigService),
   Layer.provide(TestCertificateService),
   Layer.provide(TestRootPayloadService),
 )
 
-export const TestUuidService = Services.UuidService.UuidServiceLive
+export const TestUuidService = Layers.UuidService.UuidServiceLive
 
 export const HandlerTestLayer = Layer.mergeAll(
   TestAuthorizationService,
