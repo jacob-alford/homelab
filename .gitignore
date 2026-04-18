@@ -2,6 +2,7 @@ coverage/
 *.tsbuildinfo
 node_modules/
 .DS_Store
+.result
 tmp/
 dist/
 build/
