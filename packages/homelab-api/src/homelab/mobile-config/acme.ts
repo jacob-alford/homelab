@@ -1,8 +1,7 @@
 import { HttpApiEndpoint, HttpApiError, HttpApiSchema } from "@effect/platform"
 import type { Types } from "effect"
 import { Schema } from "effect"
-import * as ApiErrors from "../../errors/http-errors.js"
-import * as Schemas from "../../schemas/index.js"
+import { ApiErrors, Schemas } from "homelab-services"
 
 export const AcmeQueryParams = null
 
@@ -34,9 +33,3 @@ export type AcmeMobileConfigEndpoint = typeof AcmeMobileConfig
 export type AcmeMobileConfigHandlerArgs = Types.Simplify<
   HttpApiEndpoint.HttpApiEndpoint.Request<AcmeMobileConfigEndpoint>
 >
-
-declare module "../../resource-uris.js" {
-  interface URIToParams {
-    readonly [`Config.ACME`]: AcmeMobileConfigHandlerArgs
-  }
-}

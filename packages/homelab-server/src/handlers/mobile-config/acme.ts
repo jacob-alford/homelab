@@ -1,6 +1,6 @@
 import { Console, Effect, flow, Match } from "effect"
 import type { Homelab } from "homelab-api"
-import { ApiErrors, Middleware, Services } from "homelab-api"
+import { ApiErrors, Middleware, Services } from "homelab-services"
 
 const blacklistedAcmeClientIdentifiers = new Set([
   "root",

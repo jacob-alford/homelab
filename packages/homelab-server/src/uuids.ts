@@ -1,5 +1,5 @@
 import { Layer } from "effect"
-import { Config, type Services } from "homelab-api"
+import { Config, type Services } from "homelab-services"
 
 export const ProfileUuidConfigLive = Layer.succeed(
   Config.ProfileUuidConfig.ProfileUuidConfig,

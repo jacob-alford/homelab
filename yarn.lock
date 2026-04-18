@@ -6663,23 +6663,15 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "homelab-api@workspace:packages/homelab-api"
   dependencies:
-    "@effect/cluster": "npm:^0.56.x"
-    "@effect/experimental": "npm:^0.58.x"
     "@effect/platform": "npm:^0.94.x"
-    "@effect/platform-node": "npm:^0.104.x"
-    "@effect/rpc": "npm:^0.73.x"
-    "@effect/sql": "npm:^0.49.x"
     "@effect/vitest": "npm:^0.27.x"
-    "@effect/workflow": "npm:^0.16.x"
     "@types/node": "npm:^24"
     "@vitest/coverage-v8": "npm:3.2.4"
     effect: "npm:^3.x"
     fast-xml-parser: "npm:^5.5.11"
-    homelab-data: "workspace:*"
+    homelab-services: "workspace:*"
     homelab-shared: "workspace:*"
-    jose: "npm:^6.2.1"
     madge: "npm:^8.x"
-    type-fest: "npm:^5.4.4"
     vitest: "npm:^3.x"
   languageName: unknown
   linkType: soft
@@ -6700,6 +6692,29 @@ __metadata:
     "@types/node": "npm:^24"
     effect: "npm:^3.x"
     madge: "npm:^8.0.0"
+    vitest: "npm:^3.x"
+  languageName: unknown
+  linkType: soft
+
+"homelab-e2e-tests@workspace:packages/homelab-e2e-tests":
+  version: 0.0.0-use.local
+  resolution: "homelab-e2e-tests@workspace:packages/homelab-e2e-tests"
+  dependencies:
+    "@effect/cluster": "npm:^0.56.x"
+    "@effect/experimental": "npm:^0.58.x"
+    "@effect/platform": "npm:^0.94.x"
+    "@effect/platform-node": "npm:^0.104.x"
+    "@effect/rpc": "npm:^0.73.x"
+    "@effect/sql": "npm:^0.49.x"
+    "@effect/vitest": "npm:^0.27.x"
+    "@effect/workflow": "npm:^0.16.x"
+    "@types/node": "npm:^24"
+    "@vitest/coverage-v8": "npm:3.2.4"
+    effect: "npm:^3.x"
+    homelab-api: "workspace:*"
+    homelab-services: "workspace:*"
+    homelab-services-node: "workspace:*"
+    jose: "npm:^5.x"
     vitest: "npm:^3.x"
   languageName: unknown
   linkType: soft
@@ -6734,11 +6749,51 @@ __metadata:
     "@types/node": "npm:^24"
     effect: "npm:^3.x"
     homelab-api: "workspace:*"
+    homelab-services: "workspace:*"
+    homelab-services-node: "workspace:*"
     homelab-shared: "workspace:*"
     jose: "npm:^6.x"
     madge: "npm:^8.0.0"
     rolldown: "npm:^1.0.0-rc.7"
     tsx: "npm:^4.21.0"
+    vitest: "npm:^3.x"
+  languageName: unknown
+  linkType: soft
+
+"homelab-services-node@workspace:*, homelab-services-node@workspace:packages/homelab-services-node":
+  version: 0.0.0-use.local
+  resolution: "homelab-services-node@workspace:packages/homelab-services-node"
+  dependencies:
+    "@effect/cluster": "npm:^0.56.x"
+    "@effect/experimental": "npm:^0.58.x"
+    "@effect/platform": "npm:^0.94.x"
+    "@effect/platform-node": "npm:^0.104.x"
+    "@effect/rpc": "npm:^0.73.x"
+    "@effect/sql": "npm:^0.49.x"
+    "@effect/vitest": "npm:^0.27.x"
+    "@effect/workflow": "npm:^0.16.x"
+    "@types/node": "npm:^24"
+    effect: "npm:^3.x"
+    fast-xml-parser: "npm:^5.5.11"
+    homelab-data: "workspace:*"
+    homelab-services: "workspace:*"
+    homelab-shared: "workspace:*"
+    jose: "npm:^6.2.1"
+    type-fest: "npm:^4.x"
+    vitest: "npm:^3.x"
+  languageName: unknown
+  linkType: soft
+
+"homelab-services@workspace:*, homelab-services@workspace:packages/homelab-services":
+  version: 0.0.0-use.local
+  resolution: "homelab-services@workspace:packages/homelab-services"
+  dependencies:
+    "@effect/platform": "npm:^0.94.x"
+    "@effect/vitest": "npm:^0.27.x"
+    "@types/node": "npm:^24"
+    effect: "npm:^3.x"
+    homelab-shared: "workspace:*"
+    jose: "npm:^6.2.1"
     vitest: "npm:^3.x"
   languageName: unknown
   linkType: soft
@@ -7526,6 +7581,13 @@ __metadata:
     graceful-fs: "npm:^4.2.9"
     picomatch: "npm:^2.2.3"
   checksum: 10c0/bc55a8f49fdbb8f51baf31d2a4f312fb66c9db1483b82f602c9c990e659cdd7ec529c8e916d5a89452ecbcfae4949b21b40a7a59d4ffc0cd813a973ab08c8150
+  languageName: node
+  linkType: hard
+
+"jose@npm:^5.x":
+  version: 5.10.0
+  resolution: "jose@npm:5.10.0"
+  checksum: 10c0/e20d9fc58d7e402f2e5f04e824b8897d5579aae60e64cb88ebdea1395311c24537bf4892f7de413fab1acf11e922797fb1b42269bc8fc65089a3749265ccb7b0
   languageName: node
   linkType: hard
 
@@ -11314,6 +11376,13 @@ __metadata:
   version: 0.8.1
   resolution: "type-fest@npm:0.8.1"
   checksum: 10c0/dffbb99329da2aa840f506d376c863bd55f5636f4741ad6e65e82f5ce47e6914108f44f340a0b74009b0cb5d09d6752ae83203e53e98b1192cf80ecee5651636
+  languageName: node
+  linkType: hard
+
+"type-fest@npm:^4.x":
+  version: 4.41.0
+  resolution: "type-fest@npm:4.41.0"
+  checksum: 10c0/f5ca697797ed5e88d33ac8f1fec21921839871f808dc59345c9cf67345bfb958ce41bd821165dbf3ae591cedec2bf6fe8882098dfdd8dc54320b859711a2c1e4
   languageName: node
   linkType: hard
 

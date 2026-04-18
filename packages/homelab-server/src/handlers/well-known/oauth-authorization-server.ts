@@ -1,6 +1,6 @@
 import { Effect } from "effect"
 import type { Homelab } from "homelab-api"
-import { Config } from "homelab-api"
+import { Config } from "homelab-services"
 
 export const handleOAuthAuthorizationWellKnown = Effect.fn("handleOAuthAuthorizationWellKnown")(
   function*(_args: Homelab.WellKnownEndpoints.OAuthAuthorizationServer.HealthEndpointHandlerArgs) {

@@ -1,6 +1,6 @@
 import { Effect, Schema } from "effect"
 import type { Homelab } from "homelab-api"
-import { ApiErrors, Middleware, Schemas, Services } from "homelab-api"
+import { ApiErrors, Middleware, Schemas, Services } from "homelab-services"
 
 export const handleHealth = Effect.fn("handleHealth")(
   function*(args: Homelab.StatusEndpoints.Health.HealthEndpointHandlerArgs) {

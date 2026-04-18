@@ -1,8 +1,7 @@
 import { HttpApiEndpoint, HttpApiError, HttpApiSchema } from "@effect/platform"
 import type { Types } from "effect"
 import { Schema } from "effect"
-import * as ApiErrors from "../../errors/http-errors.js"
-import * as Schemas from "../../schemas/index.js"
+import { ApiErrors, Schemas } from "homelab-services"
 
 export const WifiQueryParams = null
 
@@ -56,9 +55,3 @@ export type WifiMobileConfigEndpoint = typeof WifiMobileConfig
 export type WifiMobileConfigHandlerArgs = Types.Simplify<
   HttpApiEndpoint.HttpApiEndpoint.Request<WifiMobileConfigEndpoint>
 >
-
-declare module "../../resource-uris.js" {
-  interface URIToParams {
-    readonly [`Config.Wifi`]: WifiMobileConfigHandlerArgs
-  }
-}

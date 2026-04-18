@@ -1,7 +1,7 @@
 import { HttpApp, HttpServerResponse } from "@effect/platform"
 import { Effect } from "effect"
 import type { Homelab } from "homelab-api"
-import { Middleware, Services } from "homelab-api"
+import { Middleware, Services } from "homelab-services"
 import { generateWifiProfile } from "./wifi.js"
 
 export const handleWifiDownload = Effect.fn("handleWifiDownload")(

@@ -1,6 +1,6 @@
 import { Console, Effect, flow, Match } from "effect"
 import type { Homelab } from "homelab-api"
-import { ApiErrors, Middleware, Services } from "homelab-api"
+import { ApiErrors, Middleware, Services } from "homelab-services"
 
 export const generateWifiProfile = Effect.fn("generateWifiProfile")(
   function*(args: Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigHandlerArgs) {

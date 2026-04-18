@@ -1,5 +1,5 @@
 import { Config, Effect, Layer, Schema } from "effect"
-import { Config as HomelabConfig, Schemas } from "homelab-api"
+import { Config as HomelabConfig, Schemas } from "homelab-services"
 
 export const EnvLive = Layer.effect(
   HomelabConfig.Env.Env,

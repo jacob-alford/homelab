@@ -14,7 +14,7 @@ access.
 Frontend packages (Astro, Vite, SolidJS, etc.) compile to a static `dist/` directory
 containing HTML, CSS, JS, and assets. Unlike Node.js services, there is:
 
-- No runtime process — Caddy serves the files directly
+- No runtime process — Caddy serves the files directly.
 - No wrapper script — the Nix output is just the static directory
 - No systemd service — only a Caddy `virtualHosts` entry
 

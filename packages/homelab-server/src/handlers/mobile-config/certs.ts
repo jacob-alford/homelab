@@ -1,6 +1,6 @@
 import { Console, Effect, flow, Match } from "effect"
 import type { Homelab } from "homelab-api"
-import { ApiErrors, Middleware, Services } from "homelab-api"
+import { ApiErrors, Middleware, Services } from "homelab-services"
 
 export const handleCerts = Effect.fn("handleCerts")(
   function*(args: Homelab.MobileConfigEndpoints.Certs.CertsHandlerArgs) {

@@ -1,7 +1,6 @@
 import { HttpApiEndpoint, HttpApiError } from "@effect/platform"
 import type { Types } from "effect"
-import * as ApiErrors from "../../errors/http-errors.js"
-import * as Schemas from "../../schemas/index.js"
+import { ApiErrors, Schemas } from "homelab-services"
 
 import { ClientIdentifierParam } from "./acme.js"
 

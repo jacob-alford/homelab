@@ -1,6 +1,6 @@
 import { HttpApiEndpoint } from "@effect/platform"
 import type { Types } from "effect"
-import * as Schemas from "../../schemas/index.js"
+import { Schemas } from "homelab-services"
 
 export const OAuthAuthorizationWellKnownEndpoint = HttpApiEndpoint.get(
   "well-known-oauth-authorization",

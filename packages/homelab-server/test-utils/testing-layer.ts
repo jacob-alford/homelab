@@ -1,29 +1,29 @@
 import { NodeFileSystem, NodePath } from "@effect/platform-node"
 import { ConfigProvider, Layer } from "effect"
+import { Services } from "homelab-api"
 import {
   IntegrationTestLayer as ApiIntegrationTestLayer,
-  TestDPoPProofBuilderService,
-  TestIssuerJwkResolver,
-  TestHMACService,
-  TestNonceService,
-  TestDPoPTokenValidatorService,
   TestApiKeyConfig,
+  TestDPoPProofBuilderService,
+  TestDPoPTokenValidatorService,
+  TestHMACService,
+  TestIssuerJwkResolver,
+  TestNonceService,
 } from "homelab-api/test-utils"
-import { Services } from "homelab-api"
 import * as path from "node:path"
 import { EnvLive } from "../src/env.js"
 import { ProfileUuidConfigLive } from "../src/uuids.js"
 
 export {
-  TestDPoPProofBuilderService,
-  TestIssuerJwkResolver,
-  TestHMACService,
-  TestNonceService,
-  TestDPoPTokenValidatorService,
   TestApiKeyConfig,
+  TestDPoPProofBuilderService,
+  TestDPoPTokenValidatorService,
+  TestHMACService,
+  TestIssuerJwkResolver,
+  TestNonceService,
 } from "homelab-api/test-utils"
 
-export { DPoPProofBuilderService, buildProof, getPublicJWK } from "homelab-api/test-utils"
+export { buildProof, DPoPProofBuilderService, getPublicJWK } from "homelab-api/test-utils"
 
 const privateDir = path.resolve(import.meta.dirname, "..", "private")
 const certsDir = path.resolve(import.meta.dirname, "..", "..", "..", "certs")

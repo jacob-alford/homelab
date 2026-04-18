@@ -27,6 +27,8 @@
     "@effect/workflow": "^0.16.x",
     "effect": "^3.x",
     "homelab-api": "workspace:*",
+    "homelab-services": "workspace:*",
+    "homelab-services-node": "workspace:*",
     "homelab-shared": "workspace:*",
     "tsx": "^4.21.0"
   },

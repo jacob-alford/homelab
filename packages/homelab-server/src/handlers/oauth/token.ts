@@ -1,7 +1,7 @@
 import { HttpApp, HttpServerResponse } from "@effect/platform"
 import { Console, Effect, flow, Match } from "effect"
 import type { Homelab } from "homelab-api"
-import { ApiErrors, Middleware, Services } from "homelab-api"
+import { ApiErrors, Middleware, Services } from "homelab-services"
 
 export const handleToken = Effect.fn("handleToken")(
   function*(_args: Homelab.OAuthEndpoints.Token.TokenEndpointHandlerArgs) {

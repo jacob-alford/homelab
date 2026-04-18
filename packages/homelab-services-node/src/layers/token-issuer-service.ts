@@ -1,0 +1,204 @@
+import { DateTime, Effect, flow, HashSet, Layer, Option, pipe, Schema } from "effect"
+import { ApiErrors, Config, fixJwksForJose, Schemas, Services } from "homelab-services"
+import { Constants } from "homelab-shared"
+import { decodeJwt, importJWK, SignJWT } from "jose"
+import * as Crypto from "node:crypto"
+
+export const TokenIssuerServiceLive = Layer.effect(
+  Services.TokenIssuerService.TokenIssuerService,
+  Effect.gen(function*() {
+    const origin = yield* Config.Env.originUrl
+
+    const [issuer, jwks] = yield* Config.IssuerJwkResolver.getJwk(origin.href).pipe(
+      Effect.andThen(
+        Option.match({
+          onSome(jwk) {
+            return Effect.succeed([origin.href, jwk] as const)
+          },
+          onNone() {
+            return Effect.fail(
+              new ApiErrors.InternalServerError({
+                message: "Token issuer JWK not found for origin",
+              }),
+            )
+          },
+        }),
+      ),
+    )
+
+    return new TokenIssuerServiceImpl(
+      issuer,
+      jwks,
+      yield* Config.ApiKeyConfig.ApiKeyConfig,
+      yield* Services.DPoPTokenValidatorService.DPoPTokenValidatorService,
+      yield* Services.NonceService.NonceService,
+    )
+  }),
+)
+
+class TokenIssuerServiceImpl implements Services.TokenIssuerService.TokenIssuerServiceDef {
+  constructor(
+    private readonly oidcIssuer: string,
+    private readonly oidcJwk: Schemas.OAuth.JWKs,
+    private readonly apiKeyConfig: typeof Config.ApiKeyConfig.ApiKeyConfig.Service,
+    private readonly dpopTokenValidator: typeof Services.DPoPTokenValidatorService.DPoPTokenValidatorService.Service,
+    private readonly nonceService: typeof Services.NonceService.NonceService.Service,
+  ) {}
+
+  issueToken(
+    apiKey: Option.Option<string>,
+    dpopTokens: ReadonlyArray<string>,
+  ) {
+    return Effect.gen(this, function*() {
+      const apiKeyScopes = yield* this.getApiKeyRoles(apiKey)
+
+      const { htm, htu } = yield* this.extractDpop(dpopTokens).pipe(
+        Effect.andThen(
+          Schema.decodeUnknown(
+            Schemas.OAuth.DPoPProofHTTPParams,
+          ),
+        ),
+        Effect.catchTag("ParseError", (err) =>
+          new ApiErrors.AuthenticationError({
+            reason: "invalid-credential",
+            message: "Received invalid DPoP",
+            error: err.toString(),
+          })),
+      )
+
+      const { headers: { jwk } } = yield* this.dpopTokenValidator.validateDPoPToken(
+        htu,
+        htm,
+        dpopTokens,
+      )
+
+      const accessToken = yield* this.signAccessToken(jwk, apiKeyScopes)
+
+      const now = yield* DateTime.now
+      const nonce = yield* this.nonceService.withTime(now)
+
+      return { accessToken, nonce }
+    })
+  }
+
+  private extractDpop(dpopTokens: ReadonlyArray<string>) {
+    return pipe(
+      dpopTokens,
+      Effect.liftPredicate(
+        (tokens): tokens is [string] => tokens.length === 1,
+        (tokens) =>
+          new ApiErrors.AuthenticationError({
+            reason: tokens.length === 0 ? "not-authenticated" : "invalid-credential",
+            message: tokens.length === 0 ? "DPoP proof is required" : "Received multiple DPoP tokens",
+          }),
+      ),
+      Effect.tryMap({
+        try([dpopToken]) {
+          return decodeJwt(dpopToken)
+        },
+        catch(error) {
+          return new ApiErrors.AuthenticationError({
+            reason: "invalid-credential",
+            message: "Failed to decode DPoP token claims",
+            error,
+          })
+        },
+      }),
+    )
+  }
+
+  private getApiKeyRoles(apiKey: Option.Option<string>) {
+    return Effect.gen(this, function*() {
+      const providedApiKey = yield* apiKey.pipe(
+        Option.map(Effect.succeed),
+        Option.getOrElse(() =>
+          Effect.fail(
+            new ApiErrors.AuthenticationError({
+              reason: "not-authenticated",
+              message: "API key is required",
+            }),
+          )
+        ),
+      )
+
+      const roles = yield* pipe(
+        this.apiKeyConfig.getRoles(providedApiKey),
+        Option.map(flow(HashSet.toValues, Effect.succeed)),
+        Option.getOrElse(() =>
+          Effect.fail(
+            new ApiErrors.AuthenticationError({
+              reason: "invalid-credential",
+              message: "Invalid API key",
+            }),
+          )
+        ),
+      )
+
+      return roles.join(",")
+    })
+  }
+
+  private signAccessToken(dpopJwk: Schemas.OAuth.JWK, roles: string) {
+    return Effect.gen(this, function*() {
+      const { keys: [signingKey] } = fixJwksForJose(this.oidcJwk)
+
+      const privateKey = yield* Effect.tryPromise({
+        try: () => importJWK(signingKey),
+        catch: (error) =>
+          new ApiErrors.InternalServerError({
+            message: "Failed to import JWK",
+            error,
+          }),
+      })
+
+      const dpopJwkDigest = yield* Effect.try({
+        try() {
+          return Crypto.hash("sha256", JSON.stringify(dpopJwk))
+        },
+        catch(error) {
+          return new ApiErrors.InternalServerError({
+            error,
+            message: "Failed to create DPoP thumbprint",
+          })
+        },
+      })
+
+      const nowUnixS = yield* DateTime.now.pipe(
+        Effect.map(
+          DateTime.toEpochMillis,
+        ),
+        Effect.map(
+          (_) => _ / Constants.MS_PER_S,
+        ),
+      )
+
+      const expiresIn = Constants.ONE_HOUR_SECONDS
+
+      const jwt = yield* Effect.tryPromise({
+        try: () => {
+          const jwt = new SignJWT({
+            cnf: {
+              jkt: dpopJwkDigest,
+            },
+            [Constants.JWT_ROLES_KEY]: roles,
+          })
+            .setProtectedHeader({ alg: signingKey.alg!, kid: signingKey.kid! })
+            .setIssuedAt(nowUnixS)
+            .setIssuer(this.oidcIssuer)
+            .setAudience(Constants.JWT_HOMELAB_API_AUD)
+            .setExpirationTime(nowUnixS + expiresIn)
+            .sign(privateKey)
+
+          return jwt
+        },
+        catch: (error) =>
+          new ApiErrors.InternalServerError({
+            message: "Failed to sign JWT",
+            error,
+          }),
+      })
+
+      return jwt
+    })
+  }
+}

@@ -1,10 +1,10 @@
 import { HttpApiGroup } from "@effect/platform"
-import { AuthMiddleware } from "../../middleware/bearer-auth-middleware.js"
+import { Middleware } from "homelab-services"
 import * as Health from "./health.js"
 
 export const StatusApi = HttpApiGroup.make("status")
   .add(Health.HealthEndpoint)
   .prefix("/status")
-  .middleware(AuthMiddleware)
+  .middleware(Middleware.AuthMiddleware)
 
 export * as Health from "./health.js"
