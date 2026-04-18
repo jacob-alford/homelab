@@ -35,8 +35,10 @@
     "@effect/rpc": "^0.73.x",
     "@effect/sql": "^0.49.x",
     "@effect/workflow": "^0.16.x",
+    "bufferutil": "^4.1.0",
     "effect": "^3.x",
-    "type-fest": "^5.4.4"
+    "type-fest": "^5.4.4",
+    "utf-8-validate": "^6.0.6"
   },
   "effect": {
     "generateExports": {

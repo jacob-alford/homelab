@@ -97,7 +97,7 @@ describe("POST /oauth/token", () => {
   describe("success", () => {
     it.effect("issues a DPoP-bound access token and returns DPoP-Nonce header", () =>
       Effect.gen(function*() {
-        const { access_token, token_type, nonce } = yield* getToken(TEST_API_KEY)
+        const { access_token, nonce, token_type } = yield* getToken(TEST_API_KEY)
 
         expect(access_token).toBeTypeOf("string")
         expect(access_token.length).toBeGreaterThan(0)

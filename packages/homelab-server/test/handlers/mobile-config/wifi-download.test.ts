@@ -1,7 +1,7 @@
-import { describe, expect, it } from "@effect/vitest"
+import { assert, describe, expect, it } from "@effect/vitest"
 import { Effect, HashSet, Layer } from "effect"
-import type { Homelab } from "homelab-api"
-import { Identity, Middleware } from "homelab-services"
+import { type Homelab } from "homelab-api"
+import { ApiErrors, Identity, Middleware } from "homelab-services"
 import { handleWifiDownload } from "../../../src/handlers/mobile-config/wifi-download.js"
 import { generateWifiProfile } from "../../../src/handlers/mobile-config/wifi.js"
 import { HandlerTestLayer } from "../../../test-utils/testing-layer.js"
@@ -40,13 +40,15 @@ describe("handleWifiDownload", () => {
       Effect.gen(function*() {
         const result = yield* Effect.flip(handleWifiDownload(downloadArgs()))
 
-        expect(result._tag).toBe("AuthorizationError")
+        assert(result instanceof ApiErrors.AuthorizationError)
         expect(result.resource).toBe("Config.Wifi")
       }).pipe(
-        Effect.provide(withIdentity(
-          new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status.Health"])),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(
+            new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status.Health"])),
+          ),
+          HandlerTestLayer,
         )),
-        Effect.provide(HandlerTestLayer),
       ))
 
     it.effect("should allow view-only permission (does not require create)", () =>
@@ -55,8 +57,10 @@ describe("handleWifiDownload", () => {
 
         expect(result).toContain("<?xml")
       }).pipe(
-        Effect.provide(withIdentity(viewOnlyIdentity)),
-        Effect.provide(HandlerTestLayer),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(viewOnlyIdentity),
+          HandlerTestLayer,
+        )),
       ))
   })
 
@@ -69,8 +73,10 @@ describe("handleWifiDownload", () => {
         expect(result).toContain("plist")
         expect(result).toContain("0x676179")
       }).pipe(
-        Effect.provide(withIdentity(fullAccessIdentity)),
-        Effect.provide(HandlerTestLayer),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(fullAccessIdentity),
+          HandlerTestLayer,
+        )),
       ))
   })
 })

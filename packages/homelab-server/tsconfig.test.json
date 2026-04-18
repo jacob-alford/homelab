@@ -4,6 +4,6 @@
   "compilerOptions": {
     "types": ["node"],
     "noEmit": true,
-    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo"
   }
 }

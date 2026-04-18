@@ -1,14 +1,18 @@
-import { describe, expect, it } from "@effect/vitest"
+import { assert, describe, expect, it } from "@effect/vitest"
 import { Effect, HashSet, Layer } from "effect"
-import { Identity, Middleware } from "homelab-services"
+import { type Homelab } from "homelab-api"
+import { ApiErrors, Identity, Middleware } from "homelab-services"
 import { handleAcmeDownload } from "../../../src/handlers/mobile-config/acme-download.js"
 import { generateAcmeProfile } from "../../../src/handlers/mobile-config/acme.js"
 import { HandlerTestLayer } from "../../../test-utils/testing-layer.js"
 
 const withIdentity = (identity: Identity.Identity) => Layer.succeed(Middleware.CurrentIdentity, identity)
 
-const downloadArgs = (clientIdentifier = "test-client") => ({
+const downloadArgs = (
+  clientIdentifier = "test-client",
+): Homelab.MobileConfigEndpoints.AcmeDownload.AcmeDownloadMobileConfigHandlerArgs => ({
   path: { clientIdentifier },
+  request: {} as any,
 })
 
 const viewOnlyIdentity = new Identity.OIDCIdentity(
@@ -27,13 +31,17 @@ describe("handleAcmeDownload", () => {
       Effect.gen(function*() {
         const result = yield* Effect.flip(handleAcmeDownload(downloadArgs()))
 
-        expect(result._tag).toBe("AuthorizationError")
+        assert(result instanceof ApiErrors.AuthorizationError)
         expect(result.resource).toBe("Config.ACME")
       }).pipe(
-        Effect.provide(withIdentity(
-          new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status.Health"])),
-        )),
-        Effect.provide(HandlerTestLayer),
+        Effect.provide(
+          Layer.provideMerge(
+            withIdentity(
+              new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status.Health"])),
+            ),
+            HandlerTestLayer,
+          ),
+        ),
       ))
 
     it.effect("should allow view-only permission (does not require create)", () =>
@@ -42,8 +50,10 @@ describe("handleAcmeDownload", () => {
 
         expect(result).toContain("<?xml")
       }).pipe(
-        Effect.provide(withIdentity(viewOnlyIdentity)),
-        Effect.provide(HandlerTestLayer),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(viewOnlyIdentity),
+          HandlerTestLayer,
+        )),
       ))
   })
 
@@ -55,8 +65,10 @@ describe("handleAcmeDownload", () => {
         expect(result).toContain("<?xml")
         expect(result).toContain("plist")
       }).pipe(
-        Effect.provide(withIdentity(fullAccessIdentity)),
-        Effect.provide(HandlerTestLayer),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(fullAccessIdentity),
+          HandlerTestLayer,
+        )),
       ))
   })
 })
@@ -64,9 +76,11 @@ describe("handleAcmeDownload", () => {
 describe("generateAcmeProfile (shared logic)", () => {
   it.effect("should generate profile without authorization context", () =>
     Effect.gen(function*() {
-      const result = yield* generateAcmeProfile({
-        path: { clientIdentifier: "my-device" },
-      })
+      const result = yield* generateAcmeProfile(
+        downloadArgs(
+          "my-device",
+        ),
+      )
 
       expect(result).toContain("<?xml")
       expect(result).toContain("my-device")
@@ -76,11 +90,15 @@ describe("generateAcmeProfile (shared logic)", () => {
 
   it.effect("should reject blacklisted client identifier", () =>
     Effect.gen(function*() {
-      const result = yield* Effect.flip(generateAcmeProfile({
-        path: { clientIdentifier: "root" },
-      }))
+      const result = yield* Effect.flip(
+        generateAcmeProfile(
+          downloadArgs(
+            "root",
+          ),
+        ),
+      )
 
-      expect(result._tag).toBe("BadRequest")
+      assert(result instanceof ApiErrors.BadRequest)
       expect(result.reason).toBe("acme-invalid-client-identifier")
     }).pipe(
       Effect.provide(HandlerTestLayer),

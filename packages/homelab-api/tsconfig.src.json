@@ -4,6 +4,6 @@
   "compilerOptions": {
     "types": ["node"],
     "outDir": "build/src",
-    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo"
   }
 }

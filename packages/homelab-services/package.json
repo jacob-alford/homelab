@@ -12,7 +12,7 @@
   "scripts": {
     "lint": "eslint src",
     "typecheck": "node ../../.yarn/sdks/typescript/bin/tsc -b tsconfig.json --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --pass-with-no-tests",
     "test:watch": "vitest watch"
   },
   "dependencies": {

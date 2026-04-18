@@ -4184,6 +4184,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bufferutil@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "bufferutil@npm:4.1.0"
+  dependencies:
+    node-gyp: "npm:latest"
+    node-gyp-build: "npm:^4.3.0"
+  checksum: 10c0/12d63bbc80a3b6525bc62a28387fca0a5aed09e41b74375c500e60721b6a1ab2960b82e48f1773eddea2b14e490f129214b8b57bd6e1a5078b6235857d658508
+  languageName: node
+  linkType: hard
+
 "cac@npm:^6.7.14":
   version: 6.7.14
   resolution: "cac@npm:6.7.14"
@@ -6690,8 +6700,10 @@ __metadata:
     "@effect/vitest": "npm:^0.27.x"
     "@effect/workflow": "npm:^0.16.x"
     "@types/node": "npm:^24"
+    bufferutil: "npm:^4.1.0"
     effect: "npm:^3.x"
     madge: "npm:^8.0.0"
+    utf-8-validate: "npm:^6.0.6"
     vitest: "npm:^3.x"
   languageName: unknown
   linkType: soft
@@ -6710,11 +6722,13 @@ __metadata:
     "@effect/workflow": "npm:^0.16.x"
     "@types/node": "npm:^24"
     "@vitest/coverage-v8": "npm:3.2.4"
+    bufferutil: "npm:^4.1.0"
     effect: "npm:^3.x"
     homelab-api: "workspace:*"
     homelab-services: "workspace:*"
     homelab-services-node: "workspace:*"
     jose: "npm:^5.x"
+    utf-8-validate: "npm:^6.0.6"
     vitest: "npm:^3.x"
   languageName: unknown
   linkType: soft
@@ -6747,6 +6761,7 @@ __metadata:
     "@effect/vitest": "npm:^0.27.x"
     "@effect/workflow": "npm:^0.16.x"
     "@types/node": "npm:^24"
+    bufferutil: "npm:^4.1.0"
     effect: "npm:^3.x"
     homelab-api: "workspace:*"
     homelab-services: "workspace:*"
@@ -6756,6 +6771,7 @@ __metadata:
     madge: "npm:^8.0.0"
     rolldown: "npm:^1.0.0-rc.7"
     tsx: "npm:^4.21.0"
+    utf-8-validate: "npm:^6.0.6"
     vitest: "npm:^3.x"
   languageName: unknown
   linkType: soft
@@ -6773,6 +6789,7 @@ __metadata:
     "@effect/vitest": "npm:^0.27.x"
     "@effect/workflow": "npm:^0.16.x"
     "@types/node": "npm:^24"
+    bufferutil: "npm:^4.1.0"
     effect: "npm:^3.x"
     fast-xml-parser: "npm:^5.5.11"
     homelab-data: "workspace:*"
@@ -6780,6 +6797,7 @@ __metadata:
     homelab-shared: "workspace:*"
     jose: "npm:^6.2.1"
     type-fest: "npm:^4.x"
+    utf-8-validate: "npm:^6.0.6"
     vitest: "npm:^3.x"
   languageName: unknown
   linkType: soft
@@ -6811,9 +6829,11 @@ __metadata:
     "@effect/vitest": "npm:^0.27.x"
     "@effect/workflow": "npm:^0.16.x"
     "@types/node": "npm:^24"
+    bufferutil: "npm:^4.1.0"
     effect: "npm:^3.x"
     madge: "npm:^8.0.0"
     type-fest: "npm:^5.4.4"
+    utf-8-validate: "npm:^6.0.6"
     vitest: "npm:^3.x"
   languageName: unknown
   linkType: soft
@@ -8909,6 +8929,17 @@ __metadata:
     node-gyp-build-optional-packages-optional: optional.js
     node-gyp-build-optional-packages-test: build-test.js
   checksum: 10c0/c81128c6f91873381be178c5eddcbdf66a148a6a89a427ce2bcd457593ce69baf2a8662b6d22cac092d24aa9c43c230dec4e69b3a0da604503f4777cd77e282b
+  languageName: node
+  linkType: hard
+
+"node-gyp-build@npm:^4.3.0":
+  version: 4.8.4
+  resolution: "node-gyp-build@npm:4.8.4"
+  bin:
+    node-gyp-build: bin.js
+    node-gyp-build-optional: optional.js
+    node-gyp-build-test: build-test.js
+  checksum: 10c0/444e189907ece2081fe60e75368784f7782cfddb554b60123743dfb89509df89f1f29c03bbfa16b3a3e0be3f48799a4783f487da6203245fa5bed239ba7407e1
   languageName: node
   linkType: hard
 
@@ -11838,6 +11869,16 @@ __metadata:
   dependencies:
     punycode: "npm:^2.1.0"
   checksum: 10c0/4ef57b45aa820d7ac6496e9208559986c665e49447cb072744c13b66925a362d96dd5a46c4530a6b8e203e5db5fe849369444440cb22ecfc26c679359e5dfa3c
+  languageName: node
+  linkType: hard
+
+"utf-8-validate@npm:^6.0.6":
+  version: 6.0.6
+  resolution: "utf-8-validate@npm:6.0.6"
+  dependencies:
+    node-gyp: "npm:latest"
+    node-gyp-build: "npm:^4.3.0"
+  checksum: 10c0/88c3581c43b9f824f0939b0da0ecf0cf092ff944ace7be517a5459bc18fe1884fc4acda3502ed369b4ce44baf40590a8f1e820c43a425df0758f2ba76b055f77
   languageName: node
   linkType: hard
 

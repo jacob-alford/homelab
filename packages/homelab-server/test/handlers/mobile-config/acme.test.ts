@@ -1,13 +1,17 @@
-import { describe, expect, it } from "@effect/vitest"
+import { assert, describe, expect, it } from "@effect/vitest"
 import { Effect, HashSet, Layer } from "effect"
-import { Identity, Middleware } from "homelab-services"
+import { type Homelab } from "homelab-api"
+import { ApiErrors, Identity, Middleware } from "homelab-services"
 import { handleAcme } from "../../../src/handlers/mobile-config/acme.js"
 import { HandlerTestLayer } from "../../../test-utils/testing-layer.js"
 
 const withIdentity = (identity: Identity.Identity) => Layer.succeed(Middleware.CurrentIdentity, identity)
 
-const acmeArgs = (clientIdentifier = "test-client") => ({
+const acmeArgs = (
+  clientIdentifier = "test-client",
+): Homelab.MobileConfigEndpoints.Acme.AcmeMobileConfigHandlerArgs => ({
   path: { clientIdentifier },
+  request: {} as any,
 })
 
 const authorizedIdentity = new Identity.OIDCIdentity(
@@ -21,25 +25,29 @@ describe("handleAcme", () => {
       Effect.gen(function*() {
         const result = yield* Effect.flip(handleAcme(acmeArgs()))
 
-        expect(result._tag).toBe("AuthorizationError")
+        assert(result instanceof ApiErrors.AuthorizationError)
         expect(result.resource).toBe("Config.ACME")
       }).pipe(
-        Effect.provide(withIdentity(
-          new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status.Health"])),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(
+            new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status.Health"])),
+          ),
+          HandlerTestLayer,
         )),
-        Effect.provide(HandlerTestLayer),
       ))
 
     it.effect("should deny access with empty permissions", () =>
       Effect.gen(function*() {
         const result = yield* Effect.flip(handleAcme(acmeArgs()))
 
-        expect(result._tag).toBe("AuthorizationError")
+        assert(result instanceof ApiErrors.AuthorizationError)
       }).pipe(
-        Effect.provide(withIdentity(
-          new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable([])),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(
+            new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable([])),
+          ),
+          HandlerTestLayer,
         )),
-        Effect.provide(HandlerTestLayer),
       ))
   })
 
@@ -51,8 +59,10 @@ describe("handleAcme", () => {
         expect(result).toContain("<?xml")
         expect(result).toContain("plist")
       }).pipe(
-        Effect.provide(withIdentity(authorizedIdentity)),
-        Effect.provide(HandlerTestLayer),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(authorizedIdentity),
+          HandlerTestLayer,
+        )),
       ))
 
     it.effect("should generate ACME profile with custom client identifier", () =>
@@ -63,8 +73,10 @@ describe("handleAcme", () => {
         expect(result).toContain("plist")
         expect(result).toContain("my-device")
       }).pipe(
-        Effect.provide(withIdentity(authorizedIdentity)),
-        Effect.provide(HandlerTestLayer),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(authorizedIdentity),
+          HandlerTestLayer,
+        )),
       ))
   })
 
@@ -73,22 +85,26 @@ describe("handleAcme", () => {
       Effect.gen(function*() {
         const result = yield* Effect.flip(handleAcme(acmeArgs("root")))
 
-        expect(result._tag).toBe("BadRequest")
+        assert(result instanceof ApiErrors.BadRequest)
         expect(result.reason).toBe("acme-invalid-client-identifier")
       }).pipe(
-        Effect.provide(withIdentity(authorizedIdentity)),
-        Effect.provide(HandlerTestLayer),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(authorizedIdentity),
+          HandlerTestLayer,
+        )),
       ))
 
     it.effect("should return BadRequest for blacklisted client identifier 'postgres'", () =>
       Effect.gen(function*() {
         const result = yield* Effect.flip(handleAcme(acmeArgs("postgres")))
 
-        expect(result._tag).toBe("BadRequest")
+        assert(result instanceof ApiErrors.BadRequest)
         expect(result.reason).toBe("acme-invalid-client-identifier")
       }).pipe(
-        Effect.provide(withIdentity(authorizedIdentity)),
-        Effect.provide(HandlerTestLayer),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(authorizedIdentity),
+          HandlerTestLayer,
+        )),
       ))
   })
 })

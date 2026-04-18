@@ -33,7 +33,7 @@ const TestConfigProvider = Layer.setConfigProvider(
       ["FEATURE_FLAGS", "*"],
       ["ROOT_CERT_DER", path.join(certsDir, "alford-root.crt")],
       ["INTERMEDIATE_CERT_DER", path.join(certsDir, "intermediate_ca_2.crt")],
-      ["KANIDM_OIDC_URL", "https://kanidm.test/oauth2/openid/test/.well-known/openid-configuration"],
+      ["KANIDM_OPENID_PROVIDER_URL", "https://kanidm.test/oauth2/openid/test/.well-known/openid-configuration"],
     ]),
   ),
 )

@@ -8,6 +8,14 @@ export const RemoteOIDCWellKnownDetailsServiceLive = Layer.effect(
     const kanidmUrl = yield* Config.Env.kanidmOidcUrl
 
     const kanidmConfig = yield* HttpClient.get(kanidmUrl).pipe(
+      Effect.filterOrElse(
+        (res) => res.status >= 200 && res.status < 300,
+        (res) =>
+          res.text.pipe(
+            Effect.map((res) => `Failed to fetch Kanidm OIDC configuration: ${res}`),
+            Effect.andThen(Effect.die),
+          ),
+      ),
       Effect.andThen(
         HttpClientResponse.schemaBodyJson(Schemas.OIDC.OIDCWellKnown),
       ),

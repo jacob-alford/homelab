@@ -1,7 +1,7 @@
-import { describe, expect, it } from "@effect/vitest"
+import { assert, describe, expect, it } from "@effect/vitest"
 import { Effect, HashSet, Layer } from "effect"
-import type { Homelab } from "homelab-api"
-import { Identity, Middleware } from "homelab-services"
+import { type Homelab } from "homelab-api"
+import { ApiErrors, Identity, Middleware } from "homelab-services"
 import { handleWifi } from "../../../src/handlers/mobile-config/wifi.js"
 import { HandlerTestLayer } from "../../../test-utils/testing-layer.js"
 
@@ -41,38 +41,44 @@ describe("handleWifi", () => {
       Effect.gen(function*() {
         const result = yield* Effect.flip(handleWifi(wifiArgs()))
 
-        expect(result._tag).toBe("AuthorizationError")
+        assert(result instanceof ApiErrors.AuthorizationError)
         expect(result.resource).toBe("Config.Wifi")
       }).pipe(
-        Effect.provide(withIdentity(
-          new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status.Health"])),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(
+            new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status.Health"])),
+          ),
+          HandlerTestLayer,
         )),
-        Effect.provide(HandlerTestLayer),
       ))
 
     it.effect("should deny access with empty permissions", () =>
       Effect.gen(function*() {
         const result = yield* Effect.flip(handleWifi(wifiArgs()))
 
-        expect(result._tag).toBe("AuthorizationError")
+        assert(result instanceof ApiErrors.AuthorizationError)
       }).pipe(
-        Effect.provide(withIdentity(
-          new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable([])),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(
+            new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable([])),
+          ),
+          HandlerTestLayer,
         )),
-        Effect.provide(HandlerTestLayer),
       ))
 
     it.effect("should deny when OIDC identity principle does not match username", () =>
       Effect.gen(function*() {
         const result = yield* Effect.flip(handleWifi(wifiArgs({ username: "alice" })))
 
-        expect(result._tag).toBe("AuthorizationError")
+        assert(result instanceof ApiErrors.AuthorizationError)
         expect(result.message).toBe("User's principle identifer must match the requested username")
       }).pipe(
-        Effect.provide(withIdentity(
-          new Identity.OIDCIdentity("john@example.com", HashSet.fromIterable(["Config.Wifi"])),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(
+            new Identity.OIDCIdentity("john@example.com", HashSet.fromIterable(["Config.Wifi"])),
+          ),
+          HandlerTestLayer,
         )),
-        Effect.provide(HandlerTestLayer),
       ))
   })
 
@@ -85,8 +91,10 @@ describe("handleWifi", () => {
         expect(result).toContain("plist")
         expect(result).toContain("0x676179")
       }).pipe(
-        Effect.provide(withIdentity(authorizedIdentity)),
-        Effect.provide(HandlerTestLayer),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(authorizedIdentity),
+          HandlerTestLayer,
+        )),
       ))
 
     it.effect("should generate WPA2 wifi profile", () =>
@@ -96,8 +104,10 @@ describe("handleWifi", () => {
         expect(result).toContain("<?xml")
         expect(result).toContain("plist")
       }).pipe(
-        Effect.provide(withIdentity(authorizedIdentity)),
-        Effect.provide(HandlerTestLayer),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(authorizedIdentity),
+          HandlerTestLayer,
+        )),
       ))
 
     it.effect("should generate enterprise PEAP wifi profile with matching username", () =>
@@ -110,8 +120,10 @@ describe("handleWifi", () => {
         expect(result).toContain("<?xml")
         expect(result).toContain("plist")
       }).pipe(
-        Effect.provide(withIdentity(authorizedIdentity)),
-        Effect.provide(HandlerTestLayer),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(authorizedIdentity),
+          HandlerTestLayer,
+        )),
       ))
   })
 
@@ -122,10 +134,12 @@ describe("handleWifi", () => {
           enterpriseClientType: "EAP-TLS",
         })))
 
-        expect(result._tag).toBe("NotImplemented")
+        assert(result instanceof ApiErrors.NotImplemented)
       }).pipe(
-        Effect.provide(withIdentity(authorizedIdentity)),
-        Effect.provide(HandlerTestLayer),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(authorizedIdentity),
+          HandlerTestLayer,
+        )),
       ))
 
     it.effect("should return BadRequest for PEAP without username", () =>
@@ -134,22 +148,26 @@ describe("handleWifi", () => {
           enterpriseClientType: "PEAP",
         })))
 
-        expect(result._tag).toBe("BadRequest")
+        assert(result instanceof ApiErrors.BadRequest)
         expect(result.reason).toBe("eap-client-username-required")
       }).pipe(
-        Effect.provide(withIdentity(authorizedIdentity)),
-        Effect.provide(HandlerTestLayer),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(authorizedIdentity),
+          HandlerTestLayer,
+        )),
       ))
 
     it.effect("should return NotFound for unknown SSID", () =>
       Effect.gen(function*() {
         const result = yield* Effect.flip(handleWifi(wifiArgs({ ssid: "unknown-ssid" })))
 
-        expect(result._tag).toBe("NotFound")
+        assert(result instanceof ApiErrors.NotFound)
         expect(result.reason).toBe("ssid-not-found")
       }).pipe(
-        Effect.provide(withIdentity(authorizedIdentity)),
-        Effect.provide(HandlerTestLayer),
+        Effect.provide(Layer.provideMerge(
+          withIdentity(authorizedIdentity),
+          HandlerTestLayer,
+        )),
       ))
   })
 })

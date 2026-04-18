@@ -6,10 +6,9 @@
   "description": "Effect-ts Bun HTTP Server implementation for homelab services",
   "scripts": {
     "circular": "yarn madge --circular ./src/api.ts",
-    "dev": "tsx --env-file=.env --watch src/main.ts",
-    "start": "tsx src/main.ts",
+    "dev": "tsx --env-file=.env-local --watch src/main.ts",
     "build": "rolldown -c",
-    "serve": "dotenvx run -f .env -- node ./dist/main.js",
+    "serve": "dotenvx run -f .env-local -- node ./dist/main.js",
     "lint": "eslint src",
     "typecheck": "node ../../.yarn/sdks/typescript/bin/tsc -b tsconfig.json --noEmit",
     "test": "vitest --run",
@@ -17,7 +16,6 @@
     "test:staged": "vitest related --run"
   },
   "dependencies": {
-    "@dotenvx/dotenvx": "^1.54.1",
     "@effect/cluster": "^0.56.x",
     "@effect/experimental": "^0.58.x",
     "@effect/platform": "^0.94.x",
@@ -25,14 +23,17 @@
     "@effect/rpc": "^0.73.x",
     "@effect/sql": "^0.49.x",
     "@effect/workflow": "^0.16.x",
+    "bufferutil": "^4.1.0",
     "effect": "^3.x",
     "homelab-api": "workspace:*",
     "homelab-services": "workspace:*",
     "homelab-services-node": "workspace:*",
     "homelab-shared": "workspace:*",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "utf-8-validate": "^6.0.6"
   },
   "devDependencies": {
+    "@dotenvx/dotenvx": "^1.54.1",
     "@effect/vitest": "^0.27.x",
     "@types/node": "^24",
     "jose": "^6.x",
