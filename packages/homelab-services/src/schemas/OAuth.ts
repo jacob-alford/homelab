@@ -167,7 +167,3 @@ export const HomelabIdentityJWT = IdJWT.pipe(
     }),
   ),
 )
-
-// ----------
-// Token responses
-// ----------

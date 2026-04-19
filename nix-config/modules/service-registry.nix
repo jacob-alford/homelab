@@ -1,12 +1,17 @@
-{ inputs, lib, config, ... }:
+{
+  inputs,
+  lib,
+  config,
+  ...
+}:
 let
   baseDomain = "plato-splunk.media";
   mkDomain = subdomain: "${subdomain}.${baseDomain}";
   mkUrl = subdomain: "https://${mkDomain subdomain}";
   certsDir = inputs.self + "/certs";
   idmDomain = mkDomain "idm";
-  mkOidcEndpoint = clientId:
-    "https://${idmDomain}/oauth2/openid/${clientId}/.well-known/openid-configuration";
+  mkOidcEndpoint =
+    clientId: "https://${idmDomain}/oauth2/openid/${clientId}/.well-known/openid-configuration";
 in
 {
   config.constants = {
@@ -62,6 +67,13 @@ in
         clientId = "planka";
         port = 1337;
         stateDir = "/var/lib/planka";
+      };
+
+      homelab = {
+        subdomain = "homelab";
+        domain = mkDomain "homelab";
+        clientId = "homelab";
+        url = mkUrl "homelab";
       };
 
       it-tools = {

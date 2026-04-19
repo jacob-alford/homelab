@@ -5,7 +5,12 @@ let
 in
 {
   flake.modules.nixos.kanidm =
-    { config, lib, pkgs, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
     let
       inherit (config.security.acme.certs."${svc.domain}") directory;
     in
@@ -63,6 +68,9 @@ in
             "planka.project_owner" = { };
 
             "step-ca.access" = { };
+
+            "homelab.admins" = { };
+            "homelab.access" = { };
           };
 
           persons = {
@@ -80,6 +88,7 @@ in
               groups = [
                 "radius.access"
                 "radius.access_guest"
+                "homelab.access"
               ];
             };
             kaitlyn = {
@@ -90,6 +99,7 @@ in
                 "radius.access_home"
                 "planka.access"
                 "planka.project_owner"
+                "homelab.access"
               ];
             };
             jacob = {
@@ -117,6 +127,8 @@ in
                 "planka.admins"
 
                 "step-ca.access"
+                
+                "homelab.admins"
               ];
             };
           };
