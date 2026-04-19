@@ -69,8 +69,8 @@ in
 
             "step-ca.access" = { };
 
-            "homelab.admins" = { };
-            "homelab.access" = { };
+            "homelab_admins" = { };
+            "homelab_access" = { };
           };
 
           persons = {
@@ -80,6 +80,7 @@ in
               groups = [
                 "radius.access"
                 "radius.access_guest"
+                "homelab_access"
               ];
             };
             "guest" = {
@@ -88,7 +89,6 @@ in
               groups = [
                 "radius.access"
                 "radius.access_guest"
-                "homelab.access"
               ];
             };
             kaitlyn = {
@@ -99,7 +99,7 @@ in
                 "radius.access_home"
                 "planka.access"
                 "planka.project_owner"
-                "homelab.access"
+                "homelab_access"
               ];
             };
             jacob = {
@@ -127,8 +127,8 @@ in
                 "planka.admins"
 
                 "step-ca.access"
-                
-                "homelab.admins"
+
+                "homelab_admins"
               ];
             };
           };
