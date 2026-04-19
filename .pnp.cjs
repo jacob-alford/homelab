@@ -8377,6 +8377,7 @@ const RAW_RUNTIME_STATE = "{\
           [\"homelab-services\", \"workspace:packages/homelab-services\"],\
           [\"homelab-shared\", \"workspace:packages/homelab-shared\"],\
           [\"jose\", \"npm:6.2.1\"],\
+          [\"madge\", \"virtual:c72e1f29ed535cb5c8d0308e99ae245a02e7b199277845c95b67fbbcfe0210f35f627c490976c1ee1c8a7f23ff73e4fd28f5d2a3fb2013fbec0cf5bfff33690a#npm:8.0.0\"],\
           [\"vitest\", \"virtual:c72e1f29ed535cb5c8d0308e99ae245a02e7b199277845c95b67fbbcfe0210f35f627c490976c1ee1c8a7f23ff73e4fd28f5d2a3fb2013fbec0cf5bfff33690a#npm:3.2.4\"]\
         ],\
         \"linkType\": \"SOFT\"\
@@ -8403,6 +8404,7 @@ const RAW_RUNTIME_STATE = "{\
           [\"homelab-services-node\", \"workspace:packages/homelab-services-node\"],\
           [\"homelab-shared\", \"workspace:packages/homelab-shared\"],\
           [\"jose\", \"npm:6.2.1\"],\
+          [\"madge\", \"virtual:c72e1f29ed535cb5c8d0308e99ae245a02e7b199277845c95b67fbbcfe0210f35f627c490976c1ee1c8a7f23ff73e4fd28f5d2a3fb2013fbec0cf5bfff33690a#npm:8.0.0\"],\
           [\"type-fest\", \"npm:4.41.0\"],\
           [\"utf-8-validate\", \"npm:6.0.6\"],\
           [\"vitest\", \"virtual:c72e1f29ed535cb5c8d0308e99ae245a02e7b199277845c95b67fbbcfe0210f35f627c490976c1ee1c8a7f23ff73e4fd28f5d2a3fb2013fbec0cf5bfff33690a#npm:3.2.4\"]\

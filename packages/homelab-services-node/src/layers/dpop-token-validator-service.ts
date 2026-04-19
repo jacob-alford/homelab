@@ -1,5 +1,5 @@
 import { Array, DateTime, Effect, Layer, Option, pipe, Schema } from "effect"
-import { ApiErrors, originPathnameEquals, Schemas, Services } from "homelab-services"
+import { ApiErrors, Schemas, Services, Utils } from "homelab-services"
 import { Constants } from "homelab-shared"
 import { decodeJwt, decodeProtectedHeader, jwtVerify } from "jose"
 import * as Crypto from "node:crypto"
@@ -99,7 +99,7 @@ class DPoPTokenValidatorServiceImpl implements Services.DPoPTokenValidatorServic
             })
           }
 
-          if (!originPathnameEquals(parsedToken.htu, expectedHtu)) {
+          if (!Utils.originPathnameEquals(parsedToken.htu, expectedHtu)) {
             return yield* new ApiErrors.AuthenticationError({
               reason: "invalid-credential",
               message: "DPoP htu doesn't match",

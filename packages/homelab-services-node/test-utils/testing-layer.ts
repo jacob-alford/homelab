@@ -1,5 +1,5 @@
 import { NodeFileSystem } from "@effect/platform-node"
-import { Config, ConfigProvider, Effect, Layer, Schema } from "effect"
+import { Config, ConfigProvider, Layer, Schema } from "effect"
 import { Config as ServicesConfig, Schemas, Services } from "homelab-services"
 import * as path from "node:path"
 import { Config as NodeConfig, Layers } from "../src/index.js"
@@ -11,13 +11,15 @@ const TestConfigProvider = Layer.setConfigProvider(
   ConfigProvider.fromMap(
     new Map([
       ["HOMELAB_ORIGIN_URL", "http://localhost:3000"],
-      ["TOKEN_ISSUER_PRIVATE_KEY_PATH", path.join(privateDir, "jwk.json")],
       ["HOMELAB_SECRET_FILE", path.join(privateDir, "hmac-secret")],
+      ["TOKEN_ISSUER_PRIVATE_KEY_PATH", path.join(privateDir, "jwk.json")],
+      ["TOKEN_ISSUER_PRIVATE_KEY_SECRET_PATH", path.join(privateDir, "private-key-secret")],
+      ["TOKEN_ISSUER_PUBLIC_KEY_PATH", path.join(privateDir, "jwk.pub.json")],
       ["API_KEYS_FILE", path.join(privateDir, "api-keys")],
       ["FEATURE_FLAGS", "*"],
       ["ROOT_CERT_DER", path.join(privateDir, "root.crt")],
       ["INTERMEDIATE_CERT_DER", path.join(privateDir, "intermediate.crt")],
-      ["KANIDM_OIDC_URL", "https://kanidm.test/oauth2/openid/test/.well-known/openid-configuration"],
+      ["KANIDM_OPENID_PROVIDER_URL", "https://kanidm.test/oauth2/openid/test/.well-known/openid-configuration"],
     ]),
   ),
 )

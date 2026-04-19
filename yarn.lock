@@ -6796,6 +6796,7 @@ __metadata:
     homelab-services: "workspace:*"
     homelab-shared: "workspace:*"
     jose: "npm:^6.2.1"
+    madge: "npm:^8.0.0"
     type-fest: "npm:^4.x"
     utf-8-validate: "npm:^6.0.6"
     vitest: "npm:^3.x"
@@ -6812,6 +6813,7 @@ __metadata:
     effect: "npm:^3.x"
     homelab-shared: "workspace:*"
     jose: "npm:^6.2.1"
+    madge: "npm:^8.0.0"
     vitest: "npm:^3.x"
   languageName: unknown
   linkType: soft

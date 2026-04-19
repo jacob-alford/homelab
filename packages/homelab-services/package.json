@@ -13,6 +13,7 @@
     "lint": "eslint src",
     "typecheck": "node ../../.yarn/sdks/typescript/bin/tsc -b tsconfig.json --noEmit",
     "test": "vitest run --pass-with-no-tests",
+    "circular": "yarn madge --circular ./src/index.ts",
     "test:watch": "vitest watch"
   },
   "dependencies": {
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@effect/vitest": "^0.27.x",
     "@types/node": "^24",
+    "madge": "^8.0.0",
     "vitest": "^3.x"
   }
 }

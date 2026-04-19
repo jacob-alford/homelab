@@ -27,12 +27,14 @@ const TestConfigProvider = Layer.setConfigProvider(
   ConfigProvider.fromMap(
     new Map([
       ["HOMELAB_ORIGIN_URL", "http://localhost:3000"],
-      ["TOKEN_ISSUER_PRIVATE_KEY_PATH", path.join(privateDir, "jwk.json")],
       ["HOMELAB_SECRET_FILE", path.join(privateDir, "hmac-secret")],
+      ["TOKEN_ISSUER_PRIVATE_KEY_PATH", path.join(privateDir, "jwk.json")],
+      ["TOKEN_ISSUER_PRIVATE_KEY_SECRET_PATH", path.join(privateDir, "private-key-secret")],
+      ["TOKEN_ISSUER_PUBLIC_KEY_PATH", path.join(privateDir, "jwk.pub.json")],
       ["API_KEYS_FILE", path.join(privateDir, "api-keys")],
       ["FEATURE_FLAGS", "*"],
-      ["ROOT_CERT_DER", path.join(certsDir, "alford-root.crt")],
-      ["INTERMEDIATE_CERT_DER", path.join(certsDir, "intermediate_ca_2.crt")],
+      ["ROOT_CERT_DER", path.join(certsDir, "alford-root.der")],
+      ["INTERMEDIATE_CERT_DER", path.join(certsDir, "intermediate_ca_2.der")],
       ["KANIDM_OPENID_PROVIDER_URL", "https://kanidm.test/oauth2/openid/test/.well-known/openid-configuration"],
     ]),
   ),

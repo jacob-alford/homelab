@@ -1,5 +1,5 @@
 import { DateTime, Effect, flow, HashSet, Layer, Option, pipe, Schema } from "effect"
-import { ApiErrors, Config, fixJwksForJose, Schemas, Services } from "homelab-services"
+import { ApiErrors, Config, Schemas, Services, Utils } from "homelab-services"
 import { Constants } from "homelab-shared"
 import { decodeJwt, importJWK, SignJWT } from "jose"
 import * as Crypto from "node:crypto"
@@ -140,7 +140,7 @@ class TokenIssuerServiceImpl implements Services.TokenIssuerService.TokenIssuerS
 
   private signAccessToken(dpopJwk: Schemas.OAuth.JWK, roles: string) {
     return Effect.gen(this, function*() {
-      const { keys: [signingKey] } = fixJwksForJose(this.oidcJwk)
+      const { keys: [signingKey] } = Utils.fixJwksForJose(this.oidcJwk)
 
       const privateKey = yield* Effect.tryPromise({
         try: () => importJWK(signingKey),

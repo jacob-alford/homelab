@@ -3,8 +3,7 @@
   "include": ["src", "test-utils"],
   "compilerOptions": {
     "types": ["node", "vitest/globals"],
-    "outDir": "build/src",
-    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
-    "rootDir": "."
+    "noEmit": true,
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo"
   }
 }

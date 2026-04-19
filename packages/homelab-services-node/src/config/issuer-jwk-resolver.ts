@@ -1,9 +1,8 @@
 import { FetchHttpClient, FileSystem } from "@effect/platform"
 import { Effect, HashMap, Layer, type Option, Schema } from "effect"
-import { Config, Schemas, StartupErrors } from "homelab-services"
+import { Config, Schemas, StartupErrors, Utils } from "homelab-services"
 import type { JWTVerifyGetKey } from "jose"
 import { createLocalJWKSet, createRemoteJWKSet, customFetch, flattenedDecrypt } from "jose"
-import { fixJwkForJose } from "packages/homelab-services/src/utils/fix-jwks-for-jose.js"
 import { ApiKeyConfigLive } from "./api-key-config.js"
 import { RemoteOIDCWellKnownDetailsServiceLive } from "./oidc-config-remote.js"
 
@@ -48,7 +47,7 @@ export const IssuerJwkResolverLive = Layer.effect(
           remoteOIDCKanidm.issuer,
           createRemoteJWKSet(remoteOIDCKanidm.jwksUri, { [customFetch]: fetch }),
         ],
-        [origin.href, createLocalJWKSet({ keys: [fixJwkForJose(localPrivateJwk)] })],
+        [origin.href, createLocalJWKSet({ keys: [Utils.fixJwkForJose(localPrivateJwk)] })],
       ]),
       HashMap.fromIterable([
         [origin.href, { keys: [localPublicJwk] }],
