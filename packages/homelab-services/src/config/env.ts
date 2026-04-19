@@ -8,6 +8,12 @@ export interface EnvDef {
   /** Filesystem path to the private key file used for signing issued tokens. */
   readonly tokenIssuerPrivateKeyPath: string
 
+  /** File containing the secret key to decrypt the private key file with */
+  readonly tokenIssuerPrivateKeySecretFile: string
+
+  /** File containing the public JWK for the token issuer */
+  readonly tokenIssuerPublicKeyPath: string
+
   /** Filesystem path to the HMAC shared secret file. */
   readonly hmacSecretFilePath: string
 
@@ -61,6 +67,12 @@ export const originUrl = Env.pipe(Effect.map((_) => _.originUrl))
 
 /** {@inheritDoc EnvDef.tokenIssuerPrivateKeyPath} */
 export const tokenIssuerPrivateKeyPath = Env.pipe(Effect.map((_) => _.tokenIssuerPrivateKeyPath))
+
+/** {@inheritDoc EnvDef.tokenIssuerPrivateKeySecretFile} */
+export const tokenIssuerPrivateKeySecretFile = Env.pipe(Effect.map((_) => _.tokenIssuerPrivateKeySecretFile))
+
+/** {@inheritDoc EnvDef.tokenIssuerPublicKeyPath} */
+export const tokenIssuerPublicKeyPath = Env.pipe(Effect.map((_) => _.tokenIssuerPublicKeyPath))
 
 /** {@inheritDoc EnvDef.hmacSecretFilePath} */
 export const hmacSecretFilePath = Env.pipe(Effect.map((_) => _.hmacSecretFilePath))

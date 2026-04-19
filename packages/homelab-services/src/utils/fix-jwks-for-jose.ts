@@ -3,10 +3,10 @@ import { Utils } from "homelab-shared"
 import type { JSONWebKeySet, JWK as JoseJWK } from "jose"
 import type { JWK, JWKs } from "../schemas/OAuth.js"
 
-export function fixJwksForJose({ jwks }: JWKs): JSONWebKeySet {
+export function fixJwksForJose({ keys }: JWKs): JSONWebKeySet {
   return Utils.asMutable({
     keys: Array.map(
-      jwks,
+      keys,
       fixJwkForJose,
     ),
   })

@@ -6,6 +6,8 @@ export const EnvLive = Layer.effect(
   Config.all({
     originUrl: Schema.Config("HOMELAB_ORIGIN_URL", Schema.URL),
     tokenIssuerPrivateKeyPath: Config.string("TOKEN_ISSUER_PRIVATE_KEY_PATH"),
+    tokenIssuerPrivateKeySecretFile: Config.string("TOKEN_ISSUER_PRIVATE_KEY_SECRET_PATH"),
+    tokenIssuerPublicKeyPath: Config.string("TOKEN_ISSUER_PUBLIC_KEY_PATH"),
     hmacSecretFilePath: Config.string("HOMELAB_SECRET_FILE"),
     featureFlags: Schema.Config("FEATURE_FLAGS", Schemas.FeatureFlags.FeatureFlagsSetSchema),
     kanidmOidcUrl: Schema.Config("KANIDM_OPENID_PROVIDER_URL", Schema.URL),

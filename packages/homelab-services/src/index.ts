@@ -1,5 +1,6 @@
 export * as Config from "./config/index.js"
 export * as ApiErrors from "./errors/http-errors.js"
+export * as StartupErrors from "./errors/startup-errors.js"
 export * as Identity from "./identity.js"
 export * as Middleware from "./middleware/index.js"
 export * as OidcProviders from "./oidc-providers.js"

@@ -11,6 +11,23 @@ import { Optional, OptionalArray, OptionalString, OptionalUrl } from "./optional
 import { ScopeGroupSetSchema } from "./scope-groups.js"
 
 // ----------
+// JWEs
+// ----------
+
+export const JWE = Schema.Struct({
+  protected: Schema.String,
+  encrypted_key: OptionalString,
+  iv: OptionalString,
+  ciphertext: Schema.String,
+  tag: OptionalString,
+})
+
+export const JWEFromUint8Array = Schema.compose(
+  StringFromUint8Array,
+  Schema.parseJson(JWE),
+)
+
+// ----------
 // JWKs
 // ----------
 
@@ -36,6 +53,7 @@ export const BaseJWK = Schema.Struct({
   x5u: OptionalUrl,
   x5c: OptionalArray(Base64),
   x5t: OptionalBase64Url,
+  d: OptionalString,
 })
 
 export const ECJWK = BaseJWK.pipe(
@@ -57,6 +75,10 @@ export const RSAJWK = BaseJWK.pipe(
       alg: Schema.Union(Crypto.RSADSId, Crypto.PSSDSId),
       mod: OptionalBase64Url,
       exp: OptionalBase64Url,
+      dp: OptionalString,
+      dq: OptionalString,
+      p: OptionalString,
+      q: OptionalString,
     }),
   ),
 )
@@ -70,8 +92,13 @@ export const OptionalJWK = Optional(JWK)
 
 export type JWK = typeof JWK.Type
 
+export const JWKFromUint8Array = Schema.compose(
+  StringFromUint8Array,
+  Schema.parseJson(JWK),
+)
+
 export const JWKs = Schema.Struct({
-  jwks: Schema.NonEmptyArray(JWK),
+  keys: Schema.NonEmptyArray(JWK),
 })
 
 export type JWKs = typeof JWKs.Type
