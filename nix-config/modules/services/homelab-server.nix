@@ -25,15 +25,15 @@ in
         claimMaps.roles = {
           joinType = "array";
           valuesByGroup = {
-            "homelab_admins" = [
-              "Config.Wifi"
-              "Config.ACME"
-              "Config.Certs"
-              "Status.Health"
+            "homelab.admins" = [
+              "Config_Wifi"
+              "Config_ACME"
+              "Config_Certs"
+              "Status_Health"
             ];
-            "homelab_access" = [
-              "Config.Wifi"
-              "Config.Certs"
+            "homelab.access" = [
+              "Config_Wifi"
+              "Config_Certs"
             ];
           };
         };
