@@ -30,7 +30,6 @@
     "noImplicitThis": true,
     "noUncheckedIndexedAccess": false,
     "strictNullChecks": true,
-    "rootDir": ".",
     "target": "ES2022",
     "module": "NodeNext",
     "incremental": true,

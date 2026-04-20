@@ -3,7 +3,8 @@
   "include": ["src"],
   "compilerOptions": {
     "types": ["node"],
-    "outDir": "build/src",
+    "noEmit": true,
+    "rootDir": ".",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo"
   }
 }

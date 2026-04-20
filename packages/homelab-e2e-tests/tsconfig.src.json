@@ -4,6 +4,7 @@
   "compilerOptions": {
     "types": ["node", "vitest/globals"],
     "noEmit": true,
+    "rootDir": ".",
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo"
   }
 }
