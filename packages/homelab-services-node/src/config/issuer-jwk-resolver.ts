@@ -17,14 +17,23 @@ export const IssuerJwkResolverLive = Layer.effect(
     const remoteOIDCKanidm = yield* Config.OIDCConfigRemote.kanidm
     const fetch = yield* FetchHttpClient.Fetch
 
-    const localPrivateJwkSecret = yield* fs.readFile(privateKeySecretPath)
+    const localPrivateJwkSecret = yield* fs.readFile(privateKeySecretPath).pipe(
+      Effect.map(Utils.trimBufferNewlines),
+    )
 
     const localPrivateJwk = yield* fs.readFile(privateKeyPath).pipe(
       Effect.andThen(Schema.decode(Schemas.OAuth.JWEFromUint8Array)),
       Effect.andThen((localPrivateJwkEnrypted) =>
         Effect.tryPromise({
           try() {
-            return flattenedDecrypt(localPrivateJwkEnrypted, localPrivateJwkSecret)
+            return flattenedDecrypt(
+              localPrivateJwkEnrypted,
+              localPrivateJwkSecret,
+              {
+                keyManagementAlgorithms: ["PBES2-HS256+A128KW"],
+                maxPBES2Count: 1_000_000,
+              },
+            )
           },
           catch(error) {
             return new StartupErrors.JWKPrivateKeyDecryptionError({ error })

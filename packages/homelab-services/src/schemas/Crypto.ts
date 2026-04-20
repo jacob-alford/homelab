@@ -30,3 +30,10 @@ export const EllipticCurveId = Schema.Literal(
   "P-384",
   "P-521",
 )
+
+export const OKPCurveTypeId = Schema.Literal(
+  "Ed25519",
+  "Ed448",
+  "X25519",
+  "X448",
+)

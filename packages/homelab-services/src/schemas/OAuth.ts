@@ -83,9 +83,21 @@ export const RSAJWK = BaseJWK.pipe(
   ),
 )
 
+export const OKPJWK = BaseJWK.pipe(
+  Schema.extend(
+    Schema.Struct({
+      kty: Schema.Literal("OKP"),
+      crv: Crypto.OKPCurveTypeId,
+      x: Base64Url,
+      alg: Schema.Literal("EdDSA"),
+    }),
+  ),
+)
+
 export const JWK = Schema.Union(
   ECJWK,
   RSAJWK,
+  OKPJWK,
 )
 
 export const OptionalJWK = Optional(JWK)

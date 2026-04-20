@@ -3,8 +3,7 @@ import { Array, Effect, flow, Layer, Option, Redacted, String } from "effect"
 import { Middleware } from "homelab-services"
 
 const extractBasicPassword: (authHeader: string) => Option.Option<string> = flow(
-  String.match(/^Basic (.+)$/),
-  Option.flatMap(Array.get(1)),
+  Option.some,
   Option.map((encoded) => Buffer.from(encoded, "base64").toString("utf8")),
   Option.map((decoded) => decoded.slice(decoded.indexOf(":") + 1)),
   Option.filter(String.isNonEmpty),
