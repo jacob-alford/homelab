@@ -1,9 +1,10 @@
-import { HttpClient, HttpClientRequest } from "@effect/platform"
-import { Effect, Schema } from "effect"
-import { Schemas } from "homelab-services"
+import { type HttpClient } from "@effect/platform"
+import { Effect, Option } from "effect"
+import { Homelab } from "homelab-api"
+import { type Schemas } from "homelab-services"
 import * as Crypto from "node:crypto"
-import { BASE_URL } from "./api-client.js"
-import { buildProof, type DPoPProofBuilderService } from "./dpop-tokens.js"
+import { BASE_URL, makeApiClient } from "./api-client.js"
+import { createToken, type DPoPTokenCreatorService } from "./dpop-tokens.js"
 import { callWithHeaders } from "./utils.js"
 
 export type GetTokenResult = typeof Schemas.Token.TokenResponse.Type & { readonly nonce: string }
@@ -11,28 +12,31 @@ export type GetTokenResult = typeof Schemas.Token.TokenResponse.Type & { readonl
 export const getToken = (apiKey: string): Effect.Effect<
   GetTokenResult,
   unknown,
-  HttpClient.HttpClient | DPoPProofBuilderService
+  HttpClient.HttpClient | DPoPTokenCreatorService
 > =>
   Effect.gen(function*() {
-    const tokenUrl = new URL("/oauth/token", BASE_URL)
-    const dpopProof = yield* buildProof({ htu: tokenUrl, htm: "POST" })
-    const apiKeyB64 = Buffer.from(`${apiKey}:`).toString("base64")
+    const tokenUrl = new URL(Homelab.OAuthEndpoints.Token.TokenEndpoint.path, BASE_URL)
+    const dpopProof = yield* createToken({ htu: tokenUrl, htm: "POST" })
+    const apiKeyB64 = Buffer.from(`:${apiKey}`).toString("base64url")
 
-    const httpClient = yield* HttpClient.HttpClient
-    const response = yield* httpClient.execute(
-      HttpClientRequest.post(tokenUrl.toString()).pipe(
-        HttpClientRequest.setHeaders({
-          Authorization: `Basic ${apiKeyB64}`,
-          DPoP: dpopProof,
-        }),
-      ),
+    const apiClient = yield* makeApiClient
+
+    const [tokenResponse, res] = yield* apiClient.oauth.token({
+      withResponse: true,
+      headers: {
+        Authorization: apiKeyB64,
+        DPoP: dpopProof,
+      },
+    })
+
+    const nonce = yield* Option.fromNullable(res.headers["dpop-nonce"]).pipe(
+      Option.match({
+        onNone: () => Effect.dieMessage("Nonce not returned from token endpoint"),
+        onSome: Effect.succeed,
+      }),
     )
 
-    const body = yield* response.json
-    const tokenResponse = yield* Schema.decodeUnknown(Schemas.Token.TokenResponse)(body)
-    const nonceFromHeader = (response.headers as Record<string, string | undefined>)["dpop-nonce"] ?? ""
-
-    return { ...tokenResponse, nonce: nonceFromHeader }
+    return { ...tokenResponse, nonce }
   })
 
 export const makeAccessTokenDPoP = (
@@ -40,10 +44,10 @@ export const makeAccessTokenDPoP = (
   nonce: string,
   htu: URL,
   htm: "GET" | "PUT" | "POST",
-): Effect.Effect<string, never, DPoPProofBuilderService> =>
+) =>
   Effect.gen(function*() {
     const ath = Crypto.createHash("sha256").update(accessToken, "ascii").digest("base64url")
-    return yield* buildProof({ htu, htm, nonce, ath })
+    return yield* createToken({ htu, htm, nonce, ath })
   })
 
 export const withAccessTokenAuth = <A, E, R>(
@@ -52,11 +56,7 @@ export const withAccessTokenAuth = <A, E, R>(
   htu: URL,
   htm: "GET" | "PUT" | "POST",
   effect: Effect.Effect<A, E, R | HttpClient.HttpClient>,
-): Effect.Effect<
-  A,
-  E,
-  R | HttpClient.HttpClient | DPoPProofBuilderService
-> =>
+) =>
   Effect.gen(function*() {
     const dpopProof = yield* makeAccessTokenDPoP(accessToken, nonce, htu, htm)
     return yield* callWithHeaders(

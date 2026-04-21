@@ -1,7 +1,7 @@
 import { DateTime, Effect, flow, HashSet, Layer, Option, pipe, Schema } from "effect"
-import { ApiErrors, Config, Schemas, Services, Utils } from "homelab-services"
+import { ApiErrors, Config, Schemas, Services } from "homelab-services"
 import { Constants } from "homelab-shared"
-import { decodeJwt, importJWK, SignJWT } from "jose"
+import { decodeJwt, SignJWT } from "jose"
 import * as Crypto from "node:crypto"
 
 export const TokenIssuerServiceLive = Layer.effect(
@@ -9,7 +9,7 @@ export const TokenIssuerServiceLive = Layer.effect(
   Effect.gen(function*() {
     const origin = yield* Config.Env.originUrl
 
-    const [issuer, jwks] = yield* Config.IssuerJwkResolver.getJwk(origin.href).pipe(
+    const [issuer, [publicKey, privateKey]] = yield* Config.IssuerJwkResolver.getJwkKeyPair(origin.href).pipe(
       Effect.andThen(
         Option.match({
           onSome(jwk) {
@@ -26,9 +26,18 @@ export const TokenIssuerServiceLive = Layer.effect(
       ),
     )
 
+    const kid = yield* Option.fromNullable(publicKey.kid).pipe(
+      Option.match({
+        onNone: () => Effect.dieMessage("Public signing key missing KID"),
+        onSome: Effect.succeed,
+      }),
+    )
+
     return new TokenIssuerServiceImpl(
       issuer,
-      jwks,
+      publicKey.alg,
+      kid,
+      privateKey,
       yield* Config.ApiKeyConfig.ApiKeyConfig,
       yield* Services.DPoPTokenValidatorService.DPoPTokenValidatorService,
       yield* Services.NonceService.NonceService,
@@ -39,7 +48,9 @@ export const TokenIssuerServiceLive = Layer.effect(
 class TokenIssuerServiceImpl implements Services.TokenIssuerService.TokenIssuerServiceDef {
   constructor(
     private readonly oidcIssuer: string,
-    private readonly oidcJwk: Schemas.OAuth.JWKs,
+    private readonly alg: string,
+    private readonly kid: string,
+    private readonly privateJwk: CryptoKey,
     private readonly apiKeyConfig: typeof Config.ApiKeyConfig.ApiKeyConfig.Service,
     private readonly dpopTokenValidator: typeof Services.DPoPTokenValidatorService.DPoPTokenValidatorService.Service,
     private readonly nonceService: typeof Services.NonceService.NonceService.Service,
@@ -50,7 +61,7 @@ class TokenIssuerServiceImpl implements Services.TokenIssuerService.TokenIssuerS
     dpopTokens: ReadonlyArray<string>,
   ) {
     return Effect.gen(this, function*() {
-      const apiKeyScopes = yield* this.getApiKeyRoles(apiKey)
+      const [email, apiKeyScopes] = yield* this.getApiKeyEmailRoles(apiKey)
 
       const { htm, htu } = yield* this.extractDpop(dpopTokens).pipe(
         Effect.andThen(
@@ -72,7 +83,7 @@ class TokenIssuerServiceImpl implements Services.TokenIssuerService.TokenIssuerS
         dpopTokens,
       )
 
-      const accessToken = yield* this.signAccessToken(jwk, apiKeyScopes)
+      const accessToken = yield* this.signAccessToken(jwk, apiKeyScopes, email)
 
       const now = yield* DateTime.now
       const nonce = yield* this.nonceService.withTime(now)
@@ -107,7 +118,7 @@ class TokenIssuerServiceImpl implements Services.TokenIssuerService.TokenIssuerS
     )
   }
 
-  private getApiKeyRoles(apiKey: Option.Option<string>) {
+  private getApiKeyEmailRoles(apiKey: Option.Option<string>) {
     return Effect.gen(this, function*() {
       const providedApiKey = yield* apiKey.pipe(
         Option.map(Effect.succeed),
@@ -128,29 +139,34 @@ class TokenIssuerServiceImpl implements Services.TokenIssuerService.TokenIssuerS
           Effect.fail(
             new ApiErrors.AuthenticationError({
               reason: "invalid-credential",
-              message: "Invalid API key",
+              message: "Invalid API Key",
             }),
           )
         ),
       )
 
-      return roles.join(",")
+      const email = yield* pipe(
+        this.apiKeyConfig.getEmail(providedApiKey),
+        Option.map(Effect.succeed),
+        Option.getOrElse(() =>
+          Effect.fail(
+            new ApiErrors.AuthenticationError({
+              reason: "invalid-credential",
+              message: "Invalid API Key",
+            }),
+          )
+        ),
+      )
+
+      return [
+        email,
+        roles.join(","),
+      ]
     })
   }
 
-  private signAccessToken(dpopJwk: Schemas.OAuth.JWK, roles: string) {
+  private signAccessToken(dpopJwk: Schemas.OAuth.JWK, roles: string, email: string) {
     return Effect.gen(this, function*() {
-      const { keys: [signingKey] } = Utils.fixJwksForJose(this.oidcJwk)
-
-      const privateKey = yield* Effect.tryPromise({
-        try: () => importJWK(signingKey),
-        catch: (error) =>
-          new ApiErrors.InternalServerError({
-            message: "Failed to import JWK",
-            error,
-          }),
-      })
-
       const dpopJwkDigest = yield* Effect.try({
         try() {
           return Crypto.hash("sha256", JSON.stringify(dpopJwk))
@@ -181,13 +197,14 @@ class TokenIssuerServiceImpl implements Services.TokenIssuerService.TokenIssuerS
               jkt: dpopJwkDigest,
             },
             [Constants.JWT_ROLES_KEY]: roles,
+            email,
           })
-            .setProtectedHeader({ alg: signingKey.alg!, kid: signingKey.kid! })
+            .setProtectedHeader({ alg: this.alg, kid: this.kid })
             .setIssuedAt(nowUnixS)
             .setIssuer(this.oidcIssuer)
             .setAudience(Constants.JWT_HOMELAB_API_AUD)
             .setExpirationTime(nowUnixS + expiresIn)
-            .sign(privateKey)
+            .sign(this.privateJwk)
 
           return jwt
         },

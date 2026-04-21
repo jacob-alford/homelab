@@ -1,35 +1,72 @@
 import { describe, expect, it } from "@effect/vitest"
 import { Effect } from "effect"
+import { ApiErrors } from "homelab-services"
 import {
   BASE_URL,
+  createToken,
   E2ETestLayer,
   getToken,
   makeApiClient,
   TEST_API_KEY,
-  withAccessTokenAuth,
+  TEST_LIMITED_CERTS_KEY,
 } from "../../test-utils/index.js"
 
 const CERTS_URL = new URL(`${BASE_URL}/mobile-config/certs`)
 
 describe("GET /mobile-config/certs", () => {
   describe("authorization", () => {
-    it.effect("rejects an unauthenticated request", () =>
+    it.live("rejects an unauthorized request", () =>
       Effect.gen(function*() {
         const client = yield* makeApiClient
-        const result = yield* Effect.flip(client["mobile-config"].certs({}))
-        expect(result._tag).toBe("AuthorizationError")
-        expect((result as { resource?: string }).resource).toBe("Config.Certs")
+
+        const { access_token, nonce, token_type } = yield* getToken(TEST_LIMITED_CERTS_KEY)
+
+        const newDpopProof = yield* createToken({
+          htu: CERTS_URL,
+          htm: "GET",
+          nonce,
+          accessToken: access_token,
+        })
+
+        const result = yield* Effect.flip(
+          client["mobile-config"].certs({
+            headers: {
+              Authorization: `${token_type} ${access_token}`,
+              DPoP: newDpopProof,
+            },
+          }),
+        )
+
+        assert(result instanceof ApiErrors.AuthorizationError)
+
+        expect(result.message).toBe(
+          "guest-b@a.plato-splunk.media (OIDC) is not allowed to perform view on Config.Certs",
+        )
       }).pipe(Effect.provide(E2ETestLayer)))
   })
 
   describe("success", () => {
-    it.effect("returns the certificate mobileconfig profile", () =>
+    it.live("returns the certificate mobileconfig profile", () =>
       Effect.gen(function*() {
-        const { access_token, nonce } = yield* getToken(TEST_API_KEY)
-        const client = yield* withAccessTokenAuth(access_token, nonce, CERTS_URL, "GET", makeApiClient)
-        const result = yield* client["mobile-config"].certs({})
+        const client = yield* makeApiClient
+
+        const { access_token, nonce, token_type } = yield* getToken(TEST_API_KEY)
+
+        const newDpopProof = yield* createToken({
+          htu: CERTS_URL,
+          htm: "GET",
+          nonce,
+          accessToken: access_token,
+        })
+
+        const result = yield* client["mobile-config"].certs({
+          headers: {
+            Authorization: `${token_type} ${access_token}`,
+            DPoP: newDpopProof,
+          },
+        })
+
         expect(result).toBeDefined()
-        expect(typeof result).toBe("string")
       }).pipe(Effect.provide(E2ETestLayer)))
   })
 })

@@ -1,64 +1,138 @@
 import { describe, expect, it } from "@effect/vitest"
 import { Effect } from "effect"
+import { ApiErrors } from "homelab-services"
 import {
   BASE_URL,
+  createToken,
   E2ETestLayer,
   getToken,
   makeApiClient,
   TEST_API_KEY,
-  withAccessTokenAuth,
+  TEST_LIMITED_API_KEY,
 } from "../../test-utils/index.js"
 
 const acmeUrl = (clientIdentifier: string) => new URL(`${BASE_URL}/mobile-config/acme/${clientIdentifier}`)
 
 describe("PUT /mobile-config/acme/:clientIdentifier", () => {
   describe("authorization", () => {
-    it.effect("rejects an unauthenticated request", () =>
+    it.live("rejects an unauthorized request", () =>
       Effect.gen(function*() {
         const client = yield* makeApiClient
+
+        const { access_token, nonce, token_type } = yield* getToken(TEST_LIMITED_API_KEY)
+
+        const newDpopProof = yield* createToken({
+          htu: acmeUrl("my-device"),
+          htm: "PUT",
+          nonce,
+          accessToken: access_token,
+        })
+
         const result = yield* Effect.flip(
-          client["mobile-config"].acme({ path: { clientIdentifier: "my-device" } }),
+          client["mobile-config"].acme({
+            path: {
+              clientIdentifier: "my-device",
+            },
+            headers: {
+              Authorization: `${token_type} ${access_token}`,
+              DPoP: newDpopProof,
+            },
+          }),
         )
-        expect(result._tag).toBe("AuthorizationError")
-        expect((result as { resource?: string }).resource).toBe("Config.ACME")
+
+        assert(result instanceof ApiErrors.AuthorizationError)
+
+        expect(result.message).toBe(
+          "guest-a@a.plato-splunk.media (OIDC) is not allowed to perform view on Config.ACME",
+        )
       }).pipe(Effect.provide(E2ETestLayer)))
   })
 
   describe("error cases", () => {
-    it.effect("rejects a blacklisted client identifier", () =>
+    it.live("rejects a mismatched DPoP path", () =>
       Effect.gen(function*() {
-        const url = acmeUrl("root")
-        const { access_token, nonce } = yield* getToken(TEST_API_KEY)
-        const client = yield* withAccessTokenAuth(access_token, nonce, url, "PUT", makeApiClient)
+        const client = yield* makeApiClient
+
+        const { access_token, nonce, token_type } = yield* getToken(TEST_API_KEY)
+
+        const newDpopProof = yield* createToken({
+          htu: acmeUrl("jacob"),
+          htm: "PUT",
+          nonce,
+          accessToken: access_token,
+        })
+
         const result = yield* Effect.flip(
-          client["mobile-config"].acme({ path: { clientIdentifier: "root" } }),
+          client["mobile-config"].acme({
+            path: {
+              clientIdentifier: "postgres",
+            },
+            headers: {
+              Authorization: `${token_type} ${access_token}`,
+              DPoP: newDpopProof,
+            },
+          }),
         )
-        expect(result._tag).toBe("BadRequest")
-        expect((result as { reason?: string }).reason).toBe("acme-invalid-client-identifier")
+
+        assert(result instanceof ApiErrors.AuthenticationError)
+        expect(result.message).toBe("DPoP htu doesn't match")
       }).pipe(Effect.provide(E2ETestLayer)))
 
-    it.effect("rejects the blacklisted 'postgres' client identifier", () =>
+    it.live("rejects a blacklisted client identifier", () =>
       Effect.gen(function*() {
-        const url = acmeUrl("postgres")
-        const { access_token, nonce } = yield* getToken(TEST_API_KEY)
-        const client = yield* withAccessTokenAuth(access_token, nonce, url, "PUT", makeApiClient)
+        const client = yield* makeApiClient
+
+        const { access_token, nonce, token_type } = yield* getToken(TEST_API_KEY)
+
+        const newDpopProof = yield* createToken({
+          htu: acmeUrl("postgres"),
+          htm: "PUT",
+          nonce,
+          accessToken: access_token,
+        })
+
         const result = yield* Effect.flip(
-          client["mobile-config"].acme({ path: { clientIdentifier: "postgres" } }),
+          client["mobile-config"].acme({
+            path: {
+              clientIdentifier: "postgres",
+            },
+            headers: {
+              Authorization: `${token_type} ${access_token}`,
+              DPoP: newDpopProof,
+            },
+          }),
         )
-        expect(result._tag).toBe("BadRequest")
-        expect((result as { reason?: string }).reason).toBe("acme-invalid-client-identifier")
+
+        assert(result instanceof ApiErrors.BadRequest)
+        expect(result.reason).toBe("acme-invalid-client-identifier")
       }).pipe(Effect.provide(E2ETestLayer)))
   })
 
   describe("success", () => {
-    it.effect("returns an ACME mobileconfig profile for a valid client identifier", () =>
+    it.live("returns an ACME mobileconfig profile for a valid client identifier", () =>
       Effect.gen(function*() {
-        const url = acmeUrl("my-device")
-        const { access_token, nonce } = yield* getToken(TEST_API_KEY)
-        const client = yield* withAccessTokenAuth(access_token, nonce, url, "PUT", makeApiClient)
-        const result = yield* client["mobile-config"].acme({ path: { clientIdentifier: "my-device" } })
-        expect(result).toBeDefined()
-        expect(typeof result).toBe("string")
+        const client = yield* makeApiClient
+
+        const { access_token, nonce, token_type } = yield* getToken(TEST_API_KEY)
+
+        const newDpopProof = yield* createToken({
+          htu: acmeUrl("foo"),
+          htm: "PUT",
+          nonce,
+          accessToken: access_token,
+        })
+
+        const result = yield* client["mobile-config"].acme({
+          path: {
+            clientIdentifier: "foo",
+          },
+          headers: {
+            Authorization: `${token_type} ${access_token}`,
+            DPoP: newDpopProof,
+          },
+        })
+
+        expect(result).toContain("foo")
       }).pipe(Effect.provide(E2ETestLayer)))
   })
 })

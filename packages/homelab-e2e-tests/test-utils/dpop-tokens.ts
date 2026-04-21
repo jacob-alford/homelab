@@ -21,6 +21,7 @@ export interface CreateDPoPTokenOptions {
   readonly htm: Schemas.HTTPMethod.HTTPMethod
   readonly nonce?: string
   readonly ath?: string
+  readonly accessToken?: string
   readonly iat?: number
 }
 
@@ -45,7 +46,7 @@ export const DPoPTokenCreatorServiceLive = Layer.effect(
           { name: "ECDSA", namedCurve: "P-384" },
           true,
           ["sign", "verify"],
-        ) as Promise<CryptoKeyPair>,
+        ),
       catch: (cause) => new DpopTokenCreationError({ message: "Failed to generate DPoP key pair", cause }),
     })
 
@@ -56,11 +57,7 @@ export const DPoPTokenCreatorServiceLive = Layer.effect(
 
     return new DPoPTokenCreatorServiceImpl(
       keyPair.privateKey,
-      {
-        ...publicJwk,
-        kty: "EC",
-        alg: "ES384",
-      } as JWK & Record<string, unknown>,
+      { ...publicJwk, alg: "ES384" },
     )
   }),
 )
@@ -81,26 +78,30 @@ export function getPublicJWK(): Effect.Effect<Record<string, unknown>, never, DP
 
 class DPoPTokenCreatorServiceImpl implements DPoPTokenCreatorServiceDef {
   constructor(
-    private readonly privateKey: CryptoKey,
-    private readonly publicJwk: JWK & Record<string, unknown>,
+    private readonly privateKey: nodeCrypto.webcrypto.CryptoKey,
+    private readonly publicJwk: JWK,
   ) {}
 
   createToken(options: CreateDPoPTokenOptions) {
     return Effect.gen(this, function*() {
-      const nowUnixS = options.iat ?? Math.floor(DateTime.toEpochMillis(yield* DateTime.now) / 1000)
+      const ath = options.ath ?? (options.accessToken !== undefined
+        ? nodeCrypto.createHash("sha256").update(options.accessToken, "ascii").digest("base64url")
+        : undefined)
+
+      const nowUnix = options.iat ?? (yield* DateTime.nowAsDate)
 
       const builder = new SignJWT({
         htm: options.htm,
         htu: options.htu.toString(),
         ...(options.nonce !== undefined ? { nonce: options.nonce } : undefined),
-        ...(options.ath !== undefined ? { ath: options.ath } : undefined),
+        ...(ath !== undefined ? { ath } : undefined),
       })
         .setProtectedHeader({
           alg: "ES384",
           typ: "dpop+jwt",
           jwk: this.publicJwk,
         })
-        .setIssuedAt(nowUnixS)
+        .setIssuedAt(nowUnix)
         .setJti(nodeCrypto.randomUUID())
 
       return yield* Effect.tryPromise({

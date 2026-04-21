@@ -1,13 +1,14 @@
-import { HttpClient, HttpClientRequest } from "@effect/platform"
 import { describe, expect, it } from "@effect/vitest"
 import { Effect } from "effect"
+import { ApiErrors } from "homelab-services"
 import {
   BASE_URL,
+  createToken,
   E2ETestLayer,
   getToken,
   makeApiClient,
   TEST_API_KEY,
-  withAccessTokenAuth,
+  TEST_LIMITED_API_KEY,
 } from "../../test-utils/index.js"
 
 const wifiDownloadUrl = (ssid: string, encryption: "WPA3" | "WPA2") =>
@@ -15,43 +16,78 @@ const wifiDownloadUrl = (ssid: string, encryption: "WPA3" | "WPA2") =>
 
 describe("GET /mobile-config/wifi/:ssid/:encryption/_download", () => {
   describe("authorization", () => {
-    it.effect("rejects an unauthenticated request", () =>
+    it.live("rejects an unauthorized request", () =>
       Effect.gen(function*() {
         const client = yield* makeApiClient
+
+        const { access_token, nonce, token_type } = yield* getToken(TEST_LIMITED_API_KEY)
+
+        const newDpopProof = yield* createToken({
+          htu: wifiDownloadUrl("abcd", "WPA2"),
+          htm: "GET",
+          nonce,
+          accessToken: access_token,
+        })
+
         const result = yield* Effect.flip(
           client["mobile-config"]["wifi-download"]({
-            path: { ssid: "test-ssid", encryption: "WPA3" as const },
-            urlParams: { password: "pass", disableMACRandomization: false },
+            path: {
+              ssid: "abcd",
+              encryption: "WPA2",
+            },
+            urlParams: {
+              password: "1234",
+              disableMACRandomization: false,
+            },
+            headers: {
+              Authorization: `${token_type} ${access_token}`,
+              DPoP: newDpopProof,
+            },
           }),
         )
-        expect(result._tag).toBe("AuthorizationError")
-        expect((result as { resource?: string }).resource).toBe("Config.Wifi")
+
+        assert(result instanceof ApiErrors.AuthorizationError)
+
+        expect(result.message).toBe(
+          "guest-a@a.plato-splunk.media (OIDC) is not allowed to perform view on Config.Wifi",
+        )
       }).pipe(Effect.provide(E2ETestLayer)))
   })
 
   describe("success", () => {
-    it.effect("returns wifi profile with Content-Disposition attachment header", () =>
+    it.live("returns wifi profile with Content-Disposition attachment header", () =>
       Effect.gen(function*() {
-        const url = wifiDownloadUrl("my-network", "WPA3")
-        const { access_token, nonce } = yield* getToken(TEST_API_KEY)
+        const client = yield* makeApiClient
 
-        const response = yield* withAccessTokenAuth(
-          access_token,
+        const { access_token, nonce, token_type } = yield* getToken(TEST_API_KEY)
+
+        const newDpopProof = yield* createToken({
+          htu: wifiDownloadUrl("0x676179", "WPA2"),
+          htm: "GET",
           nonce,
-          url,
-          "GET",
-          Effect.gen(function*() {
-            const httpClient = yield* HttpClient.HttpClient
-            return yield* httpClient.execute(
-              HttpClientRequest.get(`${url.toString()}?password=secure-pass&disableMACRandomization=false`),
-            )
-          }),
-        )
+          accessToken: access_token,
+        })
 
-        expect(response.status).toBe(200)
-        const disposition = (response.headers as Record<string, string | undefined>)["content-disposition"]
+        const [, res] = yield* client["mobile-config"]["wifi-download"]({
+          path: {
+            ssid: "0x676179",
+            encryption: "WPA2",
+          },
+          urlParams: {
+            password: "1234",
+            disableMACRandomization: false,
+          },
+          withResponse: true,
+          headers: {
+            Authorization: `${token_type} ${access_token}`,
+            DPoP: newDpopProof,
+          },
+        })
+
+        const disposition = res.headers["content-disposition"]
+
         expect(disposition).toContain("attachment")
-        expect(disposition).toContain("my-network.mobileconfig")
+        expect(disposition).toContain("0x676179.mobileconfig")
       }).pipe(Effect.provide(E2ETestLayer)))
   })
 })

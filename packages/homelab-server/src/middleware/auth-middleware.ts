@@ -9,9 +9,9 @@ const extractBearerTokens: (authHeader: string) => ReadonlyArray<Buffer> =
     String.split(", "),
     Array.filterMap(
       flow(
-        String.match(/^Bearer (.*)$/),
+        String.match(/^(Bearer|DPoP) (.*)$/),
         Option.flatMap(
-          Array.get(1),
+          Array.get(2),
         ),
         Option.map(String.trim),
         Option.filter(
@@ -57,7 +57,7 @@ export const AuthMiddlewareLive = Layer.effect(
           () =>
             new ApiErrors.AuthenticationError({
               reason: "invalid-credential",
-              message: "Received multiple bearer tokens",
+              message: `Recieved Empty or Numerous Bearer Tokens`,
             }),
         ),
         Effect.map(Option.andThen(Array.get(0))),
@@ -73,20 +73,20 @@ export const AuthMiddlewareLive = Layer.effect(
 
       return yield* authService.authenticate(jwt, htu, htm, dpopTokens)
         .pipe(
-          Effect.mapError((e) => {
-            if (e._tag === "NonceValidationError") {
+          Effect.catchTags({
+            NonceValidationError(error) {
               return new ApiErrors.AuthenticationError({
                 reason: "invalid-credential",
-                message: e.message,
+                message: "Failed to validate nonce",
+                error,
               })
-            }
-            if (e._tag === "HMACDigestError") {
+            },
+            HMACDigestError(error) {
               return new ApiErrors.InternalServerError({
                 message: "HMAC error during authentication",
-                error: e,
+                error,
               })
-            }
-            return e
+            },
           }),
         )
     })

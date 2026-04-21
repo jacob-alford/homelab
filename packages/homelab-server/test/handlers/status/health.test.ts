@@ -9,6 +9,7 @@ const withIdentity = (identity: Identity.Identity) => Layer.succeed(Middleware.C
 
 const healthArgs = (): Homelab.StatusEndpoints.Health.HealthEndpointHandlerArgs => ({
   request: {} as any,
+  headers: {} as any,
 })
 
 describe("handleHealth", () => {
@@ -16,7 +17,12 @@ describe("handleHealth", () => {
     Effect.gen(function*() {
       const result = yield* handleHealth(healthArgs())
 
-      expect(result).toBe("All services healthy")
+      expect(result).toEqual({
+        Kanidm: "Healthy",
+        "Step-CA": "Healthy",
+        "RADIUS": "Healthy",
+        "Jellyfin": "Healthy",
+      })
     }).pipe(
       Effect.provide(Layer.provideMerge(
         withIdentity(
@@ -72,7 +78,12 @@ describe("handleHealth", () => {
     Effect.gen(function*() {
       const result = yield* handleHealth(healthArgs())
 
-      expect(result).toBe("All services healthy")
+      expect(result).toEqual({
+        Kanidm: "Healthy",
+        "Step-CA": "Healthy",
+        "RADIUS": "Healthy",
+        "Jellyfin": "Healthy",
+      })
     }).pipe(
       Effect.provide(Layer.provideMerge(
         withIdentity(

@@ -32,6 +32,9 @@ class DPoPTokenValidatorServiceImpl implements Services.DPoPTokenValidatorServic
       )
     }
 
+    const validateNonce = this.validateNonce.bind(this)
+    const validateAth = this.validateAth.bind(this)
+
     return Option.match(Array.head(dpopTokens), {
       onNone() {
         return Effect.fail(
@@ -42,10 +45,10 @@ class DPoPTokenValidatorServiceImpl implements Services.DPoPTokenValidatorServic
         )
       },
       onSome: Effect.fn(
-        function*(this: DPoPTokenValidatorServiceImpl, token) {
+        function*(dpopToken) {
           const [, { jwk }] = yield* Effect.try({
             try() {
-              return [decodeJwt(token), decodeProtectedHeader(token)] as const
+              return [decodeJwt(dpopToken), decodeProtectedHeader(dpopToken)] as const
             },
             catch(error) {
               return new ApiErrors.AuthenticationError({
@@ -67,7 +70,7 @@ class DPoPTokenValidatorServiceImpl implements Services.DPoPTokenValidatorServic
 
           const { payload, protectedHeader } = yield* Effect.tryPromise({
             try() {
-              return jwtVerify(token, jwk, {
+              return jwtVerify(dpopToken, jwk, {
                 currentDate: now,
                 maxTokenAge: Constants.FIVE_MINUTES_SECONDS,
                 typ: "dpop+jwt",
@@ -106,16 +109,17 @@ class DPoPTokenValidatorServiceImpl implements Services.DPoPTokenValidatorServic
             })
           }
 
-          yield* this.validateNonce(parsedToken.nonce, requireNonce)
-
+          if (requireNonce) {
+            yield* validateNonce(parsedToken.nonce)
+          }
           if (accessToken) {
-            yield* this.validateAth(parsedToken.ath, accessToken)
+            yield* validateAth(parsedToken.ath, accessToken)
           }
 
           return {
             headers: parsedHeaders,
             token: parsedToken,
-            raw: token,
+            raw: dpopToken,
           } satisfies Services.DPoPTokenValidatorService.DPoPValidationResult
         },
         Effect.catchTags({
@@ -158,16 +162,13 @@ class DPoPTokenValidatorServiceImpl implements Services.DPoPTokenValidatorServic
     })
   }
 
-  private validateNonce(nonce: typeof Schemas.OAuth.DPoPProofJWT.Type["nonce"], requireNonce: boolean) {
+  private validateNonce(nonce: typeof Schemas.OAuth.DPoPProofJWT.Type["nonce"]) {
     return Effect.gen(this, function*() {
       if (nonce === undefined) {
-        if (requireNonce) {
-          return yield* new ApiErrors.AuthenticationError({
-            reason: "invalid-credential",
-            message: "DPoP nonce is required",
-          })
-        }
-        return
+        return yield* new ApiErrors.AuthenticationError({
+          reason: "invalid-credential",
+          message: "DPoP nonce is required",
+        })
       }
 
       const nonceTime = yield* this.nonceService.validateNonce(nonce).pipe(

@@ -49,9 +49,7 @@ class AuthenticationServiceImpl implements Services.AuthenticationService.Authen
             const issuer = yield* this.getJwtIssuer(jwt)
             const jwkKey = yield* this.getJwkKey(issuer)
 
-            const isLocalIssuer = Option.isSome(this.issuerJwkResolver.getJwk(issuer))
-
-            if (isLocalIssuer) {
+            if (this.issuerJwkResolver.isLocalIssuer(issuer)) {
               yield* this.dpopValidator.validateDPoPToken(
                 expectedHtu,
                 expectedHtm,
@@ -68,7 +66,7 @@ class AuthenticationServiceImpl implements Services.AuthenticationService.Authen
   }
 
   private getJwkKey(issuer: string): Effect.Effect<JWTVerifyGetKey, ApiErrors.AuthenticationError> {
-    return this.issuerJwkResolver.getJwkKey(issuer).pipe(
+    return this.issuerJwkResolver.getJwkKeyVerifier(issuer).pipe(
       Option.match({
         onNone: () =>
           new ApiErrors.AuthenticationError({
@@ -87,10 +85,11 @@ class AuthenticationServiceImpl implements Services.AuthenticationService.Authen
 
         return decoded.iss
       },
-      catch(err) {
+      catch(error) {
         return new ApiErrors.AuthenticationError({
           reason: "invalid-credential",
-          message: `Failed to decode JWT: ${err}`,
+          message: `Failed to decode JWT`,
+          error,
         })
       },
     }).pipe(

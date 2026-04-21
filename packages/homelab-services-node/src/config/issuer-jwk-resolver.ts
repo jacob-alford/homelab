@@ -2,7 +2,7 @@ import { FetchHttpClient, FileSystem } from "@effect/platform"
 import { Effect, HashMap, Layer, type Option, Schema } from "effect"
 import { Config, Schemas, StartupErrors, Utils } from "homelab-services"
 import type { JWTVerifyGetKey } from "jose"
-import { createLocalJWKSet, createRemoteJWKSet, customFetch, flattenedDecrypt } from "jose"
+import { createLocalJWKSet, createRemoteJWKSet, customFetch, flattenedDecrypt, importJWK } from "jose"
 import { ApiKeyConfigLive } from "./api-key-config.js"
 import { RemoteOIDCWellKnownDetailsServiceLive } from "./oidc-config-remote.js"
 
@@ -50,16 +50,32 @@ export const IssuerJwkResolverLive = Layer.effect(
       Effect.andThen(Schema.decode(Schemas.OAuth.JWKFromUint8Array)),
     )
 
+    const localPrivateKey = yield* Effect.tryPromise({
+      try() {
+        return importJWK(Utils.fixJwkForJose(localPrivateJwk), localPublicJwk.alg, { extractable: false })
+      },
+      catch(error) {
+        return new StartupErrors.JWKPrivateKeyImportError({
+          error,
+        })
+      },
+    }).pipe(
+      Effect.filterOrDieMessage(
+        (key): key is CryptoKey => !(key instanceof Uint8Array),
+        "Expected CryptoKey, got Uint8Array",
+      ),
+    )
+
     return new IssuerJwkResolverImpl(
       HashMap.fromIterable([
         [
           remoteOIDCKanidm.issuer,
           createRemoteJWKSet(remoteOIDCKanidm.jwksUri, { [customFetch]: fetch }),
         ],
-        [origin.href, createLocalJWKSet({ keys: [Utils.fixJwkForJose(localPrivateJwk)] })],
+        [origin.href, createLocalJWKSet({ keys: [Utils.fixJwkForJose(localPublicJwk)] })],
       ]),
       HashMap.fromIterable([
-        [origin.href, { keys: [localPublicJwk] }],
+        [origin.href, [localPublicJwk, localPrivateKey]],
       ]),
     )
   }),
@@ -68,14 +84,21 @@ export const IssuerJwkResolverLive = Layer.effect(
 class IssuerJwkResolverImpl implements Config.IssuerJwkResolver.IssuerJwkResolverDef {
   constructor(
     private readonly jwkKeyMap: HashMap.HashMap<string, JWTVerifyGetKey>,
-    private readonly jwkMap: HashMap.HashMap<string, Schemas.OAuth.JWKs>,
+    private readonly jwkMap: HashMap.HashMap<
+      string,
+      readonly [publicKey: Schemas.OAuth.JWK, privateKey: CryptoKey]
+    >,
   ) {}
 
-  getJwkKey(issuer: string): Option.Option<JWTVerifyGetKey> {
+  isLocalIssuer(issuer: string): boolean {
+    return HashMap.has(this.jwkKeyMap, issuer)
+  }
+
+  getJwkKeyVerifier(issuer: string): Option.Option<JWTVerifyGetKey> {
     return HashMap.get(this.jwkKeyMap, issuer)
   }
 
-  getJwk(issuer: string): Option.Option<Schemas.OAuth.JWKs> {
+  getJwkKeyPair(issuer: string): Option.Option<readonly [publicKey: Schemas.OAuth.JWK, privateKey: CryptoKey]> {
     return HashMap.get(this.jwkMap, issuer)
   }
 }

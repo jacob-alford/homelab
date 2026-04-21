@@ -1,13 +1,14 @@
-import { HttpClient, HttpClientRequest } from "@effect/platform"
 import { describe, expect, it } from "@effect/vitest"
 import { Effect } from "effect"
+import { ApiErrors } from "homelab-services"
 import {
   BASE_URL,
+  createToken,
   E2ETestLayer,
   getToken,
   makeApiClient,
   TEST_API_KEY,
-  withAccessTokenAuth,
+  TEST_LIMITED_API_KEY,
 } from "../../test-utils/index.js"
 
 const acmeDownloadUrl = (clientIdentifier: string) =>
@@ -15,36 +16,66 @@ const acmeDownloadUrl = (clientIdentifier: string) =>
 
 describe("GET /mobile-config/acme/:clientIdentifier/_download", () => {
   describe("authorization", () => {
-    it.effect("rejects an unauthenticated request", () =>
+    it.live("rejects an unauthorized request", () =>
       Effect.gen(function*() {
         const client = yield* makeApiClient
+
+        const { access_token, nonce, token_type } = yield* getToken(TEST_LIMITED_API_KEY)
+
+        const newDpopProof = yield* createToken({
+          htu: acmeDownloadUrl("my-device"),
+          htm: "GET",
+          nonce,
+          accessToken: access_token,
+        })
+
         const result = yield* Effect.flip(
-          client["mobile-config"]["acme-download"]({ path: { clientIdentifier: "my-device" } }),
+          client["mobile-config"]["acme-download"]({
+            path: {
+              clientIdentifier: "my-device",
+            },
+            headers: {
+              Authorization: `${token_type} ${access_token}`,
+              DPoP: newDpopProof,
+            },
+          }),
         )
-        expect(result._tag).toBe("AuthorizationError")
-        expect((result as { resource?: string }).resource).toBe("Config.ACME")
+
+        assert(result instanceof ApiErrors.AuthorizationError)
+
+        expect(result.message).toBe(
+          "guest-a@a.plato-splunk.media (OIDC) is not allowed to perform view on Config.ACME",
+        )
       }).pipe(Effect.provide(E2ETestLayer)))
   })
 
   describe("success", () => {
-    it.effect("returns an ACME profile with Content-Disposition attachment header", () =>
+    it.live("returns an ACME profile with Content-Disposition attachment header", () =>
       Effect.gen(function*() {
-        const url = acmeDownloadUrl("my-device")
-        const { access_token, nonce } = yield* getToken(TEST_API_KEY)
+        const client = yield* makeApiClient
 
-        const response = yield* withAccessTokenAuth(
-          access_token,
+        const { access_token, nonce, token_type } = yield* getToken(TEST_API_KEY)
+
+        const newDpopProof = yield* createToken({
+          htu: acmeDownloadUrl("my-device"),
+          htm: "GET",
           nonce,
-          url,
-          "GET",
-          Effect.gen(function*() {
-            const httpClient = yield* HttpClient.HttpClient
-            return yield* httpClient.execute(HttpClientRequest.get(url.toString()))
-          }),
-        )
+          accessToken: access_token,
+        })
 
-        expect(response.status).toBe(200)
-        const disposition = (response.headers as Record<string, string | undefined>)["content-disposition"]
+        const [, res] = yield* client["mobile-config"]["acme-download"]({
+          path: {
+            clientIdentifier: "my-device",
+          },
+          withResponse: true,
+          headers: {
+            Authorization: `${token_type} ${access_token}`,
+            DPoP: newDpopProof,
+          },
+        })
+
+        const disposition = res.headers["content-disposition"]
+
         expect(disposition).toContain("attachment")
         expect(disposition).toContain("my-device.mobileconfig")
       }).pipe(Effect.provide(E2ETestLayer)))

@@ -99,6 +99,11 @@ export const HealthResponseSchema = Schema.transformOrFail(
       )
     },
   },
+).pipe(
+  HttpApiSchema.withEncoding({
+    kind: "Text",
+    contentType: "text/plain",
+  }),
 )
 
 function joinTemplatesComma<S extends string>(strs: ReadonlyArray<S>): `${S}${string}` {

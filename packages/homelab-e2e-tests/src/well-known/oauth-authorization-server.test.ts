@@ -3,7 +3,7 @@ import { Effect } from "effect"
 import { E2ETestLayer, makeApiClient } from "../../test-utils/index.js"
 
 describe("GET /.well-known/oauth-authorization-server", () => {
-  it.effect("returns OAuth 2.0 authorization server metadata without authentication", () =>
+  it.live("returns OAuth 2.0 authorization server metadata without authentication", () =>
     Effect.gen(function*() {
       const client = yield* makeApiClient
       const result = yield* client["well-known"]["well-known-oauth-authorization"]({})

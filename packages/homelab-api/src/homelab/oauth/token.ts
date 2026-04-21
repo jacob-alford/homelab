@@ -7,6 +7,7 @@ export const TokenEndpoint = HttpApiEndpoint.post("token")`/token`
   .addError(ApiErrors.AuthenticationError)
   .addError(ApiErrors.BadRequest)
   .addError(ApiErrors.InternalServerError)
+  .setHeaders(Schemas.Token.TokenHeaders)
 
 export type TokenEndpoint = typeof TokenEndpoint
 

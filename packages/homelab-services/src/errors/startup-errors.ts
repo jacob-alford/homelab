@@ -6,3 +6,10 @@ export class JWKPrivateKeyDecryptionError extends Schema.TaggedError<JWKPrivateK
     error: Schema.Unknown,
   },
 ) {}
+
+export class JWKPrivateKeyImportError extends Schema.TaggedError<JWKPrivateKeyImportError>()(
+  "JWKPrivateKeyImportError",
+  {
+    error: Schema.Unknown,
+  },
+) {}

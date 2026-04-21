@@ -1,84 +1,226 @@
 import { describe, expect, it } from "@effect/vitest"
 import { Effect } from "effect"
+import { ApiErrors } from "homelab-services"
 import {
   BASE_URL,
+  createToken,
   E2ETestLayer,
   getToken,
   makeApiClient,
   TEST_API_KEY,
-  withAccessTokenAuth,
+  TEST_LIMITED_API_KEY,
 } from "../../test-utils/index.js"
 
-const wifiUrl = (ssid: string, encryption: "WPA3" | "WPA2") =>
+export const wifiUrl = (ssid: string, encryption: "WPA3" | "WPA2") =>
   new URL(`${BASE_URL}/mobile-config/wifi/${ssid}/${encryption}`)
 
 describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
   describe("authorization", () => {
-    it.effect("rejects an unauthenticated request", () =>
+    it.live("rejects an unauthorized request", () =>
       Effect.gen(function*() {
         const client = yield* makeApiClient
+
+        const { access_token, nonce, token_type } = yield* getToken(TEST_LIMITED_API_KEY)
+
+        const newDpopProof = yield* createToken({
+          htu: wifiUrl("abcd", "WPA2"),
+          htm: "PUT",
+          nonce,
+          accessToken: access_token,
+        })
+
         const result = yield* Effect.flip(
           client["mobile-config"].wifi({
-            path: { ssid: "test-ssid", encryption: "WPA3" as const },
-            payload: { password: "test-password", disableMACRandomization: false },
+            payload: {
+              disableMACRandomization: false,
+              password: "1234",
+            },
+            path: {
+              ssid: "abcd",
+              encryption: "WPA2",
+            },
+            headers: {
+              Authorization: `${token_type} ${access_token}`,
+              DPoP: newDpopProof,
+            },
           }),
         )
-        expect(result._tag).toBe("AuthorizationError")
-        expect((result as { resource?: string }).resource).toBe("Config.Wifi")
+
+        assert(result instanceof ApiErrors.AuthorizationError)
+
+        expect(result.message).toBe(
+          "guest-a@a.plato-splunk.media (OIDC) is not allowed to perform view on Config.Wifi",
+        )
       }).pipe(Effect.provide(E2ETestLayer)))
   })
 
   describe("error cases", () => {
-    it.effect("rejects EAP-TLS enterprise client type as not implemented", () =>
+    it.live("rejects EAP-TLS enterprise client type as not implemented", () =>
       Effect.gen(function*() {
-        const url = wifiUrl("test-ssid", "WPA3")
-        const { access_token, nonce } = yield* getToken(TEST_API_KEY)
-        const client = yield* withAccessTokenAuth(access_token, nonce, url, "PUT", makeApiClient)
+        const client = yield* makeApiClient
+
+        const { access_token, nonce, token_type } = yield* getToken(TEST_API_KEY)
+
+        const newDpopProof = yield* createToken({
+          htu: wifiUrl("abcd", "WPA2"),
+          htm: "PUT",
+          nonce,
+          accessToken: access_token,
+        })
+
         const result = yield* Effect.flip(
           client["mobile-config"].wifi({
-            path: { ssid: "test-ssid", encryption: "WPA3" as const },
             payload: {
-              password: "pass",
               disableMACRandomization: false,
-              enterpriseClientType: "EAP-TLS" as const,
+              password: "1234",
+              enterpriseClientType: "EAP-TLS",
+            },
+            path: {
+              ssid: "abcd",
+              encryption: "WPA2",
+            },
+            headers: {
+              Authorization: `${token_type} ${access_token}`,
+              DPoP: newDpopProof,
             },
           }),
         )
-        expect(result._tag).toBe("NotImplemented")
+
+        assert(result instanceof ApiErrors.NotImplemented)
+
+        expect(result.message).toBe(
+          "EAP-TLS support not implemented",
+        )
       }).pipe(Effect.provide(E2ETestLayer)))
 
-    it.effect("rejects PEAP enterprise type when username is missing", () =>
+    it.live("rejects PEAP enterprise type when username is missing", () =>
       Effect.gen(function*() {
-        const url = wifiUrl("test-ssid", "WPA3")
-        const { access_token, nonce } = yield* getToken(TEST_API_KEY)
-        const client = yield* withAccessTokenAuth(access_token, nonce, url, "PUT", makeApiClient)
+        const client = yield* makeApiClient
+
+        const { access_token, nonce, token_type } = yield* getToken(TEST_API_KEY)
+
+        const newDpopProof = yield* createToken({
+          htu: wifiUrl("abcd", "WPA2"),
+          htm: "PUT",
+          nonce,
+          accessToken: access_token,
+        })
+
         const result = yield* Effect.flip(
           client["mobile-config"].wifi({
-            path: { ssid: "test-ssid", encryption: "WPA3" as const },
             payload: {
-              password: "pass",
               disableMACRandomization: false,
-              enterpriseClientType: "PEAP" as const,
+              password: "1234",
+              enterpriseClientType: "PEAP",
+            },
+            path: {
+              ssid: "abcd",
+              encryption: "WPA2",
+            },
+            headers: {
+              Authorization: `${token_type} ${access_token}`,
+              DPoP: newDpopProof,
             },
           }),
         )
-        expect(result._tag).toBe("BadRequest")
+
+        assert(result instanceof ApiErrors.BadRequest)
+
+        expect(result.message).toBe(
+          "Username is required when specifying a PEAP client-type",
+        )
         expect((result as { reason?: string }).reason).toBe("eap-client-username-required")
+      }).pipe(Effect.provide(E2ETestLayer)))
+    it.live("rejects when username does not match Idenitity", () =>
+      Effect.gen(function*() {
+        const client = yield* makeApiClient
+
+        const { access_token, nonce, token_type } = yield* getToken(TEST_API_KEY)
+
+        const newDpopProof = yield* createToken({
+          htu: wifiUrl("abcd", "WPA2"),
+          htm: "PUT",
+          nonce,
+          accessToken: access_token,
+        })
+
+        const result = yield* Effect.flip(client["mobile-config"].wifi({
+          payload: {
+            disableMACRandomization: false,
+            password: "1234",
+            enterpriseClientType: "PEAP",
+            username: "bob",
+          },
+          path: {
+            ssid: "abcd",
+            encryption: "WPA2",
+          },
+          headers: {
+            Authorization: `${token_type} ${access_token}`,
+            DPoP: newDpopProof,
+          },
+        }))
+
+        assert(result instanceof ApiErrors.AuthorizationError)
+
+        expect(result.message).toBe("User's principle identifer must match the requested username")
       }).pipe(Effect.provide(E2ETestLayer)))
   })
 
   describe("success", () => {
-    it.effect("returns a WPA3 personal wifi mobileconfig profile", () =>
+    it.live("returns a WPA3 personal wifi mobileconfig profile", () =>
       Effect.gen(function*() {
-        const url = wifiUrl("my-network", "WPA3")
-        const { access_token, nonce } = yield* getToken(TEST_API_KEY)
-        const client = yield* withAccessTokenAuth(access_token, nonce, url, "PUT", makeApiClient)
-        const result = yield* client["mobile-config"].wifi({
-          path: { ssid: "my-network", encryption: "WPA3" as const },
-          payload: { password: "secure-pass", disableMACRandomization: false },
+        const client = yield* makeApiClient
+
+        const { access_token, nonce, token_type } = yield* getToken(TEST_API_KEY)
+
+        const newDpopProof = yield* createToken({
+          htu: wifiUrl("0x676179", "WPA2"),
+          htm: "PUT",
+          nonce,
+          accessToken: access_token,
         })
+
+        const result = yield* client["mobile-config"].wifi({
+          payload: {
+            disableMACRandomization: false,
+            password: "1234",
+            enterpriseClientType: "PEAP",
+            username: "test",
+          },
+          path: {
+            ssid: "0x676179",
+            encryption: "WPA2",
+          },
+          headers: {
+            Authorization: `${token_type} ${access_token}`,
+            DPoP: newDpopProof,
+          },
+        })
+
         expect(result).toBeDefined()
-        expect(typeof result).toBe("string")
+      }).pipe(Effect.provide(E2ETestLayer)))
+
+    // TODO: Fix header schema to permit guest users
+    it.live.skip("permits guests users", () =>
+      Effect.gen(function*() {
+        const client = yield* makeApiClient
+
+        const result = yield* client["mobile-config"].wifi({
+          payload: {
+            disableMACRandomization: false,
+            password: "1234",
+            enterpriseClientType: "PEAP",
+            username: "test",
+          },
+          path: {
+            ssid: "0x676179",
+            encryption: "WPA2",
+          },
+          headers: {} as any,
+        })
+
+        expect(result).toBeDefined()
       }).pipe(Effect.provide(E2ETestLayer)))
   })
 })

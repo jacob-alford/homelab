@@ -48,7 +48,7 @@ export const KeyUse = Optional(Schema.Literal("sig", "enc"))
 
 export const BaseJWK = Schema.Struct({
   use: KeyUse,
-  kid: Schema.String,
+  kid: OptionalString,
   key_ops: KeyOps,
   x5u: OptionalUrl,
   x5c: OptionalArray(Base64),
@@ -138,6 +138,10 @@ export const JWSAlgorithms = Schema.Union(
 // ----------
 // JWTs
 // ----------
+
+export const JWTString = Schema.String.pipe(
+  Schema.pattern(/^[A-Za-z0-9_\-.]+$/g),
+)
 
 export const BaseJOSEHeader = Schema.Struct({
   alg: JWSAlgorithms,
