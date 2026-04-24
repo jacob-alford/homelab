@@ -34,8 +34,8 @@ describe("PUT /mobile-config/acme/:clientIdentifier", () => {
               clientIdentifier: "my-device",
             },
             headers: {
-              Authorization: `${token_type} ${access_token}`,
-              DPoP: newDpopProof,
+              dpop: newDpopProof,
+              authorization: `${token_type} ${access_token}`,
             },
           }),
         )
@@ -49,6 +49,22 @@ describe("PUT /mobile-config/acme/:clientIdentifier", () => {
   })
 
   describe("error cases", () => {
+    it.live("doesn't allow guests", () =>
+      Effect.gen(function*() {
+        const client = yield* makeApiClient
+
+        const result = yield* Effect.flip(
+          client["mobile-config"].acme({
+            path: {
+              clientIdentifier: "postgres",
+            },
+            headers: {},
+          }),
+        )
+
+        assert(result instanceof ApiErrors.AuthorizationError)
+        expect(result.message).toBe("guest (Guest) is not allowed to perform view on Config.ACME")
+      }).pipe(Effect.provide(E2ETestLayer)))
     it.live("rejects a mismatched DPoP path", () =>
       Effect.gen(function*() {
         const client = yield* makeApiClient
@@ -68,8 +84,8 @@ describe("PUT /mobile-config/acme/:clientIdentifier", () => {
               clientIdentifier: "postgres",
             },
             headers: {
-              Authorization: `${token_type} ${access_token}`,
-              DPoP: newDpopProof,
+              dpop: newDpopProof,
+              authorization: `${token_type} ${access_token}`,
             },
           }),
         )
@@ -97,8 +113,8 @@ describe("PUT /mobile-config/acme/:clientIdentifier", () => {
               clientIdentifier: "postgres",
             },
             headers: {
-              Authorization: `${token_type} ${access_token}`,
-              DPoP: newDpopProof,
+              dpop: newDpopProof,
+              authorization: `${token_type} ${access_token}`,
             },
           }),
         )
@@ -127,8 +143,8 @@ describe("PUT /mobile-config/acme/:clientIdentifier", () => {
             clientIdentifier: "foo",
           },
           headers: {
-            Authorization: `${token_type} ${access_token}`,
-            DPoP: newDpopProof,
+            dpop: newDpopProof,
+            authorization: `${token_type} ${access_token}`,
           },
         })
 

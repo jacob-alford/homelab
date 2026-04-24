@@ -1,5 +1,5 @@
 import { FetchHttpClient, FileSystem } from "@effect/platform"
-import { Effect, HashMap, Layer, type Option, Schema } from "effect"
+import { Data, Effect, flow, HashMap, Layer, Option, Schema } from "effect"
 import { Config, Schemas, StartupErrors, Utils } from "homelab-services"
 import type { JWTVerifyGetKey } from "jose"
 import { createLocalJWKSet, createRemoteJWKSet, customFetch, flattenedDecrypt, importJWK } from "jose"
@@ -17,54 +17,96 @@ export const IssuerJwkResolverLive = Layer.effect(
     const remoteOIDCKanidm = yield* Config.OIDCConfigRemote.kanidm
     const fetch = yield* FetchHttpClient.Fetch
 
-    const localPrivateJwkSecret = yield* fs.readFile(privateKeySecretPath).pipe(
-      Effect.map(Utils.trimBufferNewlines),
+    const localPrivateJwkSecret = yield* privateKeySecretPath.pipe(
+      Option.map(
+        flow(
+          fs.readFile,
+          Effect.map(Utils.trimBufferNewlines),
+        ),
+      ),
+      Effect.transposeOption,
     )
 
-    const localPrivateJwk = yield* fs.readFile(privateKeyPath).pipe(
-      Effect.andThen(Schema.decode(Schemas.OAuth.JWEFromUint8Array)),
-      Effect.andThen((localPrivateJwkEnrypted) =>
-        Effect.tryPromise({
-          try() {
-            return flattenedDecrypt(
-              localPrivateJwkEnrypted,
-              localPrivateJwkSecret,
-              {
-                keyManagementAlgorithms: ["PBES2-HS256+A128KW"],
-                maxPBES2Count: 1_000_000,
-              },
-            )
-          },
-          catch(error) {
-            return new StartupErrors.JWKPrivateKeyDecryptionError({ error })
-          },
-        })
+    const localPrivateJwk = yield* privateKeyPath.pipe(
+      Option.zipWith(localPrivateJwkSecret, Data.tuple),
+      Option.map(
+        ([privateKeyPath, jwkSecret]) =>
+          fs.readFile(privateKeyPath).pipe(
+            Effect.andThen(Schema.decode(Schemas.OAuth.JWEFromUint8Array)),
+            Effect.andThen((localPrivateJwkEnrypted) =>
+              Effect.tryPromise({
+                try() {
+                  return flattenedDecrypt(
+                    localPrivateJwkEnrypted,
+                    jwkSecret,
+                    {
+                      keyManagementAlgorithms: ["PBES2-HS256+A128KW"],
+                      maxPBES2Count: 1_000_000,
+                    },
+                  )
+                },
+                catch(error) {
+                  return new StartupErrors.JWKPrivateKeyDecryptionError({ error })
+                },
+              })
+            ),
+            Effect.map((_) => _.plaintext),
+            Effect.andThen(
+              Schema.decode(Schemas.OAuth.JWKFromUint8Array),
+            ),
+          ),
       ),
-      Effect.map((_) => _.plaintext),
-      Effect.andThen(
-        Schema.decode(Schemas.OAuth.JWKFromUint8Array),
-      ),
+      Effect.transposeOption,
     )
 
-    const localPublicJwk = yield* fs.readFile(publicKeyPath).pipe(
-      Effect.andThen(Schema.decode(Schemas.OAuth.JWKFromUint8Array)),
+    const localPublicJwk = yield* publicKeyPath.pipe(
+      Option.map(
+        flow(
+          fs.readFile,
+          Effect.andThen(
+            Schema.decode(Schemas.OAuth.JWKFromUint8Array),
+          ),
+        ),
+      ),
+      Effect.transposeOption,
     )
 
-    const localPrivateKey = yield* Effect.tryPromise({
-      try() {
-        return importJWK(Utils.fixJwkForJose(localPrivateJwk), localPublicJwk.alg, { extractable: false })
-      },
-      catch(error) {
-        return new StartupErrors.JWKPrivateKeyImportError({
-          error,
-        })
-      },
-    }).pipe(
-      Effect.filterOrDieMessage(
-        (key): key is CryptoKey => !(key instanceof Uint8Array),
-        "Expected CryptoKey, got Uint8Array",
+    const localPrivateKey = yield* localPrivateJwk.pipe(
+      Option.zipWith(localPublicJwk, Data.tuple),
+      Option.map(
+        ([localPrivateJwk, localPublicJwk]) =>
+          Effect.tryPromise({
+            try() {
+              return importJWK(Utils.fixJwkForJose(localPrivateJwk), localPublicJwk.alg, { extractable: false })
+            },
+            catch(error) {
+              return new StartupErrors.JWKPrivateKeyImportError({
+                error,
+              })
+            },
+          }).pipe(
+            Effect.filterOrDieMessage(
+              (key): key is CryptoKey => !(key instanceof Uint8Array),
+              "Expected CryptoKey, got Uint8Array",
+            ),
+          ),
       ),
+      Effect.transposeOption,
     )
+
+    const localKeysets: Array<readonly [string, JWTVerifyGetKey]> = localPublicJwk.pipe(
+      Option.map(
+        (localPublicJwk) => Data.tuple(origin.href, createLocalJWKSet({ keys: [Utils.fixJwkForJose(localPublicJwk)] })),
+      ),
+      Option.toArray,
+    )
+
+    const localKeypairs: Array<readonly [string, readonly [Schemas.OAuth.JWK, CryptoKey]]> = localPublicJwk
+      .pipe(
+        Option.zipWith(localPrivateKey, Data.tuple),
+        Option.map((_) => Data.tuple(origin.href, _)),
+        Option.toArray,
+      )
 
     return new IssuerJwkResolverImpl(
       HashMap.fromIterable([
@@ -72,10 +114,10 @@ export const IssuerJwkResolverLive = Layer.effect(
           remoteOIDCKanidm.issuer,
           createRemoteJWKSet(remoteOIDCKanidm.jwksUri, { [customFetch]: fetch }),
         ],
-        [origin.href, createLocalJWKSet({ keys: [Utils.fixJwkForJose(localPublicJwk)] })],
+        ...localKeysets,
       ]),
       HashMap.fromIterable([
-        [origin.href, [localPublicJwk, localPrivateKey]],
+        ...localKeypairs,
       ]),
     )
   }),

@@ -15,6 +15,20 @@ const HEALTH_URL = new URL(`${BASE_URL}/status/health`)
 
 describe("PUT /status/health", () => {
   describe("authorization", () => {
+    it.live("rejects guest users", () =>
+      Effect.gen(function*() {
+        const client = yield* makeApiClient
+
+        const result = yield* Effect.flip(
+          client.status.health({
+            headers: {},
+          }),
+        )
+
+        assert(result instanceof ApiErrors.AuthorizationError)
+
+        expect(result.message).toBe("guest (Guest) is not allowed to perform view on Status.Health")
+      }).pipe(Effect.provide(E2ETestLayer)))
     it.live("rejects a request with a mismathced html", () =>
       Effect.gen(function*() {
         const client = yield* makeApiClient
@@ -25,8 +39,8 @@ describe("PUT /status/health", () => {
         const result = yield* Effect.flip(
           client.status.health({
             headers: {
-              Authorization: `${token_type} ${access_token}`,
-              DPoP: dpopProof,
+              dpop: dpopProof,
+              authorization: `${token_type} ${access_token}`,
             },
           }),
         )
@@ -47,8 +61,8 @@ describe("PUT /status/health", () => {
         const result = yield* Effect.flip(
           client.status.health({
             headers: {
-              Authorization: `${token_type} ${access_token}`,
-              DPoP: newDpopProof,
+              dpop: newDpopProof,
+              authorization: `${token_type} ${access_token}`,
             },
           }),
         )
@@ -72,8 +86,8 @@ describe("PUT /status/health", () => {
 
         const result = yield* client.status.health({
           headers: {
-            Authorization: `${token_type} ${access_token}`,
-            DPoP: newDpopProof,
+            dpop: newDpopProof,
+            authorization: `${token_type} ${access_token}`,
           },
         })
 

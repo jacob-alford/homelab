@@ -1,5 +1,6 @@
 import { Headers, HttpServerRequest } from "@effect/platform"
 import { Array, Effect, flow, Layer, Option, String } from "effect"
+import { constTrue } from "effect/Function"
 import { ApiErrors, Config, Middleware, type Schemas, Services } from "homelab-services"
 
 const extractBearerTokens: (authHeader: string) => ReadonlyArray<Buffer> =
@@ -49,11 +50,15 @@ export const AuthMiddlewareLive = Layer.effect(
       const jwt = yield* Headers.get(request.headers, "authorization").pipe(
         Option.map(extractBearerTokens),
         Effect.liftPredicate(
-          (tokens) =>
-            Option.exists(
-              tokens,
-              (tokens) => tokens.length === 1,
-            ),
+          (_) =>
+            Option.match(_, {
+              onNone: constTrue,
+              onSome(
+                tokens,
+              ) {
+                return tokens.length <= 1
+              },
+            }),
           () =>
             new ApiErrors.AuthenticationError({
               reason: "invalid-credential",

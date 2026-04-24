@@ -40,8 +40,8 @@ describe("GET /mobile-config/wifi/:ssid/:encryption/_download", () => {
               disableMACRandomization: false,
             },
             headers: {
-              Authorization: `${token_type} ${access_token}`,
-              DPoP: newDpopProof,
+              dpop: newDpopProof,
+              authorization: `${token_type} ${access_token}`,
             },
           }),
         )
@@ -51,6 +51,29 @@ describe("GET /mobile-config/wifi/:ssid/:encryption/_download", () => {
         expect(result.message).toBe(
           "guest-a@a.plato-splunk.media (OIDC) is not allowed to perform view on Config.Wifi",
         )
+      }).pipe(Effect.provide(E2ETestLayer)))
+
+    it.live("prevents guests from getting non-guest profiles", () =>
+      Effect.gen(function*() {
+        const client = yield* makeApiClient
+
+        const res = yield* Effect.flip(client["mobile-config"]["wifi-download"]({
+          path: {
+            ssid: "0x676179",
+            encryption: "WPA2",
+          },
+          urlParams: {
+            username: "foobar",
+            password: "1234",
+            disableMACRandomization: false,
+          },
+          withResponse: true,
+          headers: {},
+        }))
+
+        assert(res instanceof ApiErrors.AuthorizationError)
+
+        expect(res.message).toBe("User's principle identifer must match the requested username")
       }).pipe(Effect.provide(E2ETestLayer)))
   })
 
@@ -79,9 +102,33 @@ describe("GET /mobile-config/wifi/:ssid/:encryption/_download", () => {
           },
           withResponse: true,
           headers: {
-            Authorization: `${token_type} ${access_token}`,
-            DPoP: newDpopProof,
+            dpop: newDpopProof,
+            authorization: `${token_type} ${access_token}`,
           },
+        })
+
+        const disposition = res.headers["content-disposition"]
+
+        expect(disposition).toContain("attachment")
+        expect(disposition).toContain("0x676179.mobileconfig")
+      }).pipe(Effect.provide(E2ETestLayer)))
+
+    it.live("allows guests to download guest profiles", () =>
+      Effect.gen(function*() {
+        const client = yield* makeApiClient
+
+        const [, res] = yield* client["mobile-config"]["wifi-download"]({
+          path: {
+            ssid: "0x676179",
+            encryption: "WPA2",
+          },
+          urlParams: {
+            username: "guest",
+            password: "1234",
+            disableMACRandomization: false,
+          },
+          withResponse: true,
+          headers: {},
         })
 
         const disposition = res.headers["content-disposition"]

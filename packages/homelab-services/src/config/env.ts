@@ -1,4 +1,4 @@
-import { Context, Effect } from "effect"
+import { Context, Effect, type Option } from "effect"
 import type { FeatureFlagsSet } from "../schemas/feature-flags.js"
 
 export interface EnvDef {
@@ -6,16 +6,16 @@ export interface EnvDef {
   readonly originUrl: URL
 
   /** Filesystem path to the private key file used for signing issued tokens. */
-  readonly tokenIssuerPrivateKeyPath: string
+  readonly tokenIssuerPrivateKeyPath: Option.Option<string>
 
   /** File containing the secret key to decrypt the private key file with */
-  readonly tokenIssuerPrivateKeySecretFile: string
+  readonly tokenIssuerPrivateKeySecretFile: Option.Option<string>
 
   /** File containing the public JWK for the token issuer */
-  readonly tokenIssuerPublicKeyPath: string
+  readonly tokenIssuerPublicKeyPath: Option.Option<string>
 
   /** Filesystem path to the HMAC shared secret file. */
-  readonly hmacSecretFilePath: string
+  readonly hmacSecretFilePath: Option.Option<string>
 
   /** The set of enabled feature flags for this deployment. */
   readonly featureFlags: FeatureFlagsSet

@@ -16,6 +16,25 @@ const acmeDownloadUrl = (clientIdentifier: string) =>
 
 describe("GET /mobile-config/acme/:clientIdentifier/_download", () => {
   describe("authorization", () => {
+    it.live("doesn't permit guests", () =>
+      Effect.gen(function*() {
+        const client = yield* makeApiClient
+
+        const result = yield* Effect.flip(
+          client["mobile-config"]["acme-download"]({
+            path: {
+              clientIdentifier: "my-device",
+            },
+            headers: {},
+          }),
+        )
+
+        assert(result instanceof ApiErrors.AuthorizationError)
+
+        expect(result.message).toBe(
+          "guest (Guest) is not allowed to perform view on Config.ACME",
+        )
+      }).pipe(Effect.provide(E2ETestLayer)))
     it.live("rejects an unauthorized request", () =>
       Effect.gen(function*() {
         const client = yield* makeApiClient
@@ -35,8 +54,8 @@ describe("GET /mobile-config/acme/:clientIdentifier/_download", () => {
               clientIdentifier: "my-device",
             },
             headers: {
-              Authorization: `${token_type} ${access_token}`,
-              DPoP: newDpopProof,
+              dpop: newDpopProof,
+              authorization: `${token_type} ${access_token}`,
             },
           }),
         )
@@ -69,8 +88,8 @@ describe("GET /mobile-config/acme/:clientIdentifier/_download", () => {
           },
           withResponse: true,
           headers: {
-            Authorization: `${token_type} ${access_token}`,
-            DPoP: newDpopProof,
+            dpop: newDpopProof,
+            authorization: `${token_type} ${access_token}`,
           },
         })
 

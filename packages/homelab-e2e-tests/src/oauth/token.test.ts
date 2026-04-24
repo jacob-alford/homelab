@@ -14,6 +14,20 @@ const TOKEN_URL = new URL(`${BASE_URL}/oauth/token`)
 
 describe("POST /oauth/token", () => {
   describe("authentication failures", () => {
+    it.live("does't permit missing api key", () =>
+      Effect.gen(function*() {
+        const apiClient = yield* makeApiClient
+
+        const res = yield* Effect.flip(
+          apiClient.oauth.token({
+            headers: {},
+          }),
+        )
+
+        assert(res instanceof ApiErrors.AuthenticationError)
+
+        expect(res.message).toBe("API key is required")
+      }).pipe(Effect.provide(E2ETestLayer)))
     it.live("rejects a request with an unrecognized API key", () =>
       Effect.gen(function*() {
         const apiClient = yield* makeApiClient
@@ -23,8 +37,8 @@ describe("POST /oauth/token", () => {
         const res = yield* Effect.flip(
           apiClient.oauth.token({
             headers: {
-              DPoP: dpopProof,
-              Authorization: `${apiKeyB64}`,
+              dpop: dpopProof,
+              authorization: `${apiKeyB64}`,
             },
           }),
         )
@@ -43,8 +57,8 @@ describe("POST /oauth/token", () => {
         const res = yield* Effect.flip(
           apiClient.oauth.token({
             headers: {
-              DPoP: dpopProof,
-              Authorization: `${apiKeyB64}`,
+              dpop: dpopProof,
+              authorization: `${apiKeyB64}`,
             },
           }),
         )
@@ -65,8 +79,8 @@ describe("POST /oauth/token", () => {
         const [{ access_token, token_type }, res] = yield* apiClient.oauth.token({
           withResponse: true,
           headers: {
-            DPoP: dpopProof,
-            Authorization: `${apiKeyB64}`,
+            dpop: dpopProof,
+            authorization: `${apiKeyB64}`,
           },
         })
 

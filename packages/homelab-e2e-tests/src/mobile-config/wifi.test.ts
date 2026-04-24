@@ -40,8 +40,8 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
               encryption: "WPA2",
             },
             headers: {
-              Authorization: `${token_type} ${access_token}`,
-              DPoP: newDpopProof,
+              dpop: newDpopProof,
+              authorization: `${token_type} ${access_token}`,
             },
           }),
         )
@@ -80,8 +80,8 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
               encryption: "WPA2",
             },
             headers: {
-              Authorization: `${token_type} ${access_token}`,
-              DPoP: newDpopProof,
+              dpop: newDpopProof,
+              authorization: `${token_type} ${access_token}`,
             },
           }),
         )
@@ -118,8 +118,8 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
               encryption: "WPA2",
             },
             headers: {
-              Authorization: `${token_type} ${access_token}`,
-              DPoP: newDpopProof,
+              dpop: newDpopProof,
+              authorization: `${token_type} ${access_token}`,
             },
           }),
         )
@@ -156,8 +156,8 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
             encryption: "WPA2",
           },
           headers: {
-            Authorization: `${token_type} ${access_token}`,
-            DPoP: newDpopProof,
+            dpop: newDpopProof,
+            authorization: `${token_type} ${access_token}`,
           },
         }))
 
@@ -193,20 +193,19 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
             encryption: "WPA2",
           },
           headers: {
-            Authorization: `${token_type} ${access_token}`,
-            DPoP: newDpopProof,
+            dpop: newDpopProof,
+            authorization: `${token_type} ${access_token}`,
           },
         })
 
         expect(result).toBeDefined()
       }).pipe(Effect.provide(E2ETestLayer)))
 
-    // TODO: Fix header schema to permit guest users
-    it.live.skip("permits guests users", () =>
+    it.live("restricts guest users to guest account", () =>
       Effect.gen(function*() {
         const client = yield* makeApiClient
 
-        const result = yield* client["mobile-config"].wifi({
+        const result = yield* Effect.flip(client["mobile-config"].wifi({
           payload: {
             disableMACRandomization: false,
             password: "1234",
@@ -217,7 +216,29 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
             ssid: "0x676179",
             encryption: "WPA2",
           },
-          headers: {} as any,
+          headers: {},
+        }))
+
+        assert(result instanceof ApiErrors.AuthorizationError)
+        expect(result.message).toBe("User's principle identifer must match the requested username")
+      }).pipe(Effect.provide(E2ETestLayer)))
+
+    it.live("permits guests users to create guest accounts", () =>
+      Effect.gen(function*() {
+        const client = yield* makeApiClient
+
+        const result = yield* client["mobile-config"].wifi({
+          payload: {
+            disableMACRandomization: false,
+            password: "1234",
+            enterpriseClientType: "PEAP",
+            username: "guest",
+          },
+          path: {
+            ssid: "0x676179",
+            encryption: "WPA2",
+          },
+          headers: {},
         })
 
         expect(result).toBeDefined()

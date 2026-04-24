@@ -24,8 +24,8 @@ export const getToken = (apiKey: string): Effect.Effect<
     const [tokenResponse, res] = yield* apiClient.oauth.token({
       withResponse: true,
       headers: {
-        Authorization: apiKeyB64,
-        DPoP: dpopProof,
+        dpop: dpopProof,
+        authorization: apiKeyB64,
       },
     })
 

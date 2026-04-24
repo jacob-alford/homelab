@@ -31,8 +31,8 @@ describe("GET /mobile-config/certs", () => {
         const result = yield* Effect.flip(
           client["mobile-config"].certs({
             headers: {
-              Authorization: `${token_type} ${access_token}`,
-              DPoP: newDpopProof,
+              dpop: newDpopProof,
+              authorization: `${token_type} ${access_token}`,
             },
           }),
         )
@@ -61,9 +61,20 @@ describe("GET /mobile-config/certs", () => {
 
         const result = yield* client["mobile-config"].certs({
           headers: {
-            Authorization: `${token_type} ${access_token}`,
-            DPoP: newDpopProof,
+            dpop: newDpopProof,
+            authorization: `${token_type} ${access_token}`,
           },
+        })
+
+        expect(result).toBeDefined()
+      }).pipe(Effect.provide(E2ETestLayer)))
+
+    it.live("allows guests to get cert profiles", () =>
+      Effect.gen(function*() {
+        const client = yield* makeApiClient
+
+        const result = yield* client["mobile-config"].certs({
+          headers: {},
         })
 
         expect(result).toBeDefined()

@@ -1,5 +1,5 @@
 import { NodeFileSystem } from "@effect/platform-node"
-import { Config, ConfigProvider, Layer, Schema } from "effect"
+import { Config, ConfigProvider, Layer, Option, Schema } from "effect"
 import { Config as ServicesConfig, Schemas, Services } from "homelab-services"
 import * as path from "node:path"
 import { Config as NodeConfig, Layers } from "../src/index.js"
@@ -28,10 +28,10 @@ const TestEnvLive = Layer.effect(
   ServicesConfig.Env.Env,
   Config.all({
     originUrl: Schema.Config("HOMELAB_ORIGIN_URL", Schema.URL),
-    tokenIssuerPrivateKeyPath: Config.string("TOKEN_ISSUER_PRIVATE_KEY_PATH"),
-    tokenIssuerPrivateKeySecretFile: Config.string("TOKEN_ISSUER_PRIVATE_KEY_SECRET_PATH"),
-    tokenIssuerPublicKeyPath: Config.string("TOKEN_ISSUER_PUBLIC_KEY_PATH"),
-    hmacSecretFilePath: Config.string("HOMELAB_SECRET_FILE"),
+    tokenIssuerPrivateKeyPath: Config.option(Config.string("TOKEN_ISSUER_PRIVATE_KEY_PATH")),
+    tokenIssuerPrivateKeySecretFile: Config.option(Config.string("TOKEN_ISSUER_PRIVATE_KEY_SECRET_PATH")),
+    tokenIssuerPublicKeyPath: Config.option(Config.string("TOKEN_ISSUER_PUBLIC_KEY_PATH")),
+    hmacSecretFilePath: Config.option(Config.string("HOMELAB_SECRET_FILE")),
     featureFlags: Schema.Config("FEATURE_FLAGS", Schemas.FeatureFlags.FeatureFlagsSetSchema),
     kanidmOidcUrl: Schema.Config("KANIDM_OPENID_PROVIDER_URL", Schema.URL),
     caUrl: Config.withDefault(Schema.Config("CA_URL", Schema.URL), new URL("https://ca.plato-splunk.media")),
@@ -50,10 +50,10 @@ export const makeTestEnvWithFlags = (
 ): Layer.Layer<ServicesConfig.Env.Env> =>
   Layer.succeed(ServicesConfig.Env.Env, {
     originUrl: new URL("http://localhost:3000"),
-    tokenIssuerPrivateKeyPath: path.join(privateDir, "jwk.json"),
-    tokenIssuerPrivateKeySecretFile: path.join(privateDir, "private-secret-key"),
-    tokenIssuerPublicKeyPath: path.join(privateDir, "jwk.pub.json"),
-    hmacSecretFilePath: path.join(privateDir, "hmac-secret"),
+    tokenIssuerPrivateKeyPath: Option.some(path.join(privateDir, "jwk.json")),
+    tokenIssuerPrivateKeySecretFile: Option.some(path.join(privateDir, "private-secret-key")),
+    tokenIssuerPublicKeyPath: Option.some(path.join(privateDir, "jwk.pub.json")),
+    hmacSecretFilePath: Option.some(path.join(privateDir, "hmac-secret")),
     featureFlags,
     kanidmOidcUrl: new URL("https://kanidm.test/oauth2/openid/test/.well-known/openid-configuration"),
     caUrl: new URL("https://ca.plato-splunk.media"),

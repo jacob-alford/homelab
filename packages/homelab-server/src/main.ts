@@ -10,7 +10,7 @@ import { ProfileUuidConfigLive } from "./uuids.js"
 const ServerLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(HttpApiSwagger.layer()),
   Layer.provide(ApiLive),
-  Layer.provide(NodeHttpServer.layer(() => createServer(), { port: 3000 })),
+  Layer.provide(NodeHttpServer.layer(() => createServer(), { port: 3000, host: "0.0.0.0" })),
   Layer.provide(Shell.Authentication.Aggregate),
   Layer.provide(Shell.Authorization.Aggregate),
   Layer.provide(Shell.Crypto.Aggregate),
