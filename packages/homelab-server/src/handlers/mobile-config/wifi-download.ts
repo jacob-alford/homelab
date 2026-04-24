@@ -13,7 +13,7 @@ export const handleWifiDownload = Effect.fn("handleWifiDownload")(
       payload: args.urlParams,
     }
 
-    yield* Services.AuthorizationService.canView(identity, "Config.Wifi", wifiArgs)
+    yield* Services.AuthorizationService.canView(identity, "Config_Wifi", wifiArgs)
 
     const response = yield* generateWifiProfile(wifiArgs)
 

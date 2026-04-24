@@ -1,6 +1,16 @@
 import { FileSystem } from "@effect/platform"
-import { Array, Data, Effect, flow, HashMap, HashSet, Layer, Option, pipe, Schema, String, Tuple } from "effect"
+import { Array, Data, Effect, flow, HashMap, Layer, Option, pipe, Schema, String, Tuple } from "effect"
 import { Config, Schemas } from "homelab-services"
+
+const ApiKeyMapSchema = Schema.Array(
+  Schema.Tuple(
+    Schema.String,
+    Schema.Tuple(
+      Schemas.ScopeGroups.ScopeGroupSetSchema,
+      Schema.String,
+    ),
+  ),
+)
 
 export const ApiKeyConfigLive = Layer.effect(
   Config.ApiKeyConfig.ApiKeyConfig,
@@ -22,18 +32,14 @@ export const ApiKeyConfigLive = Layer.effect(
               Data.tuple(
                 apiKey,
                 Data.tuple(
-                  pipe(
-                    scopes,
-                    String.split(","),
-                    Array.map(String.trim),
-                    HashSet.fromIterable,
-                  ),
+                  scopes,
                   String.trim(email),
                 ),
               ),
           ),
         ),
       ),
+      Effect.andThen(Schema.decode(ApiKeyMapSchema)),
       Effect.map(HashMap.fromIterable),
     )
 
@@ -50,13 +56,13 @@ class ApiKeyConfigImpl implements Config.ApiKeyConfig.ApiKeyConfigDef {
     private readonly apiKeys: HashMap.HashMap<
       string,
       readonly [
-        scopes: HashSet.HashSet<string>,
+        scopes: Schemas.ScopeGroups.ScopeOrGroupSet,
         email: string,
       ]
     >,
   ) {}
 
-  getRoles(apiKey: string): Option.Option<HashSet.HashSet<string>> {
+  getRoles(apiKey: string): Option.Option<Schemas.ScopeGroups.ScopeOrGroupSet> {
     return HashMap.get(this.apiKeys, apiKey).pipe(
       Option.map(
         Tuple.getFirst,

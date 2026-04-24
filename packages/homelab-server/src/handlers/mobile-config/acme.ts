@@ -42,7 +42,7 @@ export const generateAcmeProfile = Effect.fn("generateAcmeProfile")(
 export const handleAcme = Effect.fn("handleAcme")(
   function*(args: Homelab.MobileConfigEndpoints.Acme.AcmeMobileConfigHandlerArgs) {
     const identity = yield* Middleware.CurrentIdentity
-    yield* Services.AuthorizationService.canCreate(identity, "Config.ACME", args)
+    yield* Services.AuthorizationService.canCreate(identity, "Config_ACME", args)
 
     return yield* generateAcmeProfile(args)
   },

@@ -26,7 +26,7 @@ class FineGrainedAuthorizationServiceImpl
         operation,
         identity,
       )({
-        "Config.Wifi": Effect.fn("fga.config.wifi")(function*(params, operation, identity) {
+        "Config_Wifi": Effect.fn("fga.config.wifi")(function*(params, operation, identity) {
           const wifiParams = params as { payload?: { username?: string } }
           if (wifiParams.payload?.username === "guest") {
             return true as const
@@ -42,9 +42,10 @@ class FineGrainedAuthorizationServiceImpl
 
           return true as const
         }),
-        "Config.ACME": () => Effect.succeed(true as const),
-        "Config.Certs": () => Effect.succeed(true as const),
-        "Status.Health": () => Effect.succeed(true as const),
+        "Config_ACME": () => Effect.succeed(true as const),
+        "Config_Certs": () => Effect.succeed(true as const),
+        "Status_Health": () => Effect.succeed(true as const),
+        "OAuth_Token": () => Effect.succeed(true as const),
       }),
     )
   }

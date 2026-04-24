@@ -12,25 +12,26 @@ const acmeArgs = (
 ): Homelab.MobileConfigEndpoints.Acme.AcmeMobileConfigHandlerArgs => ({
   path: { clientIdentifier },
   request: {} as any,
+  headers: {},
 })
 
 const authorizedIdentity = new Identity.OIDCIdentity(
   "user@example.com",
-  HashSet.fromIterable(["Config.ACME"]),
+  HashSet.fromIterable(["Config_ACME"]),
 )
 
 describe("handleAcme", () => {
   describe("authorization", () => {
-    it.effect("should deny access when identity lacks Config.ACME permission", () =>
+    it.effect("should deny access when identity lacks Config_ACME permission", () =>
       Effect.gen(function*() {
         const result = yield* Effect.flip(handleAcme(acmeArgs()))
 
         assert(result instanceof ApiErrors.AuthorizationError)
-        expect(result.resource).toBe("Config.ACME")
+        expect(result.resource).toBe("Config_ACME")
       }).pipe(
         Effect.provide(Layer.provideMerge(
           withIdentity(
-            new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status.Health"])),
+            new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status_Health"])),
           ),
           HandlerTestLayer,
         )),

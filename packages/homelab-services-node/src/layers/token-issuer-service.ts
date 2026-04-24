@@ -1,5 +1,5 @@
-import { DateTime, Effect, flow, HashSet, Layer, Option, pipe, Schema } from "effect"
-import { ApiErrors, Config, Schemas, Services } from "homelab-services"
+import { DateTime, Effect, HashSet, Layer, Option, pipe, Schema } from "effect"
+import { ApiErrors, Config, Identity, Schemas, Services } from "homelab-services"
 import { Constants } from "homelab-shared"
 import { decodeJwt, SignJWT } from "jose"
 import * as Crypto from "node:crypto"
@@ -83,12 +83,18 @@ class TokenIssuerServiceImpl implements Services.TokenIssuerService.TokenIssuerS
         dpopTokens,
       )
 
-      const accessToken = yield* this.signAccessToken(jwk, apiKeyScopes, email)
+      const accessToken = yield* this.signAccessToken(
+        jwk,
+        HashSet.toValues(apiKeyScopes).join(","),
+        email,
+      )
 
       const now = yield* DateTime.now
       const nonce = yield* this.nonceService.withTime(now)
 
-      return { accessToken, nonce }
+      const identity = new Identity.OIDCIdentity(email, apiKeyScopes)
+
+      return { accessToken, nonce, identity }
     })
   }
 
@@ -134,7 +140,7 @@ class TokenIssuerServiceImpl implements Services.TokenIssuerService.TokenIssuerS
 
       const roles = yield* pipe(
         this.apiKeyConfig.getRoles(providedApiKey),
-        Option.map(flow(HashSet.toValues, Effect.succeed)),
+        Option.map(Effect.succeed),
         Option.getOrElse(() =>
           Effect.fail(
             new ApiErrors.AuthenticationError({
@@ -160,8 +166,8 @@ class TokenIssuerServiceImpl implements Services.TokenIssuerService.TokenIssuerS
 
       return [
         email,
-        roles.join(","),
-      ]
+        roles,
+      ] as const
     })
   }
 

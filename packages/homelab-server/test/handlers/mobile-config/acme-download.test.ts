@@ -13,31 +13,32 @@ const downloadArgs = (
 ): Homelab.MobileConfigEndpoints.AcmeDownload.AcmeDownloadMobileConfigHandlerArgs => ({
   path: { clientIdentifier },
   request: {} as any,
+  headers: {},
 })
 
 const viewOnlyIdentity = new Identity.OIDCIdentity(
   "user@example.com",
-  HashSet.fromIterable(["Config.ACME.view"]),
+  HashSet.fromIterable(["Config_ACME.view"]),
 )
 
 const fullAccessIdentity = new Identity.OIDCIdentity(
   "user@example.com",
-  HashSet.fromIterable(["Config.ACME"]),
+  HashSet.fromIterable(["Config_ACME"]),
 )
 
 describe("handleAcmeDownload", () => {
   describe("authorization", () => {
-    it.effect("should deny access when identity lacks Config.ACME permission", () =>
+    it.effect("should deny access when identity lacks Config_ACME permission", () =>
       Effect.gen(function*() {
         const result = yield* Effect.flip(handleAcmeDownload(downloadArgs()))
 
         assert(result instanceof ApiErrors.AuthorizationError)
-        expect(result.resource).toBe("Config.ACME")
+        expect(result.resource).toBe("Config_ACME")
       }).pipe(
         Effect.provide(
           Layer.provideMerge(
             withIdentity(
-              new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status.Health"])),
+              new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status_Health"])),
             ),
             HandlerTestLayer,
           ),

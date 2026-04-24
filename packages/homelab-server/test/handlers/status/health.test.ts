@@ -13,7 +13,7 @@ const healthArgs = (): Homelab.StatusEndpoints.Health.HealthEndpointHandlerArgs 
 })
 
 describe("handleHealth", () => {
-  it.effect("should return health status for identity with Status.Health permission", () =>
+  it.effect("should return health status for identity with Status_Health permission", () =>
     Effect.gen(function*() {
       const result = yield* handleHealth(healthArgs())
 
@@ -26,17 +26,22 @@ describe("handleHealth", () => {
     }).pipe(
       Effect.provide(Layer.provideMerge(
         withIdentity(
-          new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status.Health"])),
+          new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status_Health"])),
         ),
         HandlerTestLayer,
       )),
     ))
 
-  it.effect("should deny guest identity access to health", () =>
+  it.effect("should allow guest identity access to health", () =>
     Effect.gen(function*() {
-      const result = yield* Effect.flip(handleHealth(healthArgs()))
+      const result = yield* handleHealth(healthArgs())
 
-      assert(result instanceof ApiErrors.AuthorizationError)
+      expect(result).toEqual({
+        Kanidm: "Healthy",
+        "Step-CA": "Healthy",
+        "RADIUS": "Healthy",
+        "Jellyfin": "Healthy",
+      })
     }).pipe(
       Effect.provide(Layer.provideMerge(
         withIdentity(new Identity.GuestIdentity()),
@@ -49,11 +54,11 @@ describe("handleHealth", () => {
       const result = yield* Effect.flip(handleHealth(healthArgs()))
 
       assert(result instanceof ApiErrors.AuthorizationError)
-      expect(result.resource).toBe("Status.Health")
+      expect(result.resource).toBe("Status_Health")
     }).pipe(
       Effect.provide(Layer.provideMerge(
         withIdentity(
-          new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Config.Wifi"])),
+          new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Config_Wifi"])),
         ),
         HandlerTestLayer,
       )),
@@ -64,7 +69,7 @@ describe("handleHealth", () => {
       const result = yield* Effect.flip(handleHealth(healthArgs()))
 
       assert(result instanceof ApiErrors.AuthorizationError)
-      expect(result.resource).toBe("Status.Health")
+      expect(result.resource).toBe("Status_Health")
     }).pipe(
       Effect.provide(Layer.provideMerge(
         withIdentity(
@@ -87,7 +92,7 @@ describe("handleHealth", () => {
     }).pipe(
       Effect.provide(Layer.provideMerge(
         withIdentity(
-          new Identity.MTLSIdentity("client.example.com", HashSet.fromIterable(["Status.Health"])),
+          new Identity.MTLSIdentity("client.example.com", HashSet.fromIterable(["Status_Health"])),
         ),
         HandlerTestLayer,
       )),

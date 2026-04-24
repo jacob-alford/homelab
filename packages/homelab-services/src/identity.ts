@@ -42,11 +42,12 @@ export class GuestIdentity extends IdentityBase implements Permissions {
     return HashSet.has(this.permissions, identifier)
   }
 
-  private readonly permissions: HashSet.HashSet<string> = HashSet.fromIterable([
-    "Config.Wifi.view",
-    "Config.Wifi.create",
-    "Config.Certs.view",
-    "Config.Certs.create",
+  private readonly permissions: HashSet.HashSet<ScopeOrGroup> = HashSet.fromIterable([
+    "Config_Wifi.view",
+    "Config_Wifi.create",
+    "Config_Certs.view",
+    "Config_Certs.create",
+    "Status_Health.view",
   ])
 }
 

@@ -232,50 +232,50 @@ describe("AuthorizationService", () => {
       }).pipe(Effect.provide(TestLayer(["*"]))))
   })
 
-  describe("fine-grained authorization - Config.Wifi", () => {
+  describe("fine-grained authorization - Config_Wifi", () => {
     it.effect("should allow OIDC identity when principle matches username", () =>
       Effect.gen(function*() {
-        const identity = createOIDCIdentity("john@example.com", ["Config.Wifi"])
-        const params = setupParams("Config.Wifi", {
-          "Config.Wifi": { payload: { username: "john" } },
+        const identity = createOIDCIdentity("john@example.com", ["Config_Wifi"])
+        const params = setupParams("Config_Wifi", {
+          "Config_Wifi": { payload: { username: "john" } },
         })
-        const result = yield* Services.AuthorizationService.canCreate(identity, "Config.Wifi", params)
+        const result = yield* Services.AuthorizationService.canCreate(identity, "Config_Wifi", params)
 
         expect(result).toBe(true)
       }).pipe(Effect.provide(TestLayer(["*"]))))
 
     it.effect("should deny OIDC identity when principle does not match username", () =>
       Effect.gen(function*() {
-        const identity = createOIDCIdentity("john@example.com", ["Config.Wifi"])
-        const params = setupParams("Config.Wifi", {
-          "Config.Wifi": { payload: { username: "alice" } },
+        const identity = createOIDCIdentity("john@example.com", ["Config_Wifi"])
+        const params = setupParams("Config_Wifi", {
+          "Config_Wifi": { payload: { username: "alice" } },
         })
         const result = yield* Effect.flip(
-          Services.AuthorizationService.canCreate(identity, "Config.Wifi", params),
+          Services.AuthorizationService.canCreate(identity, "Config_Wifi", params),
         )
 
         expect(result._tag).toBe("AuthorizationError")
         expect(result.operation).toBe(Operation.view)
-        expect(result.resource).toBe("Config.Wifi")
+        expect(result.resource).toBe("Config_Wifi")
         expect(result.message).toBe("User's principle identifer must match the requested username")
       }).pipe(Effect.provide(TestLayer(["*"]))))
 
     it.effect("should allow OIDC identity when no username is provided", () =>
       Effect.gen(function*() {
-        const identity = createOIDCIdentity("john@example.com", ["Config.Wifi"])
-        const params = setupParams("Config.Wifi")
-        const result = yield* Services.AuthorizationService.canCreate(identity, "Config.Wifi", params)
+        const identity = createOIDCIdentity("john@example.com", ["Config_Wifi"])
+        const params = setupParams("Config_Wifi")
+        const result = yield* Services.AuthorizationService.canCreate(identity, "Config_Wifi", params)
 
         expect(result).toBe(true)
       }).pipe(Effect.provide(TestLayer(["*"]))))
 
     it.effect("should allow any OIDC identity to create guest WiFi payload", () =>
       Effect.gen(function*() {
-        const identity = createOIDCIdentity("sarah@example.com", ["Config.Wifi"])
-        const params = setupParams("Config.Wifi", {
-          "Config.Wifi": { payload: { username: "guest" } },
+        const identity = createOIDCIdentity("sarah@example.com", ["Config_Wifi"])
+        const params = setupParams("Config_Wifi", {
+          "Config_Wifi": { payload: { username: "guest" } },
         })
-        const result = yield* Services.AuthorizationService.canCreate(identity, "Config.Wifi", params)
+        const result = yield* Services.AuthorizationService.canCreate(identity, "Config_Wifi", params)
 
         expect(result).toBe(true)
       }).pipe(Effect.provide(TestLayer(["*"]))))
@@ -374,15 +374,16 @@ function setupParams<Res extends ResourceURIs.ResourceURIs>(
   overrides: Record<string, unknown> = {},
 ): unknown {
   const defaults: Record<ResourceURIs.ResourceURIs, unknown> = {
-    "Config.Wifi": {
-      path: { ssid: "test-ssid", encryption: "WPA3", ...(overrides["Config.Wifi"] as any)?.path },
-      payload: { password: "test-password", ...(overrides["Config.Wifi"] as any)?.payload },
+    "Config_Wifi": {
+      path: { ssid: "test-ssid", encryption: "WPA3", ...(overrides["Config_Wifi"] as any)?.path },
+      payload: { password: "test-password", ...(overrides["Config_Wifi"] as any)?.payload },
     },
-    "Config.ACME": {
-      path: { clientIdentifier: "test-client", ...(overrides["Config.ACME"] as any)?.path },
+    "Config_ACME": {
+      path: { clientIdentifier: "test-client", ...(overrides["Config_ACME"] as any)?.path },
     },
-    "Config.Certs": {},
-    "Status.Health": {},
+    "Config_Certs": {},
+    "Status_Health": {},
+    "OAuth_Token": {},
   }
 
   return defaults[resource]

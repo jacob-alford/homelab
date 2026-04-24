@@ -77,7 +77,7 @@ export const generateWifiProfile = Effect.fn("generateWifiProfile")(
 export const handleWifi = Effect.fn("handleWifi")(
   function*(args: Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigHandlerArgs) {
     const identity = yield* Middleware.CurrentIdentity
-    yield* Services.AuthorizationService.canCreate(identity, "Config.Wifi", args)
+    yield* Services.AuthorizationService.canCreate(identity, "Config_Wifi", args)
 
     return yield* generateWifiProfile(args)
   },

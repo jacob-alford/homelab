@@ -1,6 +1,7 @@
 import type { Option } from "effect"
 import { Context, Effect } from "effect"
 import type { AuthenticationError, BadRequest, InternalServerError } from "../errors/http-errors.js"
+import { type Identity } from "../identity.js"
 import type { HMACDigestError } from "./hmac-service.js"
 import type { NonceValidationError } from "./nonce-service.js"
 
@@ -12,6 +13,9 @@ export interface TokenIssueResult {
 
   /** The server-generated nonce embedded in the token. */
   readonly nonce: string
+
+  /** The identity belonging to the API key used in the request */
+  readonly identity: Identity
 }
 
 export interface TokenIssuerServiceDef {

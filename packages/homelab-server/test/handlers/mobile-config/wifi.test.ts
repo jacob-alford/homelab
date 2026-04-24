@@ -28,25 +28,26 @@ const wifiArgs = (overrides?: {
       : {}),
   },
   request: {} as any,
+  headers: {},
 })
 
 const authorizedIdentity = new Identity.OIDCIdentity(
   "user@example.com",
-  HashSet.fromIterable(["Config.Wifi"]),
+  HashSet.fromIterable(["Config_Wifi"]),
 )
 
 describe("handleWifi", () => {
   describe("authorization", () => {
-    it.effect("should deny access when identity lacks Config.Wifi permission", () =>
+    it.effect("should deny access when identity lacks Config_Wifi permission", () =>
       Effect.gen(function*() {
         const result = yield* Effect.flip(handleWifi(wifiArgs()))
 
         assert(result instanceof ApiErrors.AuthorizationError)
-        expect(result.resource).toBe("Config.Wifi")
+        expect(result.resource).toBe("Config_Wifi")
       }).pipe(
         Effect.provide(Layer.provideMerge(
           withIdentity(
-            new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status.Health"])),
+            new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status_Health"])),
           ),
           HandlerTestLayer,
         )),
@@ -75,7 +76,7 @@ describe("handleWifi", () => {
       }).pipe(
         Effect.provide(Layer.provideMerge(
           withIdentity(
-            new Identity.OIDCIdentity("john@example.com", HashSet.fromIterable(["Config.Wifi"])),
+            new Identity.OIDCIdentity("john@example.com", HashSet.fromIterable(["Config_Wifi"])),
           ),
           HandlerTestLayer,
         )),

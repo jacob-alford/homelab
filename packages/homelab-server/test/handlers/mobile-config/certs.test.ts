@@ -9,25 +9,26 @@ const withIdentity = (identity: Identity.Identity) => Layer.succeed(Middleware.C
 
 const certsArgs = (): Homelab.MobileConfigEndpoints.Certs.CertsHandlerArgs => ({
   request: {} as any,
+  headers: {},
 })
 
 const authorizedIdentity = new Identity.OIDCIdentity(
   "user@example.com",
-  HashSet.fromIterable(["Config.Certs"]),
+  HashSet.fromIterable(["Config_Certs"]),
 )
 
 describe("handleCerts", () => {
   describe("authorization", () => {
-    it.effect("should deny access when identity lacks Config.Certs permission", () =>
+    it.effect("should deny access when identity lacks Config_Certs permission", () =>
       Effect.gen(function*() {
         const result = yield* Effect.flip(handleCerts(certsArgs()))
 
         assert(result instanceof ApiErrors.AuthorizationError)
-        expect(result.resource).toBe("Config.Certs")
+        expect(result.resource).toBe("Config_Certs")
       }).pipe(
         Effect.provide(Layer.provideMerge(
           withIdentity(
-            new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status.Health"])),
+            new Identity.OIDCIdentity("user@example.com", HashSet.fromIterable(["Status_Health"])),
           ),
           HandlerTestLayer,
         )),
@@ -75,7 +76,7 @@ describe("handleCerts", () => {
         )),
       ))
 
-    it.effect("should allow mTLS identity with Config.Certs permission", () =>
+    it.effect("should allow mTLS identity with Config_Certs permission", () =>
       Effect.gen(function*() {
         const result = yield* handleCerts(certsArgs())
 
@@ -84,7 +85,7 @@ describe("handleCerts", () => {
       }).pipe(
         Effect.provide(Layer.provideMerge(
           withIdentity(
-            new Identity.MTLSIdentity("client.example.com", HashSet.fromIterable(["Config.Certs"])),
+            new Identity.MTLSIdentity("client.example.com", HashSet.fromIterable(["Config_Certs"])),
           ),
           HandlerTestLayer,
         )),

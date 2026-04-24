@@ -5,7 +5,7 @@ import { ApiErrors, Middleware, Services } from "homelab-services"
 export const handleCerts = Effect.fn("handleCerts")(
   function*(args: Homelab.MobileConfigEndpoints.Certs.CertsHandlerArgs) {
     const identity = yield* Middleware.CurrentIdentity
-    yield* Services.AuthorizationService.canView(identity, "Config.Certs", args)
+    yield* Services.AuthorizationService.canView(identity, "Config_Certs", args)
 
     const certProfileGenerator = yield* Services.CertProfileGeneratorService.CertProfileService
     const xmlPrintingService = yield* Services.XmlPrintingService.XmlPrintingService

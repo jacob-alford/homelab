@@ -49,7 +49,7 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
         assert(result instanceof ApiErrors.AuthorizationError)
 
         expect(result.message).toBe(
-          "guest-a@a.plato-splunk.media (OIDC) is not allowed to perform view on Config.Wifi",
+          "guest-a@a.plato-splunk.media (OIDC) is not allowed to perform view on Config_Wifi",
         )
       }).pipe(Effect.provide(E2ETestLayer)))
   })

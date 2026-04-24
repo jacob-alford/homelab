@@ -27,7 +27,7 @@ describe("PUT /status/health", () => {
 
         assert(result instanceof ApiErrors.AuthorizationError)
 
-        expect(result.message).toBe("guest (Guest) is not allowed to perform view on Status.Health")
+        expect(result.message).toBe("guest (Guest) is not allowed to perform view on Status_Health")
       }).pipe(Effect.provide(E2ETestLayer)))
     it.live("rejects a request with a mismathced html", () =>
       Effect.gen(function*() {
@@ -70,13 +70,13 @@ describe("PUT /status/health", () => {
         assert(result instanceof ApiErrors.AuthorizationError)
 
         expect(result.message).toBe(
-          "guest-a@a.plato-splunk.media (OIDC) is not allowed to perform view on Status.Health",
+          "guest-a@a.plato-splunk.media (OIDC) is not allowed to perform view on Status_Health",
         )
       }).pipe(Effect.provide(E2ETestLayer)))
   })
 
   describe("success", () => {
-    it.live("returns health status for an authenticated identity with Status.Health permission", () =>
+    it.live("returns health status for an authenticated identity with Status_Health permission", () =>
       Effect.gen(function*() {
         const client = yield* makeApiClient
 

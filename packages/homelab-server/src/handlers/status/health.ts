@@ -6,7 +6,7 @@ export const handleHealth = Effect.fn("handleHealth")(
   function*(args: Homelab.StatusEndpoints.Health.HealthEndpointHandlerArgs) {
     const identity = yield* Middleware.CurrentIdentity
 
-    yield* Services.AuthorizationService.canView(identity, "Status.Health", args)
+    yield* Services.AuthorizationService.canView(identity, "Status_Health", args)
 
     return {
       Jellyfin: "Healthy",

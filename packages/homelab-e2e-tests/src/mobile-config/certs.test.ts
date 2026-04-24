@@ -40,7 +40,7 @@ describe("GET /mobile-config/certs", () => {
         assert(result instanceof ApiErrors.AuthorizationError)
 
         expect(result.message).toBe(
-          "guest-b@a.plato-splunk.media (OIDC) is not allowed to perform view on Config.Certs",
+          "guest-b@a.plato-splunk.media (OIDC) is not allowed to perform view on Config_Certs",
         )
       }).pipe(Effect.provide(E2ETestLayer)))
   })

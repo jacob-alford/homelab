@@ -4,13 +4,14 @@ import type { Homelab } from "homelab-api"
 import { ApiErrors, Middleware, Services } from "homelab-services"
 
 export const handleToken = Effect.fn("handleToken")(
-  function*(_args: Homelab.OAuthEndpoints.Token.TokenEndpointHandlerArgs) {
+  function*(args: Homelab.OAuthEndpoints.Token.TokenEndpointHandlerArgs) {
     const { apiKey, dpopTokens } = yield* Middleware.BasicAuthCredentials
-
-    const { accessToken, nonce } = yield* Services.TokenIssuerService.issueToken(
+    const { accessToken, identity, nonce } = yield* Services.TokenIssuerService.issueToken(
       apiKey,
       dpopTokens,
     )
+
+    yield* Services.AuthorizationService.canCreate(identity, "OAuth_Token", args)
 
     yield* HttpApp.appendPreResponseHandler(
       (_, res) => Effect.succeed(HttpServerResponse.setHeader(res, "DPoP-Nonce", nonce)),

@@ -43,7 +43,7 @@ describe("PUT /mobile-config/acme/:clientIdentifier", () => {
         assert(result instanceof ApiErrors.AuthorizationError)
 
         expect(result.message).toBe(
-          "guest-a@a.plato-splunk.media (OIDC) is not allowed to perform view on Config.ACME",
+          "guest-a@a.plato-splunk.media (OIDC) is not allowed to perform view on Config_ACME",
         )
       }).pipe(Effect.provide(E2ETestLayer)))
   })
@@ -63,7 +63,7 @@ describe("PUT /mobile-config/acme/:clientIdentifier", () => {
         )
 
         assert(result instanceof ApiErrors.AuthorizationError)
-        expect(result.message).toBe("guest (Guest) is not allowed to perform view on Config.ACME")
+        expect(result.message).toBe("guest (Guest) is not allowed to perform view on Config_ACME")
       }).pipe(Effect.provide(E2ETestLayer)))
     it.live("rejects a mismatched DPoP path", () =>
       Effect.gen(function*() {
