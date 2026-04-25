@@ -15,20 +15,6 @@ const HEALTH_URL = new URL(`${BASE_URL}/status/health`)
 
 describe("PUT /status/health", () => {
   describe("authorization", () => {
-    it.live("rejects guest users", () =>
-      Effect.gen(function*() {
-        const client = yield* makeApiClient
-
-        const result = yield* Effect.flip(
-          client.status.health({
-            headers: {},
-          }),
-        )
-
-        assert(result instanceof ApiErrors.AuthorizationError)
-
-        expect(result.message).toBe("guest (Guest) is not allowed to perform view on Status_Health")
-      }).pipe(Effect.provide(E2ETestLayer)))
     it.live("rejects a request with a mismathced html", () =>
       Effect.gen(function*() {
         const client = yield* makeApiClient
@@ -89,6 +75,23 @@ describe("PUT /status/health", () => {
             dpop: newDpopProof,
             authorization: `${token_type} ${access_token}`,
           },
+        })
+
+        expect(result).toEqual(
+          {
+            Jellyfin: "Healthy",
+            Kanidm: "Healthy",
+            RADIUS: "Healthy",
+            "Step-CA": "Healthy",
+          },
+        )
+      }).pipe(Effect.provide(E2ETestLayer)))
+    it.live("doesn't reject guest users", () =>
+      Effect.gen(function*() {
+        const client = yield* makeApiClient
+
+        const result = yield* client.status.health({
+          headers: {},
         })
 
         expect(result).toEqual(

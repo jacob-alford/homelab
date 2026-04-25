@@ -19,4 +19,8 @@ export const ScopeGroupSetSchemaFromUint8Array = Schema.compose(
   ScopeGroupSetSchema,
 )
 
+export const ScopeGroupSetFromArray = Schema.compose(
+  Schema.Array(ScopeGroupSchema),
+)
+
 export type ScopeOrGroupSet = typeof ScopeGroupSetSchema.Type

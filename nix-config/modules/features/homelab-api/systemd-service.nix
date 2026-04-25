@@ -26,6 +26,8 @@ in
             step crypto jwk create ${pubJwk} ${privJwk} --use sig --kty OKP --crv Ed25519 --password-file ${cfg.privateKeySecretPath}
           fi
         fi
+
+
       '';
     in
     {
@@ -90,9 +92,35 @@ in
           description = "The enabled feature flags for the service";
         };
 
-        apiKeysFile = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
+        apiKeys = lib.mkOption {
+          type = lib.types.listOf (
+            lib.types.attrOf (
+              lib.types.submodule {
+                options = {
+                  apiKeyFile = lib.types.mkOption {
+                    type = lib.types.path;
+                    description = "The path to this API key's file";
+                  };
+                  email = lib.types.mkOption {
+                    type = lib.types.string;
+                    description = "The email associated with this user's API key";
+                  };
+                  permissions = lib.types.mkOption {
+                    type = lib.types.nonEmptyListOf (
+                      lib.types.enum [
+                        "Config_Wifi"
+                        "Config_ACME"
+                        "Config_Certs"
+                        "Status_Health"
+                        "OAuth_Token"
+                      ]
+                    );
+                  };
+                };
+              }
+            )
+          );
+          default = [ ];
           description = "The file containing the API keys for the local token issuer";
         };
       };
