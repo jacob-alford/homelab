@@ -4,7 +4,7 @@ let
   svc = c.services.homelab;
 in
 {
-  flake.modules.nixos.homelab =
+  flake.modules.nixos.homelab-kanidm =
     {
       config,
       lib,
@@ -15,7 +15,7 @@ in
       services.kanidm.provision.systems.oauth2."${svc.clientId}" = {
         originUrl = [
           "${svc.url}/oauth/callback"
-          "http://localhost:4321"
+          "http://localhost:4321/oauth/callback"
         ];
         originLanding = "${svc.url}";
         displayName = "Homelab";

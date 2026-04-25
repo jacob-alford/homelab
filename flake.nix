@@ -29,6 +29,8 @@
     devshell.url = "github:numtide/devshell";
 
     import-tree.url = "github:vic/import-tree";
+
+    nix-filter.url = "github:numtide/nix-filter";
   };
 
   outputs =

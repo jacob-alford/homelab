@@ -33,7 +33,6 @@ in
       nixos.openwebui
       nixos.planka
       nixos.it-tools
-      nixos.homelab
 
       ./../_private/augustus/hardware.nix
       ./../_private/augustus/filesystems.nix

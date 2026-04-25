@@ -24,7 +24,9 @@ in
       url = mkUrl "ca";
       acmeDirectory = "https://${mkDomain "ca"}/acme/acme/directory";
       rootCert = certsDir + "/alford-root.crt";
+      rootCertDer = certsDir + "/alford-root.der";
       intermediateCert = certsDir + "/intermediate_ca_2.crt";
+      intermediateCertDer = certsDir + "/intermediate_ca_2.der";
       sshUserCaCert = certsDir + "/ssh_user_ca_key.pub";
     };
 
@@ -69,11 +71,13 @@ in
         stateDir = "/var/lib/planka";
       };
 
-      homelab = {
-        subdomain = "homelab";
-        domain = mkDomain "homelab";
+      homelab-server = {
+        subdomain = "homelab-api";
+        domain = mkDomain "homelab-api";
+        oidcEndpoint = mkOidcEndpoint "homelab";
         clientId = "homelab";
-        url = mkUrl "homelab";
+        url = mkUrl "homelab-api";
+        port = 35427;
       };
 
       it-tools = {
