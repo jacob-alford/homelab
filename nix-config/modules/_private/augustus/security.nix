@@ -25,6 +25,11 @@
       1812
       1813
     ];
+
+    allowedUDPPorts = [
+      1812
+      1813
+    ];
   };
 
   services.openssh.openFirewall = false;
