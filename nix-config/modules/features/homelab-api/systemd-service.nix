@@ -3,7 +3,7 @@ let
   c = config.constants;
 in
 {
-  flake.modules.nixos.homelabd =
+  flake.modules.nixos.homelab-api-service =
     {
       inputs,
       config,
@@ -18,17 +18,6 @@ in
       privJwk = "${homeDir}/jwk.json";
       svc = config.constants.services.homelab-api;
       pkg = inputs.self.packages.x86_64-linux.homelab-api;
-      preStartScript = pkgs.writeShellScript "post-start" ''
-        set -euo pipefail
-
-        if[[ ! -f ${pubJwk} ]]; then
-          if [[ ! -f ${privJwk} ]]; then
-            step crypto jwk create ${pubJwk} ${privJwk} --use sig --kty OKP --crv Ed25519 --password-file ${cfg.privateKeySecretPath}
-          fi
-        fi
-
-
-      '';
     in
     {
       options.services.homelab-api = {
@@ -182,9 +171,9 @@ in
         systemd.services.homelab-api = {
           description = "Homelab API NodeJS Server";
 
-          after = [ "network-online.target" ];
-          wants = [ "network-online.target" ];
           wantedBy = [ "multi-user.target" ];
+          after = [ "homelab-secret-provisioner.service" ];
+          requires = [ "homelab-secret-provisioner.service" ];
 
           serviceConfig = {
             Type = "simple";
@@ -193,7 +182,6 @@ in
             EnvironmentFile = config.sops.templates."homelab-api-env".path;
 
             ExecStart = "${pkg}/bin/homelab-api";
-            ExecStartPre = lib.mkIf cfg.provisionJwks preStartScript;
 
             Restart = "on-failure";
             RestartSec = 5;
