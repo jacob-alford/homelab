@@ -66,6 +66,7 @@ in
             inputs.affinity-nix.packages.x86_64-linux.publisher
             typst
             pkgs-unstable.kiro-cli
+            pkgs-unstable.kiro
             jq
             vlc
             step-cli
