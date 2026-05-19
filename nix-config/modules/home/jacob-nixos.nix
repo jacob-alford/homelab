@@ -65,7 +65,7 @@ in
             inputs.affinity-nix.packages.x86_64-linux.designer
             inputs.affinity-nix.packages.x86_64-linux.publisher
             typst
-            pkgs-unstable.github-copilot-cli
+            pkgs-unstable.kiro-cli
             jq
             vlc
             step-cli
