@@ -34,6 +34,7 @@ in
       nixos.planka
       nixos.it-tools
       nixos.homelab-api
+      nixos.homelab-kanidm
 
       ./../_private/augustus/hardware.nix
       ./../_private/augustus/filesystems.nix

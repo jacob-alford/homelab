@@ -71,7 +71,7 @@ in
         stateDir = "/var/lib/planka";
       };
 
-      homelab-server = {
+      homelab = {
         subdomain = "homelab-api";
         domain = mkDomain "homelab-api";
         oidcEndpoint = mkOidcEndpoint "homelab";
