@@ -1,6 +1,7 @@
 { config, ... }:
 let
   c = config.constants;
+  svc = c.services.homelab;
 in
 {
   flake.modules.nixos.homelab-api-service =
@@ -16,7 +17,6 @@ in
       homeDir = cfg.userHomeDir;
       pubJwk = "${homeDir}/jwk.pub.json";
       privJwk = "${homeDir}/jwk.json";
-      svc = config.constants.services.homelab-api;
       pkg = inputs.self.packages.x86_64-linux.homelab-api;
     in
     {
@@ -54,7 +54,7 @@ in
         userHomeDir = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
           description = "The absolute path of the homelab server user's home directory";
-          default = "/var/lib/${cfg.services.userName}";
+          default = "/var/lib/${cfg.userName}";
         };
 
         provisionJwks = lib.mkOption {
@@ -82,47 +82,45 @@ in
         };
 
         apiKeys = lib.mkOption {
-          type = lib.types.listOf (
-            lib.types.attrOf (
-              lib.types.submodule {
-                options = {
-                  apiKeyFile = lib.types.mkOption {
-                    type = lib.types.path;
-                    description = "The path to this API key's file";
-                  };
-                  email = lib.types.mkOption {
-                    type = lib.types.string;
-                    description = "The email associated with this user's API key";
-                  };
-                  permissions = lib.types.mkOption {
-                    type = lib.types.nonEmptyListOf (
-                      lib.types.enum [
-                        "Config_Wifi"
-                        "Config_ACME"
-                        "Config_Certs"
-                        "Status_Health"
-                        "OAuth_Token"
-                      ]
-                    );
-                  };
+          type = lib.types.attrsOf (
+            lib.types.submodule {
+              options = {
+                apiKeyFile = lib.mkOption {
+                  type = lib.types.str;
+                  description = "The path to this API key's file";
                 };
-              }
-            )
+                email = lib.mkOption {
+                  type = lib.types.str;
+                  description = "The email associated with this user's API key";
+                };
+                permissions = lib.mkOption {
+                  type = lib.types.nonEmptyListOf (
+                    lib.types.enum [
+                      "Config_Wifi"
+                      "Config_ACME"
+                      "Config_Certs"
+                      "Status_Health"
+                      "OAuth_Token"
+                    ]
+                  );
+                };
+              };
+            }
           );
-          default = [ ];
-          description = "The file containing the API keys for the local token issuer";
+          default = { };
+          description = "The API keys for the local token issuer, keyed by name";
         };
       };
 
       config = lib.mkIf cfg.enable {
+        services.homelab-api.hmacSecretPath = lib.mkDefault "${homeDir}/${svc.hmacFileName}";
+
         assertions = [
           {
-            assertion =
-              cfg.provisionJwks
-              -> cfg.apiKeysFile != null && cfg.privateKeySecretPath != null && cfg.hmacSecretPath != null;
+            assertion = cfg.provisionJwks -> cfg.privateKeySecretPath != null && cfg.hmacSecretPath != null;
             message = ''
-              <option>services.homelab-api.apiKeysFile</option>, <option>services.homelab-api.privateKeySecretPath</option>, 
-              and <option>services.homelab-api.hmacSecretPath</option> must be set when provisioning JWKs 
+              <option>services.homelab-api.privateKeySecretPath</option> and
+              <option>services.homelab-api.hmacSecretPath</option> must be set when provisioning JWKs
             '';
           }
         ];
@@ -134,13 +132,13 @@ in
         users.users."${cfg.userName}" = {
           uid = cfg.userUid;
           isSystemUser = true;
-          group = cfg.userGid;
+          group = cfg.userName;
           home = cfg.userHomeDir;
         };
 
         sops.templates."homelab-api-env" = {
-          owner = cfg.user;
-          group = cfg.user;
+          owner = cfg.userName;
+          group = cfg.userName;
           content = ''
             PORT=${builtins.toString svc.port}
 
@@ -155,9 +153,9 @@ in
               if cfg.provisionJwks then "TOKEN_ISSUER_PRIVATE_KEY_SECRET_PATH=${cfg.privateKeySecretPath}" else ""
             }
             ${if cfg.provisionJwks then "HOMELAB_SECRET_FILE=${cfg.hmacSecretPath}" else ""}
-            ${if cfg.provisionJwks then "API_KEYS_FILE=${cfg.apiKeysFile}" else ""}
+            ${if cfg.provisionJwks then "API_KEYS_FILE=${homeDir}/api-keys.json" else ""}
 
-            FEATURE_FLAGS=${lib.concatStringsSep "," cfg.featureFlag}
+            FEATURE_FLAGS=${lib.concatStringsSep "," cfg.featureFlags}
             KANIDM_OPENID_PROVIDER_URL=${svc.oidcEndpoint}
 
             CA_URL=${c.ca.url}
@@ -177,8 +175,8 @@ in
 
           serviceConfig = {
             Type = "simple";
-            User = cfg.user;
-            Group = cfg.user;
+            User = cfg.userName;
+            Group = cfg.userName;
             EnvironmentFile = config.sops.templates."homelab-api-env".path;
 
             ExecStart = "${pkg}/bin/homelab-api";

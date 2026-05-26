@@ -1,4 +1,10 @@
-{ inputs, lib, config, pkgs, ... }:
+{
+  inputs,
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 {
   sops.defaultSopsFile = inputs.self + "/nix-config/secrets/augustus.yaml";
   sops.age.keyFile = "/home/jacob/.config/sops/age/keys.txt";
@@ -114,6 +120,16 @@
 
   sops.secrets.minecraft_backup_passphrase = {
     owner = "restic";
+  };
+
+  sops.secrets.homelab_api_jwk_password = {
+    owner = "homelab-api";
+    group = "homelab-api";
+  };
+
+  sops.secrets.homelab_api_key_jacob = {
+    owner = "homelab-api";
+    group = "homelab-api";
   };
 
   sops.secrets.step_jwk_provisioner_password = {

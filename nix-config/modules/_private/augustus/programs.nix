@@ -1,4 +1,9 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 let
   stepCaClientId = "step-ca";
 in
@@ -49,6 +54,31 @@ in
       "openid"
       "email"
     ];
+  };
+
+  services.homelab-api = {
+    enable = true;
+    originUrl = "https://homelab-api.plato-splunk.media";
+    privateKeySecretPath = config.sops.secrets.homelab_api_jwk_password.path;
+    apiKeys = {
+      jacob = {
+        apiKeyFile = config.sops.secrets.homelab_api_key_jacob.path;
+        email = "jacob@plato-splunk.media";
+        permissions = [
+          "Status_Health"
+          "OAuth_Token"
+          "Config_Certs"
+          "Config_ACME"
+          "Config_Wifi"
+        ];
+      };
+    };
+  };
+
+  services.homelab-secret-provisioner = {
+    enable = true;
+    privateKeyPasswordFile = config.sops.secrets.homelab_api_jwk_password.path;
+    apiKeys = config.services.homelab-api.apiKeys;
   };
 
   services.restic.backups.postgres = {

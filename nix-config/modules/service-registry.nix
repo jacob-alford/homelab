@@ -78,6 +78,7 @@ in
         clientId = "homelab";
         url = mkUrl "homelab-api";
         port = 35427;
+        hmacFileName = "hmac.secret";
       };
 
       it-tools = {

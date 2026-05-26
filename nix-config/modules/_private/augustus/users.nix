@@ -19,6 +19,9 @@
     openwebui = {
       gid = 47955;
     };
+    homelab-api = {
+      gid = 26696;
+    };
   };
 
   users.users = {
@@ -63,6 +66,12 @@
       home = "/var/lib/open-webui";
       group = "openwebui";
       uid = 48955;
+    };
+    homelab-api = {
+      isSystemUser = true;
+      home = "/var/lib/homelab-api";
+      group = "homelab-api";
+      uid = 26697;
     };
   };
 }

@@ -8,15 +8,18 @@
       ...
     }:
     let
-      cfg = config.services.homelab-api;
+      cfg = config.services.homelab-secret-provisioner;
 
-      stateDir = cfg.userHomeDir;
-      jwkPub = "${stateDir}/jwk.pub.json";
-      jwkPriv = "${stateDir}/jwk.priv.json";
-      apiKeysOut = "${stateDir}/api-keys.json";
-      hmacSecretOut = "${stateDir}/hmac.secret";
+      stateDir = "homelab-api";
+      stateAbsDir = "/var/lib/${stateDir}";
+      jwkPub = "${stateAbsDir}/jwk.pub.json";
+      jwkPriv = "${stateAbsDir}/jwk.priv.json";
+      apiKeysOut = "${stateAbsDir}/api-keys.json";
+      hmacSecretOut = "${stateAbsDir}/hmac.secret";
 
-      apiKeysTemplate = pkgs.writeText "api-keys-template.json" (builtins.toJSON cfg.apiKeys);
+      apiKeysTemplate = pkgs.writeText "api-keys-template.json" (
+        builtins.toJSON (lib.attrValues cfg.apiKeys)
+      );
 
       provisioner = pkgs.writeShellApplication {
         name = "homelab-secret-provisioner";
@@ -29,7 +32,7 @@
           set -euo pipefail
           umask 077
 
-          state_dir=${stateDir}
+          state_dir=${stateAbsDir}
           jwk_pub=${jwkPub}
           jwk_priv=${jwkPriv}
           api_keys_src=${apiKeysTemplate}
@@ -100,9 +103,9 @@
         };
 
         apiKeys = lib.mkOption {
-          default = [ ];
+          default = { };
           description = "API key entries to render into api-keys.json.";
-          type = lib.types.listOf (
+          type = lib.types.attrsOf (
             lib.types.submodule {
               options = {
                 apiKeyFile = lib.mkOption {
@@ -132,22 +135,15 @@
 
         user = lib.mkOption {
           type = lib.types.str;
-          default = "homelabd";
+          default = "homelab-api";
         };
         group = lib.mkOption {
           type = lib.types.str;
-          default = "homelabd";
+          default = "homelab-api";
         };
       };
 
       config = lib.mkIf cfg.enable {
-        users.users.${cfg.user} = {
-          isSystemUser = true;
-          group = cfg.group;
-          home = stateDir;
-        };
-        users.groups.${cfg.group} = { };
-
         systemd.services.homelab-secret-provisioner = {
           description = "Provision homelab JWKs, API keys file, and HMAC secret";
           wantedBy = [ "multi-user.target" ];
