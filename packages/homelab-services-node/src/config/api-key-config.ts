@@ -50,25 +50,13 @@ export const ApiKeyConfigLive = Layer.effect(
       Effect.andThen(Schema.decode(ParseApiKeys)),
     )
 
-    if (HashMap.size(apiKeys) === 0) {
-      return yield* Effect.dieMessage("Parsed empty or invalid api keys")
-    }
-
     return new ApiKeyConfigImpl(apiKeys)
   }),
 )
 
 class ApiKeyConfigImpl implements Config.ApiKeyConfig.ApiKeyConfigDef {
-  #apiKeys: HashMap.HashMap<
-    string,
-    readonly [
-      scopes: Schemas.ScopeGroups.ScopeOrGroupSet,
-      email: string,
-    ]
-  >
-
   constructor(
-    apiKeys: HashMap.HashMap<
+    private readonly apiKeys: HashMap.HashMap<
       Redacted.Redacted<string>,
       readonly [
         scopes: Schemas.ScopeGroups.ScopeOrGroupSet,
@@ -76,16 +64,10 @@ class ApiKeyConfigImpl implements Config.ApiKeyConfig.ApiKeyConfigDef {
       ]
     >,
   ) {
-    this.#apiKeys = pipe(
-      apiKeys,
-      HashMap.toEntries,
-      Array.map(Tuple.mapFirst(Redacted.value)),
-      HashMap.fromIterable,
-    )
   }
 
   getRoles(apiKey: string): Option.Option<Schemas.ScopeGroups.ScopeOrGroupSet> {
-    return HashMap.get(this.#apiKeys, apiKey).pipe(
+    return HashMap.get(this.apiKeys, Redacted.make(apiKey)).pipe(
       Option.map(
         Tuple.getFirst,
       ),
@@ -93,7 +75,7 @@ class ApiKeyConfigImpl implements Config.ApiKeyConfig.ApiKeyConfigDef {
   }
 
   getEmail(apiKey: string): Option.Option<string> {
-    return HashMap.get(this.#apiKeys, apiKey).pipe(
+    return HashMap.get(this.apiKeys, Redacted.make(apiKey)).pipe(
       Option.map(
         Tuple.getSecond,
       ),
