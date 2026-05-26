@@ -4,6 +4,7 @@
     imports = with inputs.self.modules.nixos; [
       homelab-secret-provisioner
       homelab-api-service
+      homelab-api-caddy
     ];
   };
 }

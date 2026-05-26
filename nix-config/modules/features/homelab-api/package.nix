@@ -18,8 +18,13 @@
         root = self;
         include = [
           (filter.matchName "package.json")
-          ./yarn.lock
-          (filter.matchExt "ts")
+          (filter.matchName "yarn.lock")
+          (filter.matchName ".yarnrc.yml")
+          (filter.matchName ".pnp.cjs")
+          (filter.matchName ".pnp.loader.mjs")
+          (filter.inDirectory ".yarn")
+          (filter.matchName "tsconfig.base.json")
+          (filter.inDirectory "packages")
         ];
         exclude = [
           (filter.matchExt "test.ts")
@@ -33,7 +38,8 @@
 
       buildPhase = ''
         export HOME=$TMPDIR
-        yarn install --immutable
+        export YARN_ENABLE_IMMUTABLE_INSTALLS=false
+        yarn install --mode=skip-build
         yarn workspace homelab-server build
       '';
 
@@ -42,9 +48,9 @@
 
         cp packages/homelab-server/dist/bundle.js $out/lib/homelab-api.js
 
-        cat > $out/bin/homelab-api <<'EOF'
+        cat > $out/bin/homelab-api <<EOF
         #!/bin/sh
-        exec ${pkgs.nodejs_24}/bin/node $out/lib/homelab-api.js "$@"
+        exec ${pkgs.nodejs_24}/bin/node $out/lib/homelab-api.js "\$@"
         EOF
         chmod +x $out/bin/homelab-api
       '';

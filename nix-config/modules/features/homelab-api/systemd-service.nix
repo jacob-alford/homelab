@@ -16,7 +16,7 @@ in
       cfg = config.services.homelab-api;
       homeDir = cfg.userHomeDir;
       pubJwk = "${homeDir}/jwk.pub.json";
-      privJwk = "${homeDir}/jwk.json";
+      privJwk = "${homeDir}/jwk.priv.json";
       pkg = inputs.self.packages.x86_64-linux.homelab-api;
     in
     {
@@ -76,8 +76,8 @@ in
         };
 
         featureFlags = lib.mkOption {
-          type = lib.types.nullOr (lib.types.listOf lib.types.str);
-          default = [ ];
+          type = lib.types.nonEmptyListOf lib.types.str;
+          default = [ "*" ];
           description = "The enabled feature flags for the service";
         };
 
@@ -141,6 +141,7 @@ in
           group = cfg.userName;
           content = ''
             PORT=${builtins.toString svc.port}
+            HOST=127.0.0.1
 
             ROOT_CERT_DER=${c.ca.rootCertDer}
             INTERMEDIATE_CERT_DER=${c.ca.intermediateCertDer}
@@ -155,7 +156,9 @@ in
             ${if cfg.provisionJwks then "HOMELAB_SECRET_FILE=${cfg.hmacSecretPath}" else ""}
             ${if cfg.provisionJwks then "API_KEYS_FILE=${homeDir}/api-keys.json" else ""}
 
-            FEATURE_FLAGS=${lib.concatStringsSep "," cfg.featureFlags}
+            FEATURE_FLAGS=${
+              lib.concatStringsSep "," (map (f: if f == "*" then f else "${f}.enabled") cfg.featureFlags)
+            }
             KANIDM_OPENID_PROVIDER_URL=${svc.oidcEndpoint}
 
             CA_URL=${c.ca.url}
@@ -186,11 +189,9 @@ in
             CapabilityBoundingSet = [ ];
             DeviceAllow = "";
             LockPersonality = true;
-            MemoryDenyWriteExecute = true;
             NoNewPrivileges = true;
             PrivateDevices = true;
             PrivateMounts = true;
-            PrivateNetwork = true;
             PrivateTmp = true;
             PrivateUsers = true;
             ProcSubset = "pid";

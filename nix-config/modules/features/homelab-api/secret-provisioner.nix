@@ -147,8 +147,6 @@
         systemd.services.homelab-secret-provisioner = {
           description = "Provision homelab JWKs, API keys file, and HMAC secret";
           wantedBy = [ "multi-user.target" ];
-          after = [ "sops-install-secrets.service" ];
-          requires = [ "sops-install-secrets.service" ];
           serviceConfig = {
             Type = "oneshot";
             RemainAfterExit = true;
