@@ -8,6 +8,7 @@ let
   baseDomain = "plato-splunk.media";
   mkDomain = subdomain: "${subdomain}.${baseDomain}";
   mkUrl = subdomain: "https://${mkDomain subdomain}";
+  mkInsecureUrl = subdomain: "http://${mkDomain subdomain}";
   certsDir = inputs.self + "/certs";
   idmDomain = mkDomain "idm";
   mkOidcEndpoint =
@@ -77,6 +78,7 @@ in
         oidcEndpoint = mkOidcEndpoint "homelab";
         clientId = "homelab";
         url = mkUrl "homelab-api";
+        insecureUrl = mkInsecureUrl "homelab-api";
         port = 35427;
         hmacFileName = "hmac.secret";
       };

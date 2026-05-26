@@ -11,5 +11,11 @@ in
           reverse_proxy 127.0.0.1:${builtins.toString svc.port}
         '';
       };
+
+      services.caddy.virtualHosts."${svc.insecureUrl}" = {
+        extraConfig = ''
+          reverse_proxy 127.0.0.1:${builtins.toString svc.port}
+        '';
+      };
     };
 }
