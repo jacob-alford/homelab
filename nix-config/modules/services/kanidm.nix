@@ -74,15 +74,6 @@ in
           };
 
           persons = {
-            "jacob-nutrien" = {
-              displayName = "Jacob Alford (Nutrien)";
-              mailAddresses = [ "nutrien-github@a.plato-splunk.media" ];
-              groups = [
-                "radius.access"
-                "radius.access_guest"
-                "homelab.access"
-              ];
-            };
             "guest" = {
               displayName = "Guest Account";
               mailAddresses = [ "guest@a.plato-splunk.media" ];
