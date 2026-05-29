@@ -78,6 +78,7 @@ in
         oidcEndpoint = mkOidcEndpoint "homelab";
         clientId = "homelab";
         url = mkUrl "homelab-api";
+        frontendUrl = mkUrl "homelab";
         insecureUrl = mkInsecureUrl "homelab-api";
         port = 35427;
         hmacFileName = "hmac.secret";

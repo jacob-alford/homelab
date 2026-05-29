@@ -14,13 +14,18 @@ in
     {
       services.kanidm.provision.systems.oauth2."${svc.clientId}" = {
         originUrl = [
-          "${svc.url}/oauth/callback"
+          "${svc.frontendUrl}/oauth/callback"
           "http://localhost:4321/oauth/callback"
         ];
         originLanding = "${svc.url}";
         displayName = "Homelab";
 
         basicSecretFile = config.sops.secrets.homelab_kanidm_client_secret.path;
+
+        scopeMaps = {
+          "homelab.admins" = [ "openid" "profile" "email" ];
+          "homelab.access" = [ "openid" "profile" "email" ];
+        };
 
         claimMaps.roles = {
           joinType = "array";
