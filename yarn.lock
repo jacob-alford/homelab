@@ -6738,11 +6738,16 @@ __metadata:
   resolution: "homelab-frontend@workspace:packages/homelab-frontend"
   dependencies:
     "@astrojs/solid-js": "npm:^6.0.1"
+    "@effect/platform": "npm:^0.94.x"
     "@kobalte/core": "npm:^0.13.11"
     astro: "npm:^6.0.8"
     class-variance-authority: "npm:^0.7.1"
     clsx: "npm:^2.1.1"
+    effect: "npm:^3.x"
+    homelab-api: "workspace:*"
+    homelab-services: "workspace:*"
     solid-devtools: "npm:^0.34.5"
+    solid-icons: "patch:solid-icons@npm%3A1.2.0#~/.yarn/patches/solid-icons-npm-1.2.0-70eb7a90e8.patch"
     solid-js: "npm:^1.9.11"
   languageName: unknown
   linkType: soft
@@ -10730,6 +10735,24 @@ __metadata:
     vite:
       optional: true
   checksum: 10c0/075da9be54da8d5ce1771714912e44fda1f9ff95617e560ce9bdaa5298268357714ca003d69801fb6a4ff1fee3f10adaae23a6a7df16f4a424a4a48c4cef38c3
+  languageName: node
+  linkType: hard
+
+"solid-icons@npm:1.2.0":
+  version: 1.2.0
+  resolution: "solid-icons@npm:1.2.0"
+  peerDependencies:
+    solid-js: "*"
+  checksum: 10c0/759647b6e67d4d1431c73dc72c12debd42e9efe992243725f2e100fa390ed4a22c904a17cf1eb0afab91f2c499242f864c3cb89e919a85065c66848bb5c069d3
+  languageName: node
+  linkType: hard
+
+"solid-icons@patch:solid-icons@npm%3A1.2.0#~/.yarn/patches/solid-icons-npm-1.2.0-70eb7a90e8.patch":
+  version: 1.2.0
+  resolution: "solid-icons@patch:solid-icons@npm%3A1.2.0#~/.yarn/patches/solid-icons-npm-1.2.0-70eb7a90e8.patch::version=1.2.0&hash=a0299a"
+  peerDependencies:
+    solid-js: "*"
+  checksum: 10c0/131f3c2b1268d21d87a2f669ff412d3152da25c694270b220fcacca80ed93d247558cc7c0b2fc248eafbe8bacca017cab8c0f29e0862965928eb12db6778ab6f
   languageName: node
   linkType: hard
 

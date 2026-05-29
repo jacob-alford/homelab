@@ -8325,12 +8325,17 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./packages/homelab-frontend/",\
         "packageDependencies": [\
           ["@astrojs/solid-js", "virtual:bb5fc8d913bc37040d5c786cf6db19039efb7f114116558a23f3d7b77e39c15e0435ed4f17b088c36946b9c466008798d69fb435e2e27a876eae53f2a0f6e144#npm:6.0.1"],\
+          ["@effect/platform", "virtual:c72e1f29ed535cb5c8d0308e99ae245a02e7b199277845c95b67fbbcfe0210f35f627c490976c1ee1c8a7f23ff73e4fd28f5d2a3fb2013fbec0cf5bfff33690a#npm:0.94.5"],\
           ["@kobalte/core", "virtual:bb5fc8d913bc37040d5c786cf6db19039efb7f114116558a23f3d7b77e39c15e0435ed4f17b088c36946b9c466008798d69fb435e2e27a876eae53f2a0f6e144#npm:0.13.11"],\
           ["astro", "npm:6.0.8"],\
           ["class-variance-authority", "npm:0.7.1"],\
           ["clsx", "npm:2.1.1"],\
+          ["effect", "npm:3.19.19"],\
+          ["homelab-api", "workspace:packages/homelab-api"],\
           ["homelab-frontend", "workspace:packages/homelab-frontend"],\
+          ["homelab-services", "workspace:packages/homelab-services"],\
           ["solid-devtools", "virtual:bb5fc8d913bc37040d5c786cf6db19039efb7f114116558a23f3d7b77e39c15e0435ed4f17b088c36946b9c466008798d69fb435e2e27a876eae53f2a0f6e144#npm:0.34.5"],\
+          ["solid-icons", "virtual:bb5fc8d913bc37040d5c786cf6db19039efb7f114116558a23f3d7b77e39c15e0435ed4f17b088c36946b9c466008798d69fb435e2e27a876eae53f2a0f6e144#patch:solid-icons@npm%3A1.2.0#~/.yarn/patches/solid-icons-npm-1.2.0-70eb7a90e8.patch::version=1.2.0&hash=a0299a"],\
           ["solid-js", "npm:1.9.11"]\
         ],\
         "linkType": "SOFT"\
@@ -12609,6 +12614,28 @@ const RAW_RUNTIME_STATE =
           "@types/vite",\
           "solid-js",\
           "vite"\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["solid-icons", [\
+      ["patch:solid-icons@npm%3A1.2.0#~/.yarn/patches/solid-icons-npm-1.2.0-70eb7a90e8.patch::version=1.2.0&hash=a0299a", {\
+        "packageLocation": "./.yarn/cache/solid-icons-patch-f2e4a9bf1c-131f3c2b12.zip/node_modules/solid-icons/",\
+        "packageDependencies": [\
+          ["solid-icons", "patch:solid-icons@npm%3A1.2.0#~/.yarn/patches/solid-icons-npm-1.2.0-70eb7a90e8.patch::version=1.2.0&hash=a0299a"]\
+        ],\
+        "linkType": "SOFT"\
+      }],\
+      ["virtual:bb5fc8d913bc37040d5c786cf6db19039efb7f114116558a23f3d7b77e39c15e0435ed4f17b088c36946b9c466008798d69fb435e2e27a876eae53f2a0f6e144#patch:solid-icons@npm%3A1.2.0#~/.yarn/patches/solid-icons-npm-1.2.0-70eb7a90e8.patch::version=1.2.0&hash=a0299a", {\
+        "packageLocation": "./.yarn/__virtual__/solid-icons-virtual-cf0bb9b8fb/0/cache/solid-icons-patch-f2e4a9bf1c-131f3c2b12.zip/node_modules/solid-icons/",\
+        "packageDependencies": [\
+          ["@types/solid-js", null],\
+          ["solid-icons", "virtual:bb5fc8d913bc37040d5c786cf6db19039efb7f114116558a23f3d7b77e39c15e0435ed4f17b088c36946b9c466008798d69fb435e2e27a876eae53f2a0f6e144#patch:solid-icons@npm%3A1.2.0#~/.yarn/patches/solid-icons-npm-1.2.0-70eb7a90e8.patch::version=1.2.0&hash=a0299a"],\
+          ["solid-js", "npm:1.9.11"]\
+        ],\
+        "packagePeers": [\
+          "@types/solid-js",\
+          "solid-js"\
         ],\
         "linkType": "HARD"\
       }]\

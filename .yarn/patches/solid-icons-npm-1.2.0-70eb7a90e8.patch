@@ -1,0 +1,12 @@
+diff --git a/package.json b/package.json
+index 440c177240333df6fb3c23ebf78fc7647addcadc..53dcec19e11214494457c8b74151be979879c234 100644
+--- a/package.json
++++ b/package.json
+@@ -5,6 +5,7 @@
+   "author": "Ignacio Zsabo",
+   "license": "MIT",
+   "sideEffects": false,
++  "type": "module",
+   "main": "./lib/index.cjs",
+   "module": "./lib/index.jsx",
+   "types": "./lib/index.d.ts",
