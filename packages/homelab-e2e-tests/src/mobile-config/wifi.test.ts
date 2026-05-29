@@ -46,7 +46,10 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
           }),
         )
 
-        assert(result instanceof ApiErrors.AuthorizationError)
+        assert(
+          result instanceof ApiErrors.AuthorizationError,
+          `expected instanceof ApiErrors.AuthorizationError but got ${JSON.stringify(result)}`,
+        )
 
         expect(result.message).toBe(
           "guest-a@a.plato-splunk.media (OIDC) is not allowed to perform view on Config_Wifi",
@@ -86,7 +89,10 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
           }),
         )
 
-        assert(result instanceof ApiErrors.NotImplemented)
+        assert(
+          result instanceof ApiErrors.NotImplemented,
+          `expected instanceof ApiErrors.NotImplemented but got ${JSON.stringify(result)}`,
+        )
 
         expect(result.message).toBe(
           "EAP-TLS support not implemented",
@@ -124,7 +130,10 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
           }),
         )
 
-        assert(result instanceof ApiErrors.BadRequest)
+        assert(
+          result instanceof ApiErrors.BadRequest,
+          `expected instanceof ApiErrors.BadRequest but got ${JSON.stringify(result)}`,
+        )
 
         expect(result.message).toBe(
           "Username is required when specifying a PEAP client-type",
@@ -161,7 +170,10 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
           },
         }))
 
-        assert(result instanceof ApiErrors.AuthorizationError)
+        assert(
+          result instanceof ApiErrors.AuthorizationError,
+          `expected instanceof ApiErrors.AuthorizationError but got ${JSON.stringify(result)}`,
+        )
 
         expect(result.message).toBe("User's principle identifer must match the requested username")
       }).pipe(Effect.provide(E2ETestLayer)))
@@ -219,7 +231,10 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
           headers: {},
         }))
 
-        assert(result instanceof ApiErrors.AuthorizationError)
+        assert(
+          result instanceof ApiErrors.AuthorizationError,
+          `expected instanceof ApiErrors.AuthorizationError but got ${JSON.stringify(result)}`,
+        )
         expect(result.message).toBe("User's principle identifer must match the requested username")
       }).pipe(Effect.provide(E2ETestLayer)))
 

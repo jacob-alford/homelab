@@ -85,7 +85,7 @@ class TokenIssuerServiceImpl implements Services.TokenIssuerService.TokenIssuerS
 
       const accessToken = yield* this.signAccessToken(
         jwk,
-        HashSet.toValues(apiKeyScopes).join(","),
+        HashSet.toValues(apiKeyScopes),
         email,
       )
 
@@ -171,7 +171,7 @@ class TokenIssuerServiceImpl implements Services.TokenIssuerService.TokenIssuerS
     })
   }
 
-  private signAccessToken(dpopJwk: Schemas.OAuth.JWK, roles: string, email: string) {
+  private signAccessToken(dpopJwk: Schemas.OAuth.JWK, roles: ReadonlyArray<string>, email: string) {
     return Effect.gen(this, function*() {
       const dpopJwkDigest = yield* Effect.try({
         try() {

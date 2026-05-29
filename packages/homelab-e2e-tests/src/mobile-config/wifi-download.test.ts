@@ -46,7 +46,10 @@ describe("GET /mobile-config/wifi/:ssid/:encryption/_download", () => {
           }),
         )
 
-        assert(result instanceof ApiErrors.AuthorizationError)
+        assert(
+          result instanceof ApiErrors.AuthorizationError,
+          `expected instanceof ApiErrors.AuthorizationError but got ${JSON.stringify(result)}`,
+        )
 
         expect(result.message).toBe(
           "guest-a@a.plato-splunk.media (OIDC) is not allowed to perform view on Config_Wifi",
@@ -71,7 +74,10 @@ describe("GET /mobile-config/wifi/:ssid/:encryption/_download", () => {
           headers: {},
         }))
 
-        assert(res instanceof ApiErrors.AuthorizationError)
+        assert(
+          res instanceof ApiErrors.AuthorizationError,
+          `expected instanceof ApiErrors.AuthorizationError but got ${JSON.stringify(res)}`,
+        )
 
         expect(res.message).toBe("User's principle identifer must match the requested username")
       }).pipe(Effect.provide(E2ETestLayer)))

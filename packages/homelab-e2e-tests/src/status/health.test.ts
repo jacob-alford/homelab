@@ -31,7 +31,10 @@ describe("PUT /status/health", () => {
           }),
         )
 
-        assert(result instanceof ApiErrors.AuthenticationError)
+        assert(
+          result instanceof ApiErrors.AuthenticationError,
+          `expected instanceof ApiErrors.AuthenticationError but got ${JSON.stringify(result)}`,
+        )
 
         expect(result.message).toBe("DPoP htm doesn't match")
       }).pipe(Effect.provide(E2ETestLayer)))
@@ -53,7 +56,10 @@ describe("PUT /status/health", () => {
           }),
         )
 
-        assert(result instanceof ApiErrors.AuthorizationError)
+        assert(
+          result instanceof ApiErrors.AuthorizationError,
+          `expected instanceof ApiErrors.AuthorizationError but got ${JSON.stringify(result)}`,
+        )
 
         expect(result.message).toBe(
           "guest-a@a.plato-splunk.media (OIDC) is not allowed to perform view on Status_Health",

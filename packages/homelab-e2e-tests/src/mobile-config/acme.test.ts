@@ -41,7 +41,10 @@ describe("PUT /mobile-config/acme/:clientIdentifier", () => {
           }),
         )
 
-        assert(result instanceof ApiErrors.AuthorizationError)
+        assert(
+          result instanceof ApiErrors.AuthorizationError,
+          `expected instanceof ApiErrors.AuthorizationError but got ${JSON.stringify(result)}`,
+        )
 
         expect(result.message).toBe(
           "guest-a@a.plato-splunk.media (OIDC) is not allowed to perform view on Config_ACME",
@@ -64,7 +67,10 @@ describe("PUT /mobile-config/acme/:clientIdentifier", () => {
           }),
         )
 
-        assert(result instanceof ApiErrors.AuthorizationError)
+        assert(
+          result instanceof ApiErrors.AuthorizationError,
+          `expected instanceof ApiErrors.AuthorizationError but got ${JSON.stringify(result)}`,
+        )
         expect(result.message).toBe("guest (Guest) is not allowed to perform view on Config_ACME")
       }).pipe(Effect.provide(E2ETestLayer)))
     it.live("rejects a mismatched DPoP path", () =>
@@ -93,7 +99,10 @@ describe("PUT /mobile-config/acme/:clientIdentifier", () => {
           }),
         )
 
-        assert(result instanceof ApiErrors.AuthenticationError)
+        assert(
+          result instanceof ApiErrors.AuthenticationError,
+          `expected instanceof ApiErrors.AuthenticationError but got ${JSON.stringify(result)}`,
+        )
         expect(result.message).toBe("DPoP htu doesn't match")
       }).pipe(Effect.provide(E2ETestLayer)))
 
@@ -123,7 +132,10 @@ describe("PUT /mobile-config/acme/:clientIdentifier", () => {
           }),
         )
 
-        assert(result instanceof ApiErrors.BadRequest)
+        assert(
+          result instanceof ApiErrors.BadRequest,
+          `expected instanceof ApiErrors.BadRequest but got ${JSON.stringify(result)}`,
+        )
         expect(result.reason).toBe("acme-invalid-client-identifier")
       }).pipe(Effect.provide(E2ETestLayer)))
   })

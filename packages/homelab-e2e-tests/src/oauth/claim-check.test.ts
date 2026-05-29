@@ -25,7 +25,10 @@ describe("POST /oauth/claim-check", () => {
           }),
         )
 
-        assert(result instanceof ApiErrors.AuthorizationError)
+        assert(
+          result instanceof ApiErrors.AuthorizationError,
+          `expected instanceof ApiErrors.AuthorizationError but got ${JSON.stringify(result)}`,
+        )
         expect(result.message).toBe(
           "guest (Guest) is not allowed to perform view on OAuth_ClaimCheck",
         )
@@ -53,7 +56,10 @@ describe("POST /oauth/claim-check", () => {
           }),
         )
 
-        assert(result instanceof ApiErrors.AuthorizationError)
+        assert(
+          result instanceof ApiErrors.AuthorizationError,
+          `expected instanceof ApiErrors.AuthorizationError but got ${JSON.stringify(result)}`,
+        )
       }).pipe(Effect.provide(E2ETestLayer)))
   })
 

@@ -24,7 +24,10 @@ describe("POST /oauth/token", () => {
           }),
         )
 
-        assert(res instanceof ApiErrors.AuthenticationError)
+        assert(
+          res instanceof ApiErrors.AuthenticationError,
+          `expected instanceof ApiErrors.AuthenticationError but got ${JSON.stringify(res)}`,
+        )
 
         expect(res.message).toBe("API key is required")
       }).pipe(Effect.provide(E2ETestLayer)))
@@ -43,7 +46,10 @@ describe("POST /oauth/token", () => {
           }),
         )
 
-        assert(res instanceof ApiErrors.AuthenticationError)
+        assert(
+          res instanceof ApiErrors.AuthenticationError,
+          `expected instanceof ApiErrors.AuthenticationError but got ${JSON.stringify(res)}`,
+        )
 
         expect(res.message).toBe("Invalid API Key")
       }).pipe(Effect.provide(E2ETestLayer)))
@@ -63,7 +69,10 @@ describe("POST /oauth/token", () => {
           }),
         )
 
-        assert(res instanceof ApiErrors.AuthenticationError)
+        assert(
+          res instanceof ApiErrors.AuthenticationError,
+          `expected instanceof ApiErrors.AuthenticationError but got ${JSON.stringify(res)}`,
+        )
 
         expect(res.message).toBe("DPoP header missing JWK")
       }).pipe(Effect.provide(E2ETestLayer)))

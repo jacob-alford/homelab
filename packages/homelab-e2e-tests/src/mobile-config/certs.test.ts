@@ -38,7 +38,10 @@ describe("GET /mobile-config/certs", () => {
           }),
         )
 
-        assert(result instanceof ApiErrors.AuthorizationError)
+        assert(
+          result instanceof ApiErrors.AuthorizationError,
+          `expected instanceof ApiErrors.AuthorizationError but got ${JSON.stringify(result)}`,
+        )
 
         expect(result.message).toBe(
           "guest-b@a.plato-splunk.media (OIDC) is not allowed to perform view on Config_Certs",
