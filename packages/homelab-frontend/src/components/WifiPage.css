@@ -1,0 +1,200 @@
+.wifi-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.wifi-page__topbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.wifi-page__login-btn {
+  background-color: var(--interactive-primary);
+  color: var(--text-inverse);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.wifi-page__login-btn:hover {
+  background-color: var(--interactive-primary-hover);
+}
+
+.wifi-page__login-btn:active {
+  background-color: var(--interactive-primary-active);
+}
+
+.wifi-page__user-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.wifi-page__display-name {
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.wifi-page__missing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2xl);
+  text-align: center;
+  flex: 1;
+}
+
+.wifi-page__missing-icon {
+  font-size: 3rem;
+  color: var(--status-warning, #e5a000);
+  margin-bottom: var(--space-md);
+}
+
+.wifi-page__missing p {
+  color: var(--text-secondary);
+}
+
+.wifi-page__missing code {
+  background-color: var(--surface-raised);
+  padding: 0.1em 0.4em;
+  border-radius: var(--radius-sm);
+  font-size: 0.9em;
+}
+
+.wifi-page__tabs {
+  padding: var(--space-lg);
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.wifi-page__tabs-list {
+  display: flex;
+  border-bottom: 1px solid var(--border-default);
+  position: relative;
+}
+
+.wifi-page__tabs-trigger {
+  padding: var(--space-sm) var(--space-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: color var(--transition-fast);
+}
+
+.wifi-page__tabs-trigger[data-selected] {
+  color: var(--text-primary);
+}
+
+.wifi-page__tabs-indicator {
+  position: absolute;
+  bottom: 0;
+  height: 2px;
+  background-color: var(--interactive-primary);
+  transition: all var(--transition-fast);
+}
+
+.wifi-page__tabs-content {
+  padding: var(--space-lg) 0;
+}
+
+.wifi-page__connect-heading {
+  margin-bottom: var(--space-md);
+}
+
+.wifi-page__steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding-left: var(--space-lg);
+}
+
+.wifi-page__steps li {
+  margin-bottom: var(--space-sm);
+}
+
+.wifi-page__description {
+  margin-bottom: var(--space-md);
+  line-height: var(--line-height-relaxed);
+}
+
+.wifi-page__download-btn {
+  background-color: var(--interactive-primary);
+  color: var(--text-inverse);
+  padding: var(--space-sm) var(--space-xl);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.wifi-page__download-btn:hover {
+  background-color: var(--interactive-primary-hover);
+}
+
+.wifi-page__download-btn:active {
+  background-color: var(--interactive-primary-active);
+}
+
+.wifi-page__credentials {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.wifi-page__copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-raised);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.wifi-page__copy-btn:hover {
+  background-color: var(--surface-overlay);
+  border-color: var(--border-strong);
+}
+
+.wifi-page__copy-btn:active {
+  background-color: var(--surface-base);
+}
+
+.wifi-page__actions {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.wifi-page__spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border-default);
+  border-top-color: var(--text-primary);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

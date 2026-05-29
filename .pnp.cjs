@@ -2592,6 +2592,32 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["@nanostores/solid", [\
+      ["npm:1.1.1", {\
+        "packageLocation": "./.yarn/cache/@nanostores-solid-npm-1.1.1-eda81af4d3-302213264f.zip/node_modules/@nanostores/solid/",\
+        "packageDependencies": [\
+          ["@nanostores/solid", "npm:1.1.1"]\
+        ],\
+        "linkType": "SOFT"\
+      }],\
+      ["virtual:bb5fc8d913bc37040d5c786cf6db19039efb7f114116558a23f3d7b77e39c15e0435ed4f17b088c36946b9c466008798d69fb435e2e27a876eae53f2a0f6e144#npm:1.1.1", {\
+        "packageLocation": "./.yarn/__virtual__/@nanostores-solid-virtual-f97cd79905/0/cache/@nanostores-solid-npm-1.1.1-eda81af4d3-302213264f.zip/node_modules/@nanostores/solid/",\
+        "packageDependencies": [\
+          ["@nanostores/solid", "virtual:bb5fc8d913bc37040d5c786cf6db19039efb7f114116558a23f3d7b77e39c15e0435ed4f17b088c36946b9c466008798d69fb435e2e27a876eae53f2a0f6e144#npm:1.1.1"],\
+          ["@types/nanostores", null],\
+          ["@types/solid-js", null],\
+          ["nanostores", "npm:1.3.0"],\
+          ["solid-js", "npm:1.9.11"]\
+        ],\
+        "packagePeers": [\
+          "@types/nanostores",\
+          "@types/solid-js",\
+          "nanostores",\
+          "solid-js"\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["@napi-rs/wasm-runtime", [\
       ["npm:0.2.12", {\
         "packageLocation": "./.yarn/cache/@napi-rs-wasm-runtime-npm-0.2.12-8f0d65e253-6d07922c06.zip/node_modules/@napi-rs/wasm-runtime/",\
@@ -8327,6 +8353,7 @@ const RAW_RUNTIME_STATE =
           ["@astrojs/solid-js", "virtual:bb5fc8d913bc37040d5c786cf6db19039efb7f114116558a23f3d7b77e39c15e0435ed4f17b088c36946b9c466008798d69fb435e2e27a876eae53f2a0f6e144#npm:6.0.1"],\
           ["@effect/platform", "virtual:c72e1f29ed535cb5c8d0308e99ae245a02e7b199277845c95b67fbbcfe0210f35f627c490976c1ee1c8a7f23ff73e4fd28f5d2a3fb2013fbec0cf5bfff33690a#npm:0.94.5"],\
           ["@kobalte/core", "virtual:bb5fc8d913bc37040d5c786cf6db19039efb7f114116558a23f3d7b77e39c15e0435ed4f17b088c36946b9c466008798d69fb435e2e27a876eae53f2a0f6e144#npm:0.13.11"],\
+          ["@nanostores/solid", "virtual:bb5fc8d913bc37040d5c786cf6db19039efb7f114116558a23f3d7b77e39c15e0435ed4f17b088c36946b9c466008798d69fb435e2e27a876eae53f2a0f6e144#npm:1.1.1"],\
           ["astro", "npm:6.0.8"],\
           ["class-variance-authority", "npm:0.7.1"],\
           ["clsx", "npm:2.1.1"],\
@@ -8334,6 +8361,7 @@ const RAW_RUNTIME_STATE =
           ["homelab-api", "workspace:packages/homelab-api"],\
           ["homelab-frontend", "workspace:packages/homelab-frontend"],\
           ["homelab-services", "workspace:packages/homelab-services"],\
+          ["nanostores", "npm:1.3.0"],\
           ["solid-devtools", "virtual:bb5fc8d913bc37040d5c786cf6db19039efb7f114116558a23f3d7b77e39c15e0435ed4f17b088c36946b9c466008798d69fb435e2e27a876eae53f2a0f6e144#npm:0.34.5"],\
           ["solid-icons", "virtual:bb5fc8d913bc37040d5c786cf6db19039efb7f114116558a23f3d7b77e39c15e0435ed4f17b088c36946b9c466008798d69fb435e2e27a876eae53f2a0f6e144#patch:solid-icons@npm%3A1.2.0#~/.yarn/patches/solid-icons-npm-1.2.0-70eb7a90e8.patch::version=1.2.0&hash=a0299a"],\
           ["solid-js", "npm:1.9.11"]\
@@ -10649,6 +10677,15 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./.yarn/cache/nanoid-npm-3.3.11-f98c1f9ef6-40e7f70b3d.zip/node_modules/nanoid/",\
         "packageDependencies": [\
           ["nanoid", "npm:3.3.11"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["nanostores", [\
+      ["npm:1.3.0", {\
+        "packageLocation": "./.yarn/cache/nanostores-npm-1.3.0-0c458af961-fab57ec597.zip/node_modules/nanostores/",\
+        "packageDependencies": [\
+          ["nanostores", "npm:1.3.0"]\
         ],\
         "linkType": "HARD"\
       }]\
