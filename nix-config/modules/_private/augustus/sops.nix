@@ -110,10 +110,6 @@
     owner = "restic";
   };
 
-  sops.secrets.homelab_kanidm_client_secret = {
-    owner = "kanidm";
-  };
-
   sops.secrets.step_ca_oidc_client_secret = {
     owner = "kanidm";
   };

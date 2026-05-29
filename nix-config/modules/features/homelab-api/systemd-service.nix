@@ -173,8 +173,14 @@ in
           description = "Homelab API NodeJS Server";
 
           wantedBy = [ "multi-user.target" ];
-          after = [ "homelab-secret-provisioner.service" ];
-          requires = [ "homelab-secret-provisioner.service" ];
+          after = [
+            "homelab-secret-provisioner.service"
+            "kanidm.service"
+          ];
+          requires = [
+            "homelab-secret-provisioner.service"
+            "kanidm.service"
+          ];
 
           serviceConfig = {
             Type = "simple";
