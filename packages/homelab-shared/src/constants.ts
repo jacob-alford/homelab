@@ -2,7 +2,7 @@ export const BASE_KEY = "plato-splunk.services.homelab-api"
 
 export const JWT_ROLES_KEY = "roles"
 
-export const JWT_HOMELAB_API_AUD = `${BASE_KEY}.jwt.audience`
+export const JWT_HOMELAB_API_AUD = `homelab`
 
 export const JWT_HOMELAB_API_ISSUER = `https://homelab.plato-splunk.media`
 
