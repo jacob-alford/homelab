@@ -1,24 +1,38 @@
-import { Effect, HashMap, Layer, Option } from "effect"
+import { DateTime, Effect, HashMap, Layer, Option } from "effect"
 import { ApiErrors, type Identity, Services } from "homelab-services"
+import { Constants } from "homelab-shared"
 import * as Crypto from "node:crypto"
+
+const CHECK_CLAIM_EXPIRATION = Constants.FIVE_MINUTES_SECONDS
 
 class ClaimCheckServiceImpl implements Services.ClaimCheckService.ClaimCheckServiceDef {
   constructor(
-    private claimCheckCache: HashMap.HashMap<string, Identity.Identity> = HashMap.empty(),
+    private claimCheckCache: HashMap.HashMap<
+      string,
+      readonly [identity: Identity.Identity, expiration: DateTime.DateTime]
+    > = HashMap.empty(),
   ) {}
 
   issue(identity: Identity.Identity) {
-    return Effect.tryPromise({
-      try: async () => {
-        const bytes = Crypto.randomBytes(16).toString("hex")
+    return Effect.gen(this, function*() {
+      const expiration = yield* DateTime.now.pipe(
+        Effect.map(
+          DateTime.add({ seconds: CHECK_CLAIM_EXPIRATION }),
+        ),
+      )
 
-        this.claimCheckCache = HashMap.set(this.claimCheckCache, bytes, identity)
+      return yield* Effect.tryPromise({
+        try: async () => {
+          const bytes = Crypto.randomBytes(16).toString("hex")
 
-        return bytes
-      },
-      catch(error) {
-        return new ApiErrors.InternalServerError({ error, message: "Failed to issue claim check" })
-      },
+          this.claimCheckCache = HashMap.set(this.claimCheckCache, bytes, [identity, expiration])
+
+          return bytes
+        },
+        catch(error) {
+          return new ApiErrors.InternalServerError({ error, message: "Failed to issue claim check" })
+        },
+      })
     })
   }
 
@@ -35,8 +49,17 @@ class ClaimCheckServiceImpl implements Services.ClaimCheckService.ClaimCheckServ
             }),
           )
         },
-        onSome(identity) {
-          return Effect.succeed(identity)
+        onSome([identity, expiration]) {
+          if (DateTime.isFuture(expiration)) {
+            return Effect.succeed(identity)
+          }
+
+          return Effect.fail(
+            new ApiErrors.AuthenticationError({
+              reason: "expired-credential",
+              message: "Claim Check has expired",
+            }),
+          )
         },
       })
     })
