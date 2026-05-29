@@ -33,6 +33,7 @@ describe("PUT /mobile-config/acme/:clientIdentifier", () => {
             path: {
               clientIdentifier: "my-device",
             },
+            urlParams: {},
             headers: {
               dpop: newDpopProof,
               authorization: `${token_type} ${access_token}`,
@@ -58,6 +59,7 @@ describe("PUT /mobile-config/acme/:clientIdentifier", () => {
             path: {
               clientIdentifier: "postgres",
             },
+            urlParams: {},
             headers: {},
           }),
         )
@@ -83,6 +85,7 @@ describe("PUT /mobile-config/acme/:clientIdentifier", () => {
             path: {
               clientIdentifier: "postgres",
             },
+            urlParams: {},
             headers: {
               dpop: newDpopProof,
               authorization: `${token_type} ${access_token}`,
@@ -112,6 +115,7 @@ describe("PUT /mobile-config/acme/:clientIdentifier", () => {
             path: {
               clientIdentifier: "postgres",
             },
+            urlParams: {},
             headers: {
               dpop: newDpopProof,
               authorization: `${token_type} ${access_token}`,
@@ -142,6 +146,7 @@ describe("PUT /mobile-config/acme/:clientIdentifier", () => {
           path: {
             clientIdentifier: "foo",
           },
+          urlParams: {},
           headers: {
             dpop: newDpopProof,
             authorization: `${token_type} ${access_token}`,
