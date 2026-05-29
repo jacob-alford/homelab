@@ -9,22 +9,24 @@ export const SSIDParam = HttpApiSchema.param("ssid", Schema.String)
 
 export const EncryptionParam = HttpApiSchema.param("encryption", Schema.Literal("WPA3", "WPA2"))
 
-export const WifiMobileConfigParams = Schema.Struct({
-  username: Schema.String.pipe(
-    Schema.optionalWith({
-      exact: true,
-    }),
-  ),
-  password: Schema.String,
-  disableMACRandomization: Schema.BooleanFromString.pipe(
-    Schema.optionalWith({ exact: true, default: () => false }),
-  ),
-  enterpriseClientType: Schemas.WifiConfig.EnterpriseClientConfigurationType.pipe(
-    Schema.optionalWith({
-      exact: true,
-    }),
-  ),
-})
+export const WifiMobileConfigParams = Schemas.Token.AuthQueryParams.pipe(
+  Schema.extend(Schema.Struct({
+    username: Schema.String.pipe(
+      Schema.optionalWith({
+        exact: true,
+      }),
+    ),
+    password: Schema.String,
+    disableMACRandomization: Schema.BooleanFromString.pipe(
+      Schema.optionalWith({ exact: true, default: () => false }),
+    ),
+    enterpriseClientType: Schemas.WifiConfig.EnterpriseClientConfigurationType.pipe(
+      Schema.optionalWith({
+        exact: true,
+      }),
+    ),
+  })),
+)
 
 export const WifiMobileConfig = HttpApiEndpoint.put("wifi")`/wifi/${SSIDParam}/${EncryptionParam}`
   .setPayload(

@@ -46,6 +46,7 @@ class FineGrainedAuthorizationServiceImpl
         "Config_Certs": () => Effect.succeed(true as const),
         "Status_Health": () => Effect.succeed(true as const),
         "OAuth_Token": () => Effect.succeed(true as const),
+        "OAuth_ClaimCheck": () => Effect.succeed(true as const),
       }),
     )
   }

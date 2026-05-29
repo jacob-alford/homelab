@@ -27,6 +27,9 @@ export const AcmeDownloadMobileConfig = HttpApiEndpoint.get("acme-download")`/ac
   .setHeaders(
     Schemas.Token.TokenHeaders,
   )
+  .setUrlParams(
+    Schemas.Token.AuthQueryParams,
+  )
 
 export type AcmeDownloadMobileConfigEndpoint = typeof AcmeDownloadMobileConfig
 

@@ -11,6 +11,9 @@ export const CertsDownload = HttpApiEndpoint.get("certs-download")`/certs/_downl
   .addError(HttpApiError.HttpApiDecodeError)
   .addError(ApiErrors.AuthorizationError)
   .setHeaders(Schemas.Token.TokenHeaders)
+  .setUrlParams(
+    Schemas.Token.AuthQueryParams,
+  )
 
 export type CertsDownloadEndpoint = typeof CertsDownload
 

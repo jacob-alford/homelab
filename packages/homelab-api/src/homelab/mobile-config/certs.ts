@@ -25,6 +25,9 @@ export const Certs = HttpApiEndpoint.get("certs")`/certs`
   .setHeaders(
     Schemas.Token.TokenHeaders,
   )
+  .setUrlParams(
+    Schemas.Token.AuthQueryParams,
+  )
 
 export type CertsEndpoint = typeof Certs
 

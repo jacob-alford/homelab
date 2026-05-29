@@ -101,6 +101,7 @@ in
                       "Config_Certs"
                       "Status_Health"
                       "OAuth_Token"
+                      "OAuth_ClaimCheck"
                     ]
                   );
                 };

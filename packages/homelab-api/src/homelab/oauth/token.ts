@@ -1,6 +1,6 @@
 import { HttpApiEndpoint } from "@effect/platform"
 import type { Types } from "effect"
-import { ApiErrors, Schemas } from "homelab-services"
+import { ApiErrors, Middleware, Schemas } from "homelab-services"
 
 export const TokenEndpoint = HttpApiEndpoint.post("token")`/token`
   .addSuccess(Schemas.Token.TokenResponse)
@@ -9,6 +9,7 @@ export const TokenEndpoint = HttpApiEndpoint.post("token")`/token`
   .addError(ApiErrors.BadRequest)
   .addError(ApiErrors.InternalServerError)
   .setHeaders(Schemas.Token.TokenHeaders)
+  .middleware(Middleware.BasicAuthMiddleware)
 
 export type TokenEndpoint = typeof TokenEndpoint
 

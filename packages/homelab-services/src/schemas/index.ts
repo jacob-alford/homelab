@@ -1,4 +1,5 @@
 export * as Buffer from "./Buffer.js"
+export * as ClaimCheck from "./claim-check.js"
 export * as ACME from "./config-acme.js"
 export * as CertificatePayload from "./config-certificate.js"
 export * as WifiConfig from "./config-wifi.js"

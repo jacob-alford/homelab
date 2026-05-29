@@ -15,3 +15,7 @@ export const TokenHeaders = Schema.Struct({
   authorization: Optional(AuthorizationHeader),
   dpop: Optional(OAuthSchemas.JWTString),
 })
+
+export const AuthQueryParams = Schema.Struct({
+  claim_check: Optional(Schema.String),
+})

@@ -6,6 +6,7 @@ export const ResourceURISchema = Schema.Literal(
   "Config_Certs",
   "Status_Health",
   "OAuth_Token",
+  "OAuth_ClaimCheck",
 )
 
 export const ResourceURILiterals = ResourceURISchema.literals

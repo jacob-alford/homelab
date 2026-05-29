@@ -29,6 +29,9 @@ export const AcmeMobileConfig = HttpApiEndpoint.put("acme")`/acme/${ClientIdenti
   ).setHeaders(
     Schemas.Token.TokenHeaders,
   )
+  .setUrlParams(
+    Schemas.Token.AuthQueryParams,
+  )
 
 export type AcmeMobileConfigEndpoint = typeof AcmeMobileConfig
 

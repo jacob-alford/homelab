@@ -43,10 +43,12 @@ in
               "Config_ACME"
               "Config_Certs"
               "Status_Health"
+              "OAuth_ClaimCheck"
             ];
             "homelab.access" = [
               "Config_Wifi"
               "Config_Certs"
+              "OAuth_ClaimCheck"
             ];
           };
         };

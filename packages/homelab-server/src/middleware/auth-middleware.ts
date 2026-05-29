@@ -1,4 +1,4 @@
-import { Headers, HttpServerRequest } from "@effect/platform"
+import { Headers, HttpServerRequest, UrlParams } from "@effect/platform"
 import { Array, Effect, flow, Layer, Option, String } from "effect"
 import { constTrue } from "effect/Function"
 import { ApiErrors, Config, Middleware, type Schemas, Services } from "homelab-services"
@@ -41,11 +41,23 @@ export const AuthMiddlewareLive = Layer.effect(
   Middleware.AuthMiddleware,
   Effect.gen(function*() {
     const authService = yield* Services.AuthenticationService.AuthenticationService
+    const claimCheckService = yield* Services.ClaimCheckService.ClaimCheckService
     const origin = yield* Config.Env.originUrl
 
     // @effect-diagnostics returnEffectInGen:off
     return Effect.gen(function*() {
       const request = yield* HttpServerRequest.HttpServerRequest
+      const urlParamsBody = yield* request.urlParamsBody.pipe(
+        Effect.mapError(
+          (error) => new ApiErrors.InternalServerError({ error, message: "Failed to parse url params" }),
+        ),
+      )
+
+      const claimCheck = UrlParams.getFirst(urlParamsBody, "claim_check")
+
+      if (Option.isSome(claimCheck)) {
+        return yield* claimCheckService.validate(claimCheck.value)
+      }
 
       const jwt = yield* Headers.get(request.headers, "authorization").pipe(
         Option.map(extractBearerTokens),
