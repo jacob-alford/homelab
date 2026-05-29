@@ -4,7 +4,7 @@ import { onMount } from "solid-js"
 import { $token, consumeReturnUrl, handleOIDCCallback } from "../lib/auth/index.js"
 import { AstroConfigProvider } from "../lib/config-provider.js"
 import { SessionStorageServiceLive } from "../lib/storage/index.js"
-import { showErrorToast } from "./Toast.js"
+import { showErrorToast } from "./Toast/index.js"
 
 const RuntimeLayer = Layer.mergeAll(FetchHttpClient.layer, SessionStorageServiceLive)
 
