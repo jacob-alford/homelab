@@ -133,7 +133,7 @@ class IssuerJwkResolverImpl implements Config.IssuerJwkResolver.IssuerJwkResolve
   ) {}
 
   isLocalIssuer(issuer: string): boolean {
-    return HashMap.has(this.jwkKeyMap, issuer)
+    return HashMap.has(this.jwkMap, issuer)
   }
 
   getJwkKeyVerifier(issuer: string): Option.Option<JWTVerifyGetKey> {
