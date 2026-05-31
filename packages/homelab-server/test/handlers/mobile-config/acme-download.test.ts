@@ -14,6 +14,7 @@ const downloadArgs = (
   path: { clientIdentifier },
   request: {} as any,
   headers: {},
+  urlParams: {},
 })
 
 const viewOnlyIdentity = new Identity.OIDCIdentity(

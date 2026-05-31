@@ -73,7 +73,11 @@ class OIDCAuthenticationServiceImpl implements Services.OIDCAuthenticationServic
 
       const parsedJwt = yield* pipe(rawJwt.payload, Schema.decodeUnknown(Schemas.OAuth.HomelabIdentityJWT))
 
-      return new Identity.OIDCIdentity(parsedJwt.email, parsedJwt[Constants.JWT_ROLES_KEY])
+      return new Identity.OIDCIdentity(
+        parsedJwt.email,
+        parsedJwt[Constants.JWT_ROLES_KEY],
+        parsedJwt.preferred_username?.split("@")[0],
+      )
     }).pipe(
       Effect.catchTag(
         "ParseError",

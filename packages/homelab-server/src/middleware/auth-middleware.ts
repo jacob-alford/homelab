@@ -1,4 +1,4 @@
-import { Headers, HttpServerRequest, UrlParams } from "@effect/platform"
+import { Headers, HttpServerRequest } from "@effect/platform"
 import { Array, Effect, flow, Layer, Option, String } from "effect"
 import { constTrue } from "effect/Function"
 import { ApiErrors, Config, Middleware, type Schemas, Services } from "homelab-services"
@@ -47,13 +47,24 @@ export const AuthMiddlewareLive = Layer.effect(
     // @effect-diagnostics returnEffectInGen:off
     return Effect.gen(function*() {
       const request = yield* HttpServerRequest.HttpServerRequest
-      const urlParamsBody = yield* request.urlParamsBody.pipe(
-        Effect.mapError(
-          (error) => new ApiErrors.InternalServerError({ error, message: "Failed to parse url params" }),
-        ),
-      )
 
-      const claimCheck = UrlParams.getFirst(urlParamsBody, "claim_check")
+      const claimCheck = yield* Effect.try({
+        try() {
+          return Option.gen(function*() {
+            const query = yield* Option.fromNullable(request.url.split("?")[1] ?? null)
+
+            const urlParams = new URLSearchParams(query)
+
+            return yield* Option.fromNullable(urlParams.get("claim_check"))
+          })
+        },
+        catch(error) {
+          return new ApiErrors.InternalServerError({
+            error,
+            message: "Unexpectedly failed to parse request URL",
+          })
+        },
+      })
 
       if (Option.isSome(claimCheck)) {
         return yield* claimCheckService.validate(claimCheck.value)
@@ -88,7 +99,7 @@ export const AuthMiddlewareLive = Layer.effect(
       const htu = new URL(request.url, origin)
       const htm = request.method as Schemas.HTTPMethod.HTTPMethod
 
-      return yield* authService.authenticate(jwt, htu, htm, dpopTokens)
+      const id = yield* authService.authenticate(jwt, htu, htm, dpopTokens)
         .pipe(
           Effect.catchTags({
             NonceValidationError(error) {
@@ -106,6 +117,8 @@ export const AuthMiddlewareLive = Layer.effect(
             },
           }),
         )
+
+      return id
     })
   }),
 )

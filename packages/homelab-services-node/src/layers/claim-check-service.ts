@@ -40,7 +40,7 @@ class ClaimCheckServiceImpl implements Services.ClaimCheckService.ClaimCheckServ
     return Effect.gen(this, function*() {
       const cacheItem = HashMap.get(this.claimCheckCache, claimCheck)
 
-      return yield* Option.match(cacheItem, {
+      const identity = yield* Option.match(cacheItem, {
         onNone() {
           return Effect.fail(
             new ApiErrors.AuthenticationError({
@@ -62,6 +62,12 @@ class ClaimCheckServiceImpl implements Services.ClaimCheckService.ClaimCheckServ
           )
         },
       })
+
+      yield* Effect.sync(() => {
+        this.claimCheckCache = HashMap.remove(this.claimCheckCache, claimCheck)
+      })
+
+      return identity
     })
   }
 }

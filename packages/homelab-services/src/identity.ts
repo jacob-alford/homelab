@@ -57,12 +57,15 @@ export class OIDCIdentity extends IdentityBase implements Permissions {
   constructor(
     public readonly email: string,
     private readonly groups: ScopeOrGroupSet,
+    private readonly username?: string,
   ) {
     super(email)
   }
 
   get principle() {
-    return this.email.split("@")[0]
+    const emailName = this.email.split("@")[0]
+
+    return this.username ?? emailName
   }
 
   hasPermission(group: ScopeOrGroup) {
