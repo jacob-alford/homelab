@@ -13,7 +13,7 @@ export function getUsernameFromToken(): string {
   if (!token?.id_token) return ""
   const payload = decodeIdTokenPayload(token.id_token)
   if (!payload) return ""
-  const email = (payload.email ?? payload.preferred_username ?? "") as string
+  const email = (payload.preferred_username ?? payload.email ?? "") as string
   const atIndex = email.indexOf("@")
   return atIndex > 0 ? email.slice(0, atIndex) : email
 }

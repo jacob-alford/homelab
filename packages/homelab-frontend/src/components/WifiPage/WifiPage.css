@@ -240,3 +240,8 @@
   outline: none;
   border-color: var(--border-strong);
 }
+
+.wifi-page__description a {
+  color: var(--interactive-primary);
+  text-decoration: underline;
+}

@@ -19,7 +19,7 @@
     "@effect/platform": "^0.94.x",
     "@kobalte/core": "^0.13.11",
     "@nanostores/solid": "^1.1.1",
-    "astro": "^6.0.8",
+    "astro": "^6.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "effect": "^3.x",

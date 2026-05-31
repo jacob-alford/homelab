@@ -30,5 +30,5 @@ export function OAuthCallback() {
     })
   })
 
-  return <p>Authenticating...</p>
+  return null
 }
