@@ -101,7 +101,7 @@
                 dprint
                 eslint
                 yarn-berry
-                nodejs_24
+                nodejs_26
                 # typescript
                 # typescript-language-server
                 python3
