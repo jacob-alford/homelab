@@ -8,7 +8,6 @@
 
       services.displayManager.gdm = {
         enable = true;
-        wayland = true;
       };
 
       services.gnome.gcr-ssh-agent.enable = false;
