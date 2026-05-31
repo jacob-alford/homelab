@@ -12,9 +12,8 @@ in
   flake.packages.x86_64-linux.homelab-ui =
     let
       pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
-      pkgs-unstable = inputs.nixpkgs-unstable.legacyPackages.x86_64-linux;
       filter = inputs.nix-filter.lib;
-      fetcher = pkgs-unstable.yarn-berry_4-fetcher;
+      fetcher = pkgs.yarn-berry_4-fetcher;
 
       src = filter {
         root = self;
@@ -45,8 +44,8 @@ in
       inherit src yarnOfflineCache missingHashes;
 
       nativeBuildInputs = [
-        pkgs-unstable.nodejs_26
-        pkgs-unstable.yarn-berry
+        pkgs.nodejs_26
+        pkgs.yarn-berry
         fetcher.yarnBerryConfigHook
       ];
 

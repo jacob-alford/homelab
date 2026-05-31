@@ -62,7 +62,6 @@
         perSystem =
           { pkgs, system, ... }:
           let
-            pkgs-unstable = import nixpkgs-unstable { inherit system; };
             dprintPlugins = with pkgs.dprint-plugins; [
               dprint-plugin-typescript
               dprint-plugin-json
@@ -94,7 +93,7 @@
             };
 
             devshells.default = {
-              packages = with pkgs-unstable; [
+              packages = with pkgs; [
                 # NixOS tooling
                 sops
                 age
@@ -126,7 +125,7 @@
                 {
                   name = "update-missing-hashes";
                   help = "Regenerate missing-hashes.json for Nix yarn-berry builds";
-                  command = "${pkgs-unstable.yarn-berry_4-fetcher.yarn-berry-fetcher}/bin/yarn-berry-fetcher missing-hashes yarn.lock 2>/dev/null | grep -v '^CacheKey\\|^Success\\|^$' > missing-hashes.json";
+                  command = "${pkgs.yarn-berry_4-fetcher.yarn-berry-fetcher}/bin/yarn-berry-fetcher missing-hashes yarn.lock 2>/dev/null | grep -v '^CacheKey\\|^Success\\|^$' > missing-hashes.json";
                 }
                 {
                   name = "remote-build-cicero";

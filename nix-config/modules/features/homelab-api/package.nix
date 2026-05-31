@@ -8,9 +8,8 @@
   flake.packages.x86_64-linux.homelab-api =
     let
       pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
-      pkgs-unstable = inputs.nixpkgs-unstable.legacyPackages.x86_64-linux;
       filter = inputs.nix-filter.lib;
-      fetcher = pkgs-unstable.yarn-berry_4-fetcher;
+      fetcher = pkgs.yarn-berry_4-fetcher;
 
       src = filter {
         root = self;
@@ -41,8 +40,8 @@
       inherit src yarnOfflineCache missingHashes;
 
       nativeBuildInputs = [
-        pkgs-unstable.nodejs_26
-        pkgs-unstable.yarn-berry
+        pkgs.nodejs_26
+        pkgs.yarn-berry
         fetcher.yarnBerryConfigHook
       ];
 
@@ -62,7 +61,7 @@
 
         cat > $out/bin/homelab-api <<EOF
         #!/bin/sh
-        exec ${pkgs-unstable.nodejs_26}/bin/node $out/lib/homelab-api.js "\$@"
+        exec ${pkgs.nodejs_26}/bin/node $out/lib/homelab-api.js "\$@"
         EOF
         chmod +x $out/bin/homelab-api
         runHook postInstall
