@@ -60,8 +60,9 @@
         ];
 
         perSystem =
-          { pkgs, ... }:
+          { pkgs, system, ... }:
           let
+            pkgs-unstable = import nixpkgs-unstable { inherit system; };
             dprintPlugins = with pkgs.dprint-plugins; [
               dprint-plugin-typescript
               dprint-plugin-json
@@ -93,7 +94,7 @@
             };
 
             devshells.default = {
-              packages = with pkgs; [
+              packages = with pkgs-unstable; [
                 # NixOS tooling
                 sops
                 age

@@ -16,25 +16,29 @@ in
     in
     {
       services.kanidm = {
-        package = pkgs.kanidmWithSecretProvisioning_1_9;
+        package = pkgs.kanidmWithSecretProvisioning_1_10;
 
-        enableClient = true;
-        clientSettings.uri = config.services.kanidm.serverSettings.origin;
+        client = {
+          enable = true;
+          settings.uri = config.services.kanidm.server.settings.origin;
+        };
 
-        enableServer = true;
-        serverSettings = {
-          domain = svc.domain;
-          origin = "https://${svc.domain}";
-          trust_x_forward_for = true;
-          ldapbindaddress = "127.0.0.1:636";
-          bindaddress = "127.0.0.1:8443";
+        server = {
+          enable = true;
+          settings = {
+            domain = svc.domain;
+            origin = "https://${svc.domain}";
+            trust_x_forward_for = true;
+            ldapbindaddress = "127.0.0.1:636";
+            bindaddress = "127.0.0.1:8443";
 
-          tls_key = "${directory}/key.pem";
-          tls_chain = "${directory}/fullchain.pem";
+            tls_key = "${directory}/key.pem";
+            tls_chain = "${directory}/fullchain.pem";
 
-          online_backup = {
-            versions = 7;
-            path = svc.backupPath;
+            online_backup = {
+              versions = 7;
+              path = svc.backupPath;
+            };
           };
         };
 

@@ -14,20 +14,21 @@
 
   services.resolved = {
     enable = true;
-    dnssec = "true";
-    domains = [ "~." ];
-    dnsovertls = "true";
-    fallbackDns = [
-      "45.90.28.103"
-      "45.90.30.103"
-    ];
-    extraConfig = ''
-      DNS=45.90.28.0#augustus-cbc883.dns.nextdns.io
-      DNS=2a07:a8c0::#augustus-cbc883.dns.nextdns.io
-      DNS=45.90.30.0#augustus-cbc883.dns.nextdns.io
-      DNS=2a07:a8c1::#augustus-cbc883.dns.nextdns.io
-      DNSOverTLS=yes
-    '';
+    settings.Resolve = {
+      DNS = [
+        "45.90.28.0#augustus-cbc883.dns.nextdns.io"
+        "2a07:a8c0::#augustus-cbc883.dns.nextdns.io"
+        "45.90.30.0#augustus-cbc883.dns.nextdns.io"
+        "2a07:a8c1::#augustus-cbc883.dns.nextdns.io"
+      ];
+      FallbackDNS = [
+        "45.90.28.103"
+        "45.90.30.103"
+      ];
+      Domains = [ "~." ];
+      DNSSEC = "true";
+      DNSOverTLS = "yes";
+    };
   };
 
   time.timeZone = "America/Denver";
