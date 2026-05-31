@@ -63,6 +63,13 @@
           { pkgs, system, ... }:
           let
             pkgs-unstable = import nixpkgs-unstable { inherit system; };
+            buildNodeJs = pkgs-unstable.callPackage "${nixpkgs-unstable}/pkgs/development/web/nodejs/nodejs.nix" {
+              python = pkgs-unstable.python3;
+            };
+            nodejs_24_14 = (buildNodeJs {
+              version = "24.14.1";
+              sha256 = "sha256-eCJQdxPyAs8qVRiZ0lAllkP0d7ZxcG20Iab7VcSqCZE=";
+            }).overrideAttrs { doCheck = false; };
             dprintPlugins = with pkgs.dprint-plugins; [
               dprint-plugin-typescript
               dprint-plugin-json
@@ -102,7 +109,7 @@
                 dprint
                 eslint
                 yarn-berry
-                nodejs_26
+                nodejs_24_14
                 # typescript
                 # typescript-language-server
                 python3
