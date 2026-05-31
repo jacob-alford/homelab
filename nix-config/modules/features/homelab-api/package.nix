@@ -20,9 +20,7 @@
           (filter.matchName "package.json")
           (filter.matchName "yarn.lock")
           (filter.matchName ".yarnrc.yml")
-          (filter.matchName ".pnp.cjs")
-          (filter.matchName ".pnp.loader.mjs")
-          (filter.inDirectory ".yarn")
+          ".yarn/patches"
           (filter.matchName "tsconfig.base.json")
           (filter.inDirectory "packages")
         ];
@@ -32,14 +30,14 @@
       };
 
       nativeBuildInputs = [
-        pkgs.nodejs_24
+        pkgs.nodejs_26
         pkgs.yarn-berry
       ];
 
       buildPhase = ''
         export HOME=$TMPDIR
         export YARN_ENABLE_IMMUTABLE_INSTALLS=false
-        yarn install --mode=skip-build
+        yarn install
         yarn workspace homelab-server build
       '';
 
@@ -50,7 +48,7 @@
 
         cat > $out/bin/homelab-api <<EOF
         #!/bin/sh
-        exec ${pkgs.nodejs_24}/bin/node $out/lib/homelab-api.js "\$@"
+        exec ${pkgs.nodejs_26}/bin/node $out/lib/homelab-api.js "\$@"
         EOF
         chmod +x $out/bin/homelab-api
       '';

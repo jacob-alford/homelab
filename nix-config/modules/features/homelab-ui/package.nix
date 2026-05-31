@@ -24,9 +24,7 @@ in
           (filter.matchName "package.json")
           (filter.matchName "yarn.lock")
           (filter.matchName ".yarnrc.yml")
-          (filter.matchName ".pnp.cjs")
-          (filter.matchName ".pnp.loader.mjs")
-          (filter.inDirectory ".yarn")
+          ".yarn/patches"
           (filter.matchName "tsconfig.base.json")
           (filter.inDirectory "packages")
         ];
@@ -36,7 +34,7 @@ in
       };
 
       nativeBuildInputs = [
-        pkgs.nodejs_24
+        pkgs.nodejs_26
         pkgs.yarn-berry
       ];
 
@@ -47,7 +45,7 @@ in
         export PUBLIC_OIDC_WELL_KNOWN_URL="${svc.oidcEndpoint}"
         export PUBLIC_OIDC_CLIENT_ID="${svc.clientId}"
         export PUBLIC_IDM_URL="${c.idm.url}"
-        yarn install --mode=skip-build
+        yarn install
         yarn workspace homelab-frontend build
       '';
 
