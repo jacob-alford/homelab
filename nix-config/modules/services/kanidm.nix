@@ -28,7 +28,6 @@ in
           settings = {
             domain = svc.domain;
             origin = "https://${svc.domain}";
-            trust_x_forward_for = true;
             ldapbindaddress = "127.0.0.1:636";
             bindaddress = "127.0.0.1:8443";
 
