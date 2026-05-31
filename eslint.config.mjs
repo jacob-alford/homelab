@@ -1,53 +1,36 @@
 import * as effectEslint from "@effect/eslint-plugin"
-import { fixupPluginRules } from "@eslint/compat"
-import { FlatCompat } from "@eslint/eslintrc"
 import js from "@eslint/js"
-import tsParser from "@typescript-eslint/parser"
 import codegen from "eslint-plugin-codegen"
-import _import from "eslint-plugin-import"
+import importX from "eslint-plugin-import-x"
 import simpleImportSort from "eslint-plugin-simple-import-sort"
 import sortDestructureKeys from "eslint-plugin-sort-destructure-keys"
-import path from "node:path"
-import { fileURLToPath } from "node:url"
+import tseslint from "typescript-eslint"
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-})
-
-export default [
+export default tseslint.config(
   {
     ignores: ["**/dist", "**/build", "**/docs", "**/*.md", ".yarn/**"],
   },
-  ...compat.extends(
-    "eslint:recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended",
-  ),
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
   ...effectEslint.configs.dprint,
   {
     plugins: {
-      import: fixupPluginRules(_import),
+      "import-x": importX,
       "sort-destructure-keys": sortDestructureKeys,
       "simple-import-sort": simpleImportSort,
       codegen,
     },
 
     languageOptions: {
-      parser: tsParser,
       ecmaVersion: 2018,
       sourceType: "module",
     },
 
     settings: {
-      "import/parsers": {
+      "import-x/parsers": {
         "@typescript-eslint/parser": [".ts", ".tsx"],
       },
-
-      "import/resolver": {
+      "import-x/resolver": {
         typescript: {
           alwaysTryTypes: true,
         },
@@ -73,11 +56,11 @@ export default [
       "no-unused-vars": "off",
       "prefer-rest-params": "off",
       "prefer-spread": "off",
-      "import/first": "error",
-      "import/newline-after-import": "error",
-      "import/no-duplicates": "error",
-      "import/no-unresolved": "off",
-      "import/order": "off",
+      "import-x/first": "error",
+      "import-x/newline-after-import": "error",
+      "import-x/no-duplicates": "error",
+      "import-x/no-unresolved": "off",
+      "import-x/order": "off",
       "simple-import-sort/imports": "off",
       "sort-destructure-keys/sort-destructure-keys": "error",
 
@@ -121,4 +104,4 @@ export default [
       }],
     },
   },
-]
+)
