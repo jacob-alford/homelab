@@ -15,7 +15,8 @@
     "circular": "yarn workspaces foreach -Apt run circular",
     "changeset-version": "changeset version && node scripts/version.mjs",
     "changeset-publish": "bun run build && TEST_DIST= vitest && changeset publish",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "yarn-berry-fetcher missing-hashes yarn.lock 2>/dev/null | grep -v '^CacheKey\\|^Success\\|^$' > missing-hashes.json"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.6",

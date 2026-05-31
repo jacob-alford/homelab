@@ -8,11 +8,9 @@
   flake.packages.x86_64-linux.homelab-api =
     let
       pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+      pkgs-unstable = inputs.nixpkgs-unstable.legacyPackages.x86_64-linux;
       filter = inputs.nix-filter.lib;
-    in
-    pkgs.stdenv.mkDerivation {
-      pname = "homelab-api";
-      version = "0.1.0";
+      fetcher = pkgs-unstable.yarn-berry_4-fetcher;
 
       src = filter {
         root = self;
@@ -29,28 +27,45 @@
         ];
       };
 
+      missingHashes = "${self}/missing-hashes.json";
+
+      yarnOfflineCache = fetcher.fetchYarnBerryDeps {
+        inherit src missingHashes;
+        hash = "sha256-/Nerd3sldR0Ae7nR6VycFGUOhncWB/dmJlWfuYMumhc=";
+      };
+    in
+    pkgs.stdenv.mkDerivation {
+      pname = "homelab-api";
+      version = "0.1.0";
+
+      inherit src yarnOfflineCache missingHashes;
+
       nativeBuildInputs = [
-        pkgs.nodejs_26
-        pkgs.yarn-berry
+        pkgs-unstable.nodejs_26
+        pkgs-unstable.yarn-berry
+        fetcher.yarnBerryConfigHook
       ];
 
+      YARN_ENABLE_SCRIPTS = "0";
+
       buildPhase = ''
-        export HOME=$TMPDIR
-        export YARN_ENABLE_IMMUTABLE_INSTALLS=false
-        yarn install
+        runHook preBuild
         yarn workspace homelab-server build
+        runHook postBuild
       '';
 
       installPhase = ''
+        runHook preInstall
         mkdir -p $out/lib $out/bin
 
         cp packages/homelab-server/dist/bundle.js $out/lib/homelab-api.js
 
         cat > $out/bin/homelab-api <<EOF
         #!/bin/sh
-        exec ${pkgs.nodejs_26}/bin/node $out/lib/homelab-api.js "\$@"
+        exec ${pkgs-unstable.nodejs_26}/bin/node $out/lib/homelab-api.js "\$@"
         EOF
         chmod +x $out/bin/homelab-api
+        runHook postInstall
       '';
     };
 }

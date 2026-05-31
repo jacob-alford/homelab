@@ -102,6 +102,7 @@
                 dprint
                 yarn-berry
                 nodejs_26
+                yarn-berry_4-fetcher.yarn-berry-fetcher
                 # typescript
                 # typescript-language-server
                 python3
@@ -121,6 +122,11 @@
                   name = "fmt";
                   help = "Format code with dprint using Nix store plugins";
                   command = "${pkgs.dprint}/bin/dprint fmt --plugins ${pluginArgs}";
+                }
+                {
+                  name = "update-missing-hashes";
+                  help = "Regenerate missing-hashes.json for Nix yarn-berry builds";
+                  command = "${pkgs-unstable.yarn-berry_4-fetcher.yarn-berry-fetcher}/bin/yarn-berry-fetcher missing-hashes yarn.lock 2>/dev/null | grep -v '^CacheKey\\|^Success\\|^$' > missing-hashes.json";
                 }
                 {
                   name = "remote-build-cicero";
