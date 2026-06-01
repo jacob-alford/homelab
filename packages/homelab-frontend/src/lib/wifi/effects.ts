@@ -1,20 +1,20 @@
 import { HttpApiClient } from "@effect/platform"
-import { Effect } from "effect"
+import { Effect, Option } from "effect"
 import { Homelab } from "homelab-api"
-import { $token } from "../auth/index.js"
+import { $auth, $username } from "../auth/index.js"
 import { API_BASE_URL } from "../config.js"
-import { getUsernameFromToken } from "./token-utils.js"
+import { $wifiParams } from "./params.js"
 
-export const downloadAppleProfile = Effect.fn("downloadAppleProfile")(function*(
-  ssid: string,
-  encryption: "WPA2" | "WPA3",
-  password: string,
-  usernameOverride?: string,
-) {
-  const token = $token.get()
-  if (!token?.id_token) return yield* Effect.fail(new Error("Not authenticated"))
+export const downloadAppleProfile = Effect.fn("downloadAppleProfile")(function*() {
+  const auth = $auth.get()
+  const token = yield* auth.token
+  if (!token.id_token) return yield* Effect.fail(new Error("Not authenticated"))
 
-  const username = usernameOverride || getUsernameFromToken()
+  const params = $wifiParams.get()
+  const ssid = yield* params.ssid
+  const password = yield* params.password
+  const encryption = Option.getOrElse(params.encryption, () => "WPA3" as const)
+  const username = Option.orElse(params.username, () => $username.get())
 
   const apiBaseUrl = yield* API_BASE_URL
   const client = yield* HttpApiClient.make(Homelab.HomelabApi, { baseUrl: apiBaseUrl })
@@ -22,10 +22,12 @@ export const downloadAppleProfile = Effect.fn("downloadAppleProfile")(function*(
   const result = yield* client["mobile-config"].wifi({
     path: { ssid, encryption },
     payload: {
-      username: username || undefined,
+      username: Option.getOrUndefined(username),
       password,
-      disableMACRandomization: false,
-      enterpriseClientType: "PEAP",
+      disableMACRandomization: Option.getOrElse(params.disableMACRandomization, () => false),
+      enterpriseClientType: Option.isSome(username)
+        ? Option.getOrUndefined(params.enterpriseClientType)
+        : undefined,
     },
     headers: { authorization: `Bearer ${token.id_token}` },
   })
@@ -41,16 +43,16 @@ export const downloadAppleProfile = Effect.fn("downloadAppleProfile")(function*(
   })
 })
 
-export const fetchClaimCheckAndCopyLink = Effect.fn("fetchClaimCheckAndCopyLink")(function*(
-  ssid: string,
-  encryption: "WPA2" | "WPA3",
-  password: string,
-  usernameOverride?: string,
-) {
-  const token = $token.get()
-  if (!token?.id_token) return yield* Effect.fail(new Error("Not authenticated"))
+export const fetchClaimCheckAndCopyLink = Effect.fn("fetchClaimCheckAndCopyLink")(function*() {
+  const auth = $auth.get()
+  const token = yield* auth.token
+  if (!token.id_token) return yield* Effect.fail(new Error("Not authenticated"))
 
-  const username = usernameOverride || getUsernameFromToken()
+  const params = $wifiParams.get()
+  const ssid = yield* params.ssid
+  const password = yield* params.password
+  const encryption = Option.getOrElse(params.encryption, () => "WPA3" as const)
+  const username = Option.orElse(params.username, () => $username.get())
 
   const apiBaseUrl = yield* API_BASE_URL
   const client = yield* HttpApiClient.make(Homelab.HomelabApi, { baseUrl: apiBaseUrl })
@@ -59,9 +61,21 @@ export const fetchClaimCheckAndCopyLink = Effect.fn("fetchClaimCheckAndCopyLink"
     headers: { authorization: `Bearer ${token.id_token}` },
   })
 
-  const link = `${apiBaseUrl}/mobile-config/wifi/${encodeURIComponent(ssid)}/${encryption}/_download?claim_check=${
-    encodeURIComponent(claim_check)
-  }&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&enterpriseClientType=PEAP`
+  const linkParams = new URLSearchParams({
+    claim_check,
+    password,
+  })
+
+  if (Option.isSome(username)) {
+    linkParams.set("username", username.value)
+    if (Option.isSome(params.enterpriseClientType)) {
+      linkParams.set("enterpriseClientType", params.enterpriseClientType.value)
+    }
+  }
+
+  const link = `${apiBaseUrl}/mobile-config/wifi/${
+    encodeURIComponent(ssid)
+  }/${encryption}/_download?${linkParams.toString()}`
 
   yield* Effect.promise(() => navigator.clipboard.writeText(link))
 })

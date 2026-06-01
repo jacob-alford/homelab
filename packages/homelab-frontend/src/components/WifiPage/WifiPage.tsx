@@ -1,59 +1,44 @@
 import { useStore } from "@nanostores/solid"
-import { createSignal, onMount } from "solid-js"
-import { $token, login } from "../../lib/auth/index.js"
+import { Option } from "effect"
+import { createSignal, onMount, Show } from "solid-js"
+import { $displayName, $isAuthenticated, $username, clearAuth, login } from "../../lib/auth/index.js"
 import {
-  decodeIdTokenPayload,
+  $wifiParams,
   downloadAppleProfile,
   downloadCert,
   fetchClaimCheckAndCopyLink,
-  getUsernameFromToken,
   runEffect,
 } from "../../lib/wifi/index.js"
 import { showErrorToast, showSuccessToast } from "../Toast/index.js"
 import { WifiPageView } from "./WifiPageView.js"
-
-function getQueryParams() {
-  const params = new URLSearchParams(window.location.search)
-  return {
-    ssid: params.get("ssid") ?? "",
-    encryption: (params.get("encryption") as "WPA2" | "WPA3") ?? "WPA2",
-    password: params.get("password") ?? "",
-    username: params.get("username") ?? "",
-  }
-}
+import { WifiSetupView } from "./WifiSetupView.js"
+import "./WifiPage.css"
 
 export function WifiPage() {
-  const token = useStore($token)
-  const [params, setParams] = createSignal({
-    ssid: "",
-    encryption: "WPA3" as "WPA2" | "WPA3",
-    password: "",
-    username: "",
-  })
+  const isAuthenticated = useStore($isAuthenticated)
+  const displayName = useStore($displayName)
+  const username = useStore($username)
+  const params = useStore($wifiParams)
   const [mounted, setMounted] = createSignal(false)
   const [copyingLink, setCopyingLink] = createSignal(false)
-  const [usernameOverride, setUsernameOverride] = createSignal("")
-  const [passwordOverride, setPasswordOverride] = createSignal("")
 
-  const isAuthenticated = () => token() !== null
-  const displayName = () => {
-    const t = token()
-    if (!t?.id_token) return null
-    const payload = decodeIdTokenPayload(t.id_token)
-    return (payload?.name ?? payload?.preferred_username ?? null) as string | null
+  const requiredParams = () => {
+    const p = params()
+    return Option.all({ ssid: p.ssid, encryption: p.encryption, password: p.password })
   }
 
-  const effectivePassword = () => passwordOverride()
-  const effectiveUsername = () => usernameOverride() || getUsernameFromToken()
-  const canDownload = () => !!params().ssid && !!effectivePassword() && !!effectiveUsername()
+  const [confirmed, setConfirmed] = createSignal(Option.isSome(requiredParams()))
 
-  onMount(() => {
-    const p = getQueryParams()
-    setParams(p)
-    setUsernameOverride(p.username)
-    setPasswordOverride(p.password)
-    setMounted(true)
-  })
+  const effectiveUsername = () => Option.orElse(params().username, () => username())
+
+  const canDownload = () => Option.isSome(params().password)
+
+  const canConfirmSetup = () =>
+    Option.isSome(params().ssid)
+    && Option.isSome(params().encryption)
+    && Option.isSome(params().password)
+
+  onMount(() => setMounted(true))
 
   function handleLogin() {
     runEffect(login()).catch((err) => {
@@ -62,19 +47,11 @@ export function WifiPage() {
   }
 
   function handleLogout() {
-    $token.set(null)
+    clearAuth()
   }
 
   function validateFields(): boolean {
-    if (!params().ssid) {
-      showErrorToast("SSID is required")
-      return false
-    }
-    if (!effectiveUsername()) {
-      showErrorToast("Username is required")
-      return false
-    }
-    if (!effectivePassword()) {
+    if (Option.isNone(params().password)) {
       showErrorToast("Password is required")
       return false
     }
@@ -83,31 +60,15 @@ export function WifiPage() {
 
   function handleDownload() {
     if (!validateFields()) return
-    const p = params()
-    runEffect(
-      downloadAppleProfile(
-        p.ssid,
-        p.encryption,
-        effectivePassword(),
-        usernameOverride() || undefined,
-      ),
-    ).catch((err) => {
+    runEffect(downloadAppleProfile()).catch((err) => {
       showErrorToast(err instanceof Error ? err.message : "Failed to download wifi profile")
     })
   }
 
   function handleCopyDownloadLink() {
     if (!validateFields()) return
-    const p = params()
     setCopyingLink(true)
-    runEffect(
-      fetchClaimCheckAndCopyLink(
-        p.ssid,
-        p.encryption,
-        effectivePassword(),
-        usernameOverride() || undefined,
-      ),
-    )
+    runEffect(fetchClaimCheckAndCopyLink())
       .then(() => showSuccessToast("Download link copied to clipboard"))
       .catch((err) => showErrorToast(err instanceof Error ? err.message : "Failed to copy link"))
       .finally(() => setCopyingLink(false))
@@ -120,34 +81,65 @@ export function WifiPage() {
   }
 
   function handleCopyUsername() {
-    navigator.clipboard.writeText(effectiveUsername())
+    Option.match(effectiveUsername(), {
+      onNone: () => {},
+      onSome: (u) => {
+        navigator.clipboard.writeText(u)
+      },
+    })
   }
 
   function handleCopyPassword() {
-    navigator.clipboard.writeText(effectivePassword())
+    Option.match(params().password, {
+      onNone: () => {},
+      onSome: (p) => {
+        navigator.clipboard.writeText(p)
+      },
+    })
   }
 
   return (
-    <WifiPageView
-      mounted={mounted()}
-      ssid={params().ssid}
-      encryption={params().encryption}
-      isAuthenticated={isAuthenticated()}
-      displayName={displayName()}
-      copyingLink={copyingLink()}
-      canDownload={canDownload()}
-      effectiveUsername={effectiveUsername()}
-      usernameOverride={usernameOverride()}
-      passwordOverride={passwordOverride()}
-      onUsernameOverrideChange={setUsernameOverride}
-      onPasswordOverrideChange={setPasswordOverride}
-      onLogin={handleLogin}
-      onLogout={handleLogout}
-      onDownloadAppleProfile={handleDownload}
-      onDownloadCert={handleDownloadCert}
-      onCopyDownloadLink={handleCopyDownloadLink}
-      onCopyUsername={handleCopyUsername}
-      onCopyPassword={handleCopyPassword}
-    />
+    <Show
+      when={confirmed() && Option.getOrUndefined(requiredParams())}
+      keyed
+      fallback={
+        <WifiSetupView
+          ssid={params().ssid}
+          encryption={params().encryption}
+          password={params().password}
+          username={params().username}
+          canConfirm={canConfirmSetup()}
+          onSsidChange={(v) => $wifiParams.setKey("ssid", v ? Option.some(v) : Option.none())}
+          onEncryptionChange={(v) => $wifiParams.setKey("encryption", Option.some(v))}
+          onPasswordChange={(v) => $wifiParams.setKey("password", v ? Option.some(v) : Option.none())}
+          onUsernameChange={(v) => $wifiParams.setKey("username", v ? Option.some(v) : Option.none())}
+          onConfirm={() => setConfirmed(true)}
+        />
+      }
+    >
+      {(required) => (
+        <WifiPageView
+          mounted={mounted()}
+          ssid={required.ssid}
+          encryption={required.encryption}
+          isAuthenticated={isAuthenticated()}
+          displayName={displayName()}
+          copyingLink={copyingLink()}
+          canDownload={canDownload()}
+          effectiveUsername={effectiveUsername()}
+          username={params().username}
+          password={params().password}
+          onUsernameChange={(v) => $wifiParams.setKey("username", v ? Option.some(v) : Option.none())}
+          onPasswordChange={(v) => $wifiParams.setKey("password", v ? Option.some(v) : Option.none())}
+          onLogin={handleLogin}
+          onLogout={handleLogout}
+          onDownloadAppleProfile={handleDownload}
+          onDownloadCert={handleDownloadCert}
+          onCopyDownloadLink={handleCopyDownloadLink}
+          onCopyUsername={handleCopyUsername}
+          onCopyPassword={handleCopyPassword}
+        />
+      )}
+    </Show>
   )
 }

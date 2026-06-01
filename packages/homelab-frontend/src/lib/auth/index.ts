@@ -2,5 +2,5 @@ export { OIDC_CLIENT_ID, OIDC_REDIRECT_PATH, OIDC_WELL_KNOWN_URL } from "./confi
 export { consumeReturnUrl, handleOIDCCallback, login } from "./flow.js"
 export * from "./pkce.js"
 export { TokenResponse } from "./schema.js"
-export { $token } from "./state.js"
+export { $auth, $displayName, $isAuthenticated, $username, clearAuth, setAuth } from "./state.js"
 export { fetchOIDCWellKnown } from "./well-known.js"

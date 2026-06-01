@@ -1,6 +1,7 @@
 import { Button } from "@kobalte/core/button"
 import { Link } from "@kobalte/core/link"
 import { TextField } from "@kobalte/core/text-field"
+import { Option } from "effect"
 import { BiSolidCopy } from "solid-icons/bi"
 import { Show } from "solid-js"
 
@@ -12,10 +13,10 @@ export interface AppleTabProps {
   isAuthenticated: boolean
   canDownload: boolean
   copyingLink: boolean
-  usernameOverride: string
-  passwordOverride: string
-  onUsernameOverrideChange: (value: string) => void
-  onPasswordOverrideChange: (value: string) => void
+  username: Option.Option<string>
+  password: Option.Option<string>
+  onUsernameChange: (value: string) => void
+  onPasswordChange: (value: string) => void
   onDownloadAppleProfile: () => void
   onCopyDownloadLink: () => void
 }
@@ -38,16 +39,16 @@ export function AppleTab(props: AppleTabProps) {
         <div class="wifi-page__overrides">
           <TextField
             class="wifi-page__override-field"
-            value={props.usernameOverride}
-            onChange={props.onUsernameOverrideChange}
+            value={Option.getOrElse(props.username, () => "")}
+            onChange={props.onUsernameChange}
           >
             <TextField.Label class="wifi-page__override-label">Username</TextField.Label>
             <TextField.Input class="wifi-page__override-input" />
           </TextField>
           <TextField
             class="wifi-page__override-field"
-            value={props.passwordOverride}
-            onChange={props.onPasswordOverrideChange}
+            value={Option.getOrElse(props.password, () => "")}
+            onChange={props.onPasswordChange}
           >
             <TextField.Label class="wifi-page__override-label">Password</TextField.Label>
             <TextField.Input class="wifi-page__override-input" />

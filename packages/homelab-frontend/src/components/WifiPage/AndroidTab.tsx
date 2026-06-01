@@ -1,10 +1,11 @@
 import { Button } from "@kobalte/core/button"
+import { Option } from "effect"
 import { BiSolidCopy } from "solid-icons/bi"
 import { Show } from "solid-js"
 
 export interface AndroidTabProps {
   ssid: string
-  effectiveUsername: string
+  effectiveUsername: Option.Option<string>
   onDownloadCert: () => void
   onCopyUsername: () => void
   onCopyPassword: () => void
@@ -25,7 +26,7 @@ export function AndroidTab(props: AndroidTabProps) {
           <p class="wifi-page__description">
             Connect to the wifi network using the credentials below.
           </p>
-          <Show when={!!props.effectiveUsername}>
+          <Show when={Option.isSome(props.effectiveUsername)}>
             <div class="wifi-page__credentials">
               <Button class="wifi-page__copy-btn" onClick={props.onCopyUsername}>
                 <BiSolidCopy />

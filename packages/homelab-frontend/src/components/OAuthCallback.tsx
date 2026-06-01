@@ -1,7 +1,7 @@
 import { FetchHttpClient } from "@effect/platform"
 import { Effect, Layer } from "effect"
 import { onMount } from "solid-js"
-import { $token, consumeReturnUrl, handleOIDCCallback } from "../lib/auth/index.js"
+import { consumeReturnUrl, handleOIDCCallback, setAuth } from "../lib/auth/index.js"
 import { AstroConfigProvider } from "../lib/config-provider.js"
 import { SessionStorageServiceLive } from "../lib/storage/index.js"
 import { showErrorToast } from "./Toast/index.js"
@@ -12,7 +12,7 @@ export function OAuthCallback() {
   onMount(() => {
     const program = Effect.gen(function*() {
       const tokenResponse = yield* handleOIDCCallback()
-      $token.set(tokenResponse)
+      setAuth(tokenResponse)
       const returnUrl = yield* consumeReturnUrl()
       yield* Effect.sync(() => {
         window.location.href = returnUrl
