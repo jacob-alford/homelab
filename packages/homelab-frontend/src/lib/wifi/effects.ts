@@ -21,7 +21,12 @@ export const downloadAppleProfile = Effect.fn("downloadAppleProfile")(function*(
 
   const result = yield* client["mobile-config"].wifi({
     path: { ssid, encryption },
-    payload: { username: username || undefined, password, disableMACRandomization: false },
+    payload: {
+      username: username || undefined,
+      password,
+      disableMACRandomization: false,
+      enterpriseClientType: "PEAP",
+    },
     headers: { authorization: `Bearer ${token.id_token}` },
   })
 
@@ -56,7 +61,7 @@ export const fetchClaimCheckAndCopyLink = Effect.fn("fetchClaimCheckAndCopyLink"
 
   const link = `${apiBaseUrl}/mobile-config/wifi/${encodeURIComponent(ssid)}/${encryption}/_download?claim_check=${
     encodeURIComponent(claim_check)
-  }&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+  }&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&enterpriseClientType=PEAP`
 
   yield* Effect.promise(() => navigator.clipboard.writeText(link))
 })

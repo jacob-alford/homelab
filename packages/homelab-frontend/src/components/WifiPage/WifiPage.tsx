@@ -26,7 +26,7 @@ export function WifiPage() {
   const token = useStore($token)
   const [params, setParams] = createSignal({
     ssid: "",
-    encryption: "WPA2" as "WPA2" | "WPA3",
+    encryption: "WPA3" as "WPA2" | "WPA3",
     password: "",
     username: "",
   })
