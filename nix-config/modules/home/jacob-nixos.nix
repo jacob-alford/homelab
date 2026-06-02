@@ -32,7 +32,7 @@ in
         in
         {
           nixpkgs = {
-            overlays = [ ];
+            overlays = [ inputs.affinity-nix.overlays.default ];
             config = {
               allowUnfree = true;
               allowUnfreePredicate = _: true;
@@ -51,7 +51,7 @@ in
             prismlauncher
             discord
             makemkv
-            protonvpn-gui
+            proton-vpn
             bolt-launcher
             mullvad-browser
             yubikey-manager
@@ -61,9 +61,9 @@ in
             dmidecode
             popsicle
             google-fonts
-            inputs.affinity-nix.packages.x86_64-linux.photo
-            inputs.affinity-nix.packages.x86_64-linux.designer
-            inputs.affinity-nix.packages.x86_64-linux.publisher
+            affinity-photo
+            affinity-designer
+            affinity-publisher
             typst
             pkgs-unstable.kiro-cli
             pkgs-unstable.kiro
@@ -119,16 +119,14 @@ in
           programs.ssh = {
             enable = true;
             enableDefaultConfig = false;
-            matchBlocks = {
+            settings = {
               "augustus.plato-splunk.media" = {
                 inherit identityAgent;
                 user = "jacob";
                 forwardAgent = true;
                 userKnownHostsFile = "~/.step/known_hosts";
                 proxyCommand = "step ssh proxycommand %r %h %p --provisioner \"kanidm\"";
-                extraOptions = {
-                  IdentitiesOnly = "no";
-                };
+                identitiesOnly = false;
               };
               "cicero.plato-splunk.media" = {
                 inherit identityAgent;
@@ -136,9 +134,7 @@ in
                 forwardAgent = true;
                 userKnownHostsFile = "~/.step/known_hosts";
                 proxyCommand = "step ssh proxycommand %r %h %p --provisioner \"kanidm\"";
-                extraOptions = {
-                  IdentitiesOnly = "no";
-                };
+                identitiesOnly = false;
               };
               "mini.plato-splunk.media" = {
                 inherit identityAgent;
@@ -146,9 +142,7 @@ in
                 forwardAgent = true;
                 userKnownHostsFile = "~/.step/known_hosts";
                 proxyCommand = "step ssh proxycommand %r %h %p --provisioner \"kanidm\"";
-                extraOptions = {
-                  IdentitiesOnly = "no";
-                };
+                identitiesOnly = false;
               };
               "exec \"step ssh check-host %h\"" = {
                 inherit identityAgent;
@@ -156,9 +150,7 @@ in
                 forwardAgent = true;
                 userKnownHostsFile = "~/.step/known_hosts";
                 proxyCommand = "step ssh proxycommand %r %h %p --provisioner \"kanidm\"";
-                extraOptions = {
-                  IdentitiesOnly = "no";
-                };
+                identitiesOnly = false;
               };
               "augustus.neko-bicolor.ts.net" = {
                 inherit identityAgent;
