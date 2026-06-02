@@ -64,6 +64,7 @@
 
     --surface-base: var(--color-neutral-50);
     --surface-elevated: oklab(1 0 0);
+    --surface-raised: oklab(1 0 0);
     --surface-overlay: oklab(1 0 0);
     --surface-muted: var(--color-neutral-100);
     --surface-subtle: var(--color-neutral-200);
@@ -130,6 +131,7 @@
 
     --surface-base: var(--color-neutral-950);
     --surface-elevated: var(--color-neutral-900);
+    --surface-raised: var(--color-neutral-800);
     --surface-overlay: var(--color-neutral-800);
     --surface-muted: var(--color-neutral-900);
     --surface-subtle: var(--color-neutral-800);

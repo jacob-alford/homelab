@@ -1,6 +1,8 @@
 import { Button } from "@kobalte/core/button"
+import { Link } from "@kobalte/core/link"
 import { Tabs } from "@kobalte/core/tabs"
 import { Option } from "effect"
+import { FaSolidCircleArrowLeft } from "solid-icons/fa"
 import { Show } from "solid-js"
 import { ToastRegion } from "../Toast/index.js"
 import { AndroidTab } from "./AndroidTab.js"
@@ -27,6 +29,7 @@ export interface WifiPageViewProps {
   onCopyDownloadLink: () => void
   onCopyUsername: () => void
   onCopyPassword: () => void
+  onAdjustParameters: () => void
 }
 
 export function WifiPageView(props: WifiPageViewProps) {
@@ -51,6 +54,11 @@ export function WifiPageView(props: WifiPageViewProps) {
           </Show>
         </Show>
       </nav>
+
+      <Link class="wifi-page__adjust-link" onClick={props.onAdjustParameters}>
+        <FaSolidCircleArrowLeft />
+        <span>Adjust parameters</span>
+      </Link>
 
       <Tabs defaultValue="apple" class="wifi-page__tabs">
         <Tabs.List class="wifi-page__tabs-list">

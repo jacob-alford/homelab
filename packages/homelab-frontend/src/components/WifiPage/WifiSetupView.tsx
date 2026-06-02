@@ -72,8 +72,8 @@ export function WifiSetupView(props: WifiSetupViewProps) {
             value={Option.getOrElse(props.username, () => "")}
             onChange={props.onUsernameChange}
           >
-            <TextField.Label class="wifi-page__override-label">Username (optional)</TextField.Label>
-            <TextField.Input class="wifi-page__override-input" placeholder="Derived from login if empty" />
+            <TextField.Label class="wifi-page__override-label">Username</TextField.Label>
+            <TextField.Input class="wifi-page__override-input" placeholder="Optional" />
           </TextField>
         </div>
 

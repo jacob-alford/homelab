@@ -138,6 +138,7 @@ export function WifiPage() {
           onCopyDownloadLink={handleCopyDownloadLink}
           onCopyUsername={handleCopyUsername}
           onCopyPassword={handleCopyPassword}
+          onAdjustParameters={() => setConfirmed(false)}
         />
       )}
     </Show>

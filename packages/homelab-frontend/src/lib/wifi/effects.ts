@@ -1,5 +1,5 @@
 import { HttpApiClient } from "@effect/platform"
-import { Effect, Option } from "effect"
+import { Console, Effect, Option } from "effect"
 import { Homelab } from "homelab-api"
 import { $auth, $username } from "../auth/index.js"
 import { API_BASE_URL } from "../config.js"
@@ -7,14 +7,17 @@ import { $wifiParams } from "./params.js"
 
 export const downloadAppleProfile = Effect.fn("downloadAppleProfile")(function*() {
   const auth = $auth.get()
-  const token = yield* auth.token
-  if (!token.id_token) return yield* Effect.fail(new Error("Not authenticated"))
-
   const params = $wifiParams.get()
   const ssid = yield* params.ssid
   const password = yield* params.password
   const encryption = Option.getOrElse(params.encryption, () => "WPA3" as const)
+
+  const token = Option.getOrUndefined(auth.token)
   const username = Option.orElse(params.username, () => $username.get())
+
+  if (Option.isSome(username) && username.value !== "guest" && !token?.id_token) {
+    return yield* Effect.fail(new Error("Login required to download profiles with a non-guest username"))
+  }
 
   const apiBaseUrl = yield* API_BASE_URL
   const client = yield* HttpApiClient.make(Homelab.HomelabApi, { baseUrl: apiBaseUrl })
@@ -25,11 +28,11 @@ export const downloadAppleProfile = Effect.fn("downloadAppleProfile")(function*(
       username: Option.getOrUndefined(username),
       password,
       disableMACRandomization: Option.getOrElse(params.disableMACRandomization, () => false),
-      enterpriseClientType: Option.isSome(username)
-        ? Option.getOrUndefined(params.enterpriseClientType)
-        : undefined,
+      ...Option.isSome(username)
+        ? { enterpriseClientType: "PEAP" as const }
+        : {},
     },
-    headers: { authorization: `Bearer ${token.id_token}` },
+    ...token?.id_token ? { headers: { authorization: `Bearer ${token.id_token}` } } : { headers: {} },
   })
 
   yield* Effect.sync(() => {
@@ -41,7 +44,7 @@ export const downloadAppleProfile = Effect.fn("downloadAppleProfile")(function*(
     a.click()
     URL.revokeObjectURL(url)
   })
-})
+}, Effect.tapError(Console.error))
 
 export const fetchClaimCheckAndCopyLink = Effect.fn("fetchClaimCheckAndCopyLink")(function*() {
   const auth = $auth.get()
@@ -68,9 +71,11 @@ export const fetchClaimCheckAndCopyLink = Effect.fn("fetchClaimCheckAndCopyLink"
 
   if (Option.isSome(username)) {
     linkParams.set("username", username.value)
-    if (Option.isSome(params.enterpriseClientType)) {
-      linkParams.set("enterpriseClientType", params.enterpriseClientType.value)
-    }
+    linkParams.set("enterpriseClientType", "PEAP")
+  }
+
+  if (Option.getOrElse(params.disableMACRandomization, () => false)) {
+    linkParams.set("disableMACRandomization", "true")
   }
 
   const link = `${apiBaseUrl}/mobile-config/wifi/${
@@ -78,7 +83,7 @@ export const fetchClaimCheckAndCopyLink = Effect.fn("fetchClaimCheckAndCopyLink"
   }/${encryption}/_download?${linkParams.toString()}`
 
   yield* Effect.promise(() => navigator.clipboard.writeText(link))
-})
+}, Effect.tapError(Console.error))
 
 export const downloadCert = Effect.gen(function*() {
   const apiBaseUrl = yield* API_BASE_URL

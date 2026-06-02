@@ -5,6 +5,7 @@
   max-width: 48rem;
   margin: 0 auto;
   width: 100%;
+  overflow-x: hidden;
 }
 
 .wifi-page__topbar {
@@ -259,6 +260,18 @@
   gap: var(--space-sm);
   align-items: center;
   flex-wrap: wrap;
+}
+
+.wifi-page__adjust-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+  margin-bottom: var(--space-sm);
+  padding-left: var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
 }
 
 .wifi-page__spinner {
