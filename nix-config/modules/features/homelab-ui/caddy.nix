@@ -10,6 +10,7 @@ in
       services.caddy.virtualHosts."${svc.frontendUrl}" = {
         extraConfig = ''
           root * ${pkg}
+          header /*.html Cache-Control "no-cache, must-revalidate"
           file_server
         '';
       };
