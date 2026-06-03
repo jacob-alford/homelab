@@ -1,9 +1,9 @@
-import { Context, Effect } from "effect"
+import { Context, Effect, type Option } from "effect"
 import type { OIDCWellKnown } from "../schemas/OIDC.js"
 
 export interface RemoteOIDCConfig {
   /** The fetched OIDC well-known configuration for the Kanidm identity provider. */
-  kanidm: OIDCWellKnown
+  kanidm: Option.Option<OIDCWellKnown>
 }
 
 export type RemoteOIDCProviders = keyof RemoteOIDCConfig

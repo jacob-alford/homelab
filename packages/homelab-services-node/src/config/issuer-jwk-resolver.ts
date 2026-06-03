@@ -1,5 +1,5 @@
 import { FetchHttpClient, FileSystem } from "@effect/platform"
-import { Data, Effect, flow, HashMap, Layer, Option, Schema } from "effect"
+import { Data, Effect, flow, HashMap, Layer, Option, Schema, Tuple } from "effect"
 import { Config, Schemas, StartupErrors, Utils } from "homelab-services"
 import type { JWTVerifyGetKey } from "jose"
 import { createLocalJWKSet, createRemoteJWKSet, customFetch, flattenedDecrypt, importJWK } from "jose"
@@ -108,12 +108,16 @@ export const IssuerJwkResolverLive = Layer.effect(
         Option.toArray,
       )
 
+    const remoteKeysets: typeof localKeysets = remoteOIDCKanidm.pipe(
+      Option.map(
+        ({ issuer, jwksUri }) => Tuple.make(issuer, createRemoteJWKSet(jwksUri, { [customFetch]: fetch })),
+      ),
+      Option.toArray,
+    )
+
     return new IssuerJwkResolverImpl(
       HashMap.fromIterable([
-        [
-          remoteOIDCKanidm.issuer,
-          createRemoteJWKSet(remoteOIDCKanidm.jwksUri, { [customFetch]: fetch }),
-        ],
+        ...remoteKeysets,
         ...localKeysets,
       ]),
       HashMap.fromIterable([

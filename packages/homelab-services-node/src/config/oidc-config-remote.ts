@@ -1,5 +1,5 @@
 import { HttpClient, HttpClientResponse } from "@effect/platform"
-import { Effect, Layer } from "effect"
+import { Console, Effect, Layer } from "effect"
 import { Config, Schemas } from "homelab-services"
 
 export const RemoteOIDCWellKnownDetailsServiceLive = Layer.effect(
@@ -19,6 +19,8 @@ export const RemoteOIDCWellKnownDetailsServiceLive = Layer.effect(
       Effect.andThen(
         HttpClientResponse.schemaBodyJson(Schemas.OIDC.OIDCWellKnown),
       ),
+      Effect.tapError(Console.error),
+      Effect.option,
     )
 
     return {

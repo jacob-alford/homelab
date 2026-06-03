@@ -69,7 +69,7 @@ export const makeTestEnvWithFlags = (
 const TestRemoteOIDCWellKnownDetails = Layer.succeed(
   ServicesConfig.OIDCConfigRemote.RemoteOIDCWellKnownDetailsService,
   {
-    kanidm: {
+    kanidm: Option.some({
       issuer: "https://kanidm.test/oauth2/openid/test",
       authorizationEndpoint: "https://kanidm.test/ui/oauth2",
       tokenEndpoint: "https://kanidm.test/oauth2/token",
@@ -77,7 +77,7 @@ const TestRemoteOIDCWellKnownDetails = Layer.succeed(
       jwksUri: new URL("https://kanidm.test/oauth2/openid/test/public_key.jwk"),
       revocationEndpoint: new URL("https://kanidm.test/oauth2/revoke"),
       introspectionEndpoint: new URL("https://kanidm.test/oauth2/introspect"),
-    },
+    }),
   },
 )
 
