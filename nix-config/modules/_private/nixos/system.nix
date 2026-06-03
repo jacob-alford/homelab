@@ -3,6 +3,8 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+
   system.autoUpgrade = {
     enable = true;
     dates = "04:00";
