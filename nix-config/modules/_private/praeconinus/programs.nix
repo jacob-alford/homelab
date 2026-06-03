@@ -34,22 +34,22 @@ in
 
   services.caddy.virtualHosts."https://praeconinus.neko-bicolor.ts.net" = {
     extraConfig = ''
+      map {query} {fullquery} {
+          ~(.+)   "?$1"
+          default ""
+      }
+
+      @toUI path / /ui
+      redir @toUI /ui/{fullquery} permanent
+
       handle_path /api/* {
-        reverse_proxy 127.0.0.1:35427
+          reverse_proxy 127.0.0.1:35427
       }
 
       handle_path /ui/* {
-        root * ${uiPkg}
-        header /*.html Cache-Control "no-cache, must-revalidate"
-        file_server
-      }
-
-      handle {
-        redir / /ui/?{query} permanent
-      }
-
-      handle {
-        redir /ui /ui/?{query} permanent
+          root * ${uiPkg}
+          header /*.html Cache-Control "no-cache, must-revalidate"
+          file_server
       }
     '';
   };
