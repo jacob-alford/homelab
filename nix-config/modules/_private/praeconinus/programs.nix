@@ -47,6 +47,10 @@ in
       handle {
         redir / /ui/ permanent
       }
+
+      handle {
+        redir /ui /ui/ permanent
+      }
     '';
   };
 }
