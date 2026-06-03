@@ -102,8 +102,8 @@
                 yarn-berry
                 nodejs_26
                 yarn-berry_4-fetcher.yarn-berry-fetcher
-                # typescript
-                # typescript-language-server
+                typescript
+                typescript-language-server
                 python3
               ];
               env = [
