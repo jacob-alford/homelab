@@ -7,11 +7,17 @@
 let
   c = config.constants;
   svc = c.services.homelab;
-in
-{
-  flake.packages.x86_64-linux.homelab-ui =
+
+  mkHomelabUi =
+    {
+      pkgs,
+      apiBaseUrl,
+      basePath ? "/",
+      oidcWellKnownUrl ? null,
+      oidcClientId ? null,
+      idmUrl ? null,
+    }:
     let
-      pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
       filter = inputs.nix-filter.lib;
       fetcher = pkgs.yarn-berry_4-fetcher;
 
@@ -36,6 +42,9 @@ in
         inherit src missingHashes;
         hash = "sha256-/Nerd3sldR0Ae7nR6VycFGUOhncWB/dmJlWfuYMumhc=";
       };
+
+      optionalExport = name: value:
+        if value != null then "export ${name}=\"${value}\"" else "";
     in
     pkgs.stdenv.mkDerivation {
       pname = "homelab-ui";
@@ -53,10 +62,11 @@ in
 
       buildPhase = ''
         runHook preBuild
-        export PUBLIC_API_BASE_URL="${svc.url}"
-        export PUBLIC_OIDC_WELL_KNOWN_URL="${svc.oidcEndpoint}"
-        export PUBLIC_OIDC_CLIENT_ID="${svc.clientId}"
-        export PUBLIC_IDM_URL="${c.idm.url}"
+        export PUBLIC_API_BASE_URL="${apiBaseUrl}"
+        export PUBLIC_BASE_PATH="${basePath}"
+        ${optionalExport "PUBLIC_OIDC_WELL_KNOWN_URL" oidcWellKnownUrl}
+        ${optionalExport "PUBLIC_OIDC_CLIENT_ID" oidcClientId}
+        ${optionalExport "PUBLIC_IDM_URL" idmUrl}
         yarn workspace homelab-frontend build
         runHook postBuild
       '';
@@ -68,4 +78,19 @@ in
         runHook postInstall
       '';
     };
+in
+{
+  flake.packages.x86_64-linux.homelab-ui = mkHomelabUi {
+    pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+    apiBaseUrl = svc.url;
+    oidcWellKnownUrl = svc.oidcEndpoint;
+    oidcClientId = svc.clientId;
+    idmUrl = c.idm.url;
+  };
+
+  flake.packages.aarch64-linux.homelab-ui = mkHomelabUi {
+    pkgs = inputs.nixpkgs.legacyPackages.aarch64-linux;
+    apiBaseUrl = "https://praeconinus.neko-bicolor.ts.net/api";
+    basePath = "/ui";
+  };
 }

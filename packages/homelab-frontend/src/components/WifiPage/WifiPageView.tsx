@@ -13,6 +13,7 @@ export interface WifiPageViewProps {
   mounted: boolean
   ssid: string
   encryption: "WPA2" | "WPA3"
+  oidcEnabled: boolean
   isAuthenticated: boolean
   displayName: Option.Option<string>
   copyingLink: boolean
@@ -36,7 +37,7 @@ export function WifiPageView(props: WifiPageViewProps) {
   return (
     <div class="wifi-page">
       <nav class="wifi-page__topbar">
-        <Show when={props.mounted}>
+        <Show when={props.mounted && props.oidcEnabled}>
           <Show
             when={props.isAuthenticated}
             fallback={
@@ -71,6 +72,7 @@ export function WifiPageView(props: WifiPageViewProps) {
           <AppleTab
             ssid={props.ssid}
             encryption={props.encryption}
+            oidcEnabled={props.oidcEnabled}
             isAuthenticated={props.isAuthenticated}
             canDownload={props.canDownload}
             copyingLink={props.copyingLink}

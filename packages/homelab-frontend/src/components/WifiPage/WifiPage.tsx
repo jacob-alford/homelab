@@ -1,7 +1,7 @@
 import { useStore } from "@nanostores/solid"
 import { Option } from "effect"
 import { createSignal, onMount, Show } from "solid-js"
-import { $displayName, $isAuthenticated, $username, clearAuth, login } from "../../lib/auth/index.js"
+import { $displayName, $isAuthenticated, $username, clearAuth, login, oidcEnabled } from "../../lib/auth/index.js"
 import {
   $wifiParams,
   downloadAppleProfile,
@@ -122,6 +122,7 @@ export function WifiPage() {
           mounted={mounted()}
           ssid={required.ssid}
           encryption={required.encryption}
+          oidcEnabled={oidcEnabled}
           isAuthenticated={isAuthenticated()}
           displayName={displayName()}
           copyingLink={copyingLink()}

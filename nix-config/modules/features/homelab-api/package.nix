@@ -4,10 +4,9 @@
   inputs,
   ...
 }:
-{
-  flake.packages.x86_64-linux.homelab-api =
+let
+  mkHomelabApi = { pkgs }:
     let
-      pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
       filter = inputs.nix-filter.lib;
       fetcher = pkgs.yarn-berry_4-fetcher;
 
@@ -67,4 +66,13 @@
         runHook postInstall
       '';
     };
+in
+{
+  flake.packages.x86_64-linux.homelab-api = mkHomelabApi {
+    pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+  };
+
+  flake.packages.aarch64-linux.homelab-api = mkHomelabApi {
+    pkgs = inputs.nixpkgs.legacyPackages.aarch64-linux;
+  };
 }

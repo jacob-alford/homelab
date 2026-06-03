@@ -17,7 +17,7 @@ in
       homeDir = cfg.userHomeDir;
       pubJwk = "${homeDir}/jwk.pub.json";
       privJwk = "${homeDir}/jwk.priv.json";
-      pkg = inputs.self.packages.x86_64-linux.homelab-api;
+      pkg = inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.homelab-api;
     in
     {
       options.services.homelab-api = {

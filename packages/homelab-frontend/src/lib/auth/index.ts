@@ -1,4 +1,5 @@
 export { OIDC_CLIENT_ID, OIDC_REDIRECT_PATH, OIDC_WELL_KNOWN_URL } from "./config.js"
+export { oidcEnabled } from "./enabled.js"
 export { consumeReturnUrl, handleOIDCCallback, login } from "./flow.js"
 export * from "./pkce.js"
 export { TokenResponse } from "./schema.js"

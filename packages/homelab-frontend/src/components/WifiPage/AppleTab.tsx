@@ -10,6 +10,7 @@ const IDM_URL = import.meta.env.PUBLIC_IDM_URL
 export interface AppleTabProps {
   ssid: string
   encryption: "WPA2" | "WPA3"
+  oidcEnabled: boolean
   isAuthenticated: boolean
   canDownload: boolean
   copyingLink: boolean
@@ -27,7 +28,7 @@ export function AppleTab(props: AppleTabProps) {
       <p class="wifi-page__description">
         Click download below to download an Apple profile to connect to the <strong>{props.ssid}</strong>{" "}
         wifi network ({props.encryption}).
-        <Show when={props.isAuthenticated}>
+        <Show when={props.oidcEnabled && props.isAuthenticated}>
           {" "}Click{" "}
           <Link href={`${IDM_URL}/ui/radius`} target="_blank" rel="noopener noreferrer">
             here
@@ -35,7 +36,7 @@ export function AppleTab(props: AppleTabProps) {
           to view your Radius password.
         </Show>
       </p>
-      <Show when={props.isAuthenticated}>
+      <Show when={props.oidcEnabled && props.isAuthenticated}>
         <div class="wifi-page__overrides">
           <TextField
             class="wifi-page__override-field"
@@ -63,7 +64,7 @@ export function AppleTab(props: AppleTabProps) {
         >
           Download
         </Button>
-        <Show when={props.isAuthenticated}>
+        <Show when={props.oidcEnabled && props.isAuthenticated}>
           <Button
             class="wifi-page__copy-btn"
             onClick={props.onCopyDownloadLink}
