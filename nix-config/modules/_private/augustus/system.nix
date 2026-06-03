@@ -49,6 +49,8 @@
 
   services.getty.autologinUser = "jacob";
 
+  services.caddy.useInternalCA = true;
+
   services.tailscale.enable = true;
 
   environment.etc."sysctl.d/99-tailscale.conf".text = ''

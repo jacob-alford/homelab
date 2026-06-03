@@ -44,6 +44,8 @@
 
   services.tailscale.enable = true;
 
+  systemd.services.tailscaled.environment.TS_PERMIT_CERT_UID = "caddy";
+
   environment.etc."sysctl.d/99-tailscale.conf".text = ''
     net.ipv4.ip_forward = 1
     net.ipv6.conf.all.forwarding = 1

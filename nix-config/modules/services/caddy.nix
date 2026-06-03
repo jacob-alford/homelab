@@ -4,19 +4,15 @@ let
 in
 {
   flake.modules.nixos.caddy =
-    { pkgs, pkgs-unstable, ... }:
+    { pkgs-unstable, lib, config, ... }:
     {
-      services.caddy = {
-        package = pkgs-unstable.caddy.withPlugins {
-          plugins = [
-            "github.com/tailscale/caddy-tailscale@v0.0.0-20250508175905-642f61fea3cc"
-          ];
-          hash = "sha256-ZDqKVUsA7AlIg9LJUuOkLG4JA0FbPIYKTQwJWpVxYsM=";
-        };
+      options.services.caddy.useInternalCA = lib.mkEnableOption "Use internal step-ca for ACME";
 
+      config.services.caddy = {
+        package = pkgs-unstable.caddy;
         enable = true;
-        email = c.acme.email;
-        acmeCA = c.ca.acmeDirectory;
+        email = lib.mkIf config.services.caddy.useInternalCA c.acme.email;
+        acmeCA = lib.mkIf config.services.caddy.useInternalCA c.ca.acmeDirectory;
       };
     };
 }
