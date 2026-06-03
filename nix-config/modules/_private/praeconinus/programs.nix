@@ -45,11 +45,11 @@ in
       }
 
       handle {
-        redir / /ui/ permanent
+        redir / /ui/?{query} permanent
       }
 
       handle {
-        redir /ui /ui/ permanent
+        redir /ui /ui/?{query} permanent
       }
     '';
   };
