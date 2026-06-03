@@ -81,6 +81,12 @@ in
           description = "The enabled feature flags for the service";
         };
 
+        requiresKanidm = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Whether the service depends on kanidm.service";
+        };
+
         apiKeys = lib.mkOption {
           type = lib.types.attrsOf (
             lib.types.submodule {
@@ -176,10 +182,12 @@ in
           wantedBy = [ "multi-user.target" ];
           after = [
             "homelab-secret-provisioner.service"
+          ] ++ lib.optionals cfg.requiresKanidm [
             "kanidm.service"
           ];
           requires = [
             "homelab-secret-provisioner.service"
+          ] ++ lib.optionals cfg.requiresKanidm [
             "kanidm.service"
           ];
 

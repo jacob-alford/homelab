@@ -26,6 +26,9 @@
       cicero = {
         system = "x86_64-linux";
       };
+      praeconinus = {
+        system = "aarch64-linux";
+      };
       nixos = {
         system = "x86_64-linux";
       };
