@@ -2,6 +2,7 @@ import { useStore } from "@nanostores/solid"
 import { Option } from "effect"
 import { createSignal, onMount, Show } from "solid-js"
 import { $displayName, $isAuthenticated, $username, clearAuth, login, oidcEnabled } from "../../lib/auth/index.js"
+import { upgradeIfReachable } from "../../lib/upgrade/index.js"
 import {
   $wifiParams,
   downloadAppleProfile,
@@ -38,7 +39,10 @@ export function WifiPage() {
     && Option.isSome(params().encryption)
     && Option.isSome(params().password)
 
-  onMount(() => setMounted(true))
+  onMount(() => {
+    setMounted(true)
+    runEffect(upgradeIfReachable(() => showSuccessToast("Redirecting to internal servers..."))).catch(() => {})
+  })
 
   function handleLogin() {
     runEffect(login()).catch((err) => {
