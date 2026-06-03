@@ -2,7 +2,7 @@ import { HttpApiEndpoint } from "@effect/platform"
 import type { Types } from "effect"
 import { ApiErrors, Schemas } from "homelab-services"
 
-export const HealthEndpoint = HttpApiEndpoint.put("health")`/health`
+export const HealthEndpoint = HttpApiEndpoint.get("health")`/health`
   .addSuccess(Schemas.Health.HealthResponseSchema)
   .addError(
     ApiErrors.HttpApiEncodeError,

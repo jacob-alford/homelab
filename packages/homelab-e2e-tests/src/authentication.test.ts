@@ -23,7 +23,7 @@ const AUTH_ENDPOINTS: ReadonlyArray<AuthEndpointConfig> = [
   {
     displayName: "PUT /status/health",
     url: new URL(`${BASE_URL}/status/health`),
-    method: "PUT",
+    method: "GET",
   },
   {
     displayName: "GET /mobile-config/certs",

@@ -45,7 +45,7 @@ describe("PUT /status/health", () => {
 
         const { access_token, nonce, token_type } = yield* getToken(TEST_LIMITED_API_KEY)
 
-        const newDpopProof = yield* createToken({ htu: HEALTH_URL, htm: "PUT", nonce, accessToken: access_token })
+        const newDpopProof = yield* createToken({ htu: HEALTH_URL, htm: "GET", nonce, accessToken: access_token })
 
         const result = yield* Effect.flip(
           client.status.health({
@@ -74,7 +74,7 @@ describe("PUT /status/health", () => {
 
         const { access_token, nonce, token_type } = yield* getToken(TEST_API_KEY)
 
-        const newDpopProof = yield* createToken({ htu: HEALTH_URL, htm: "PUT", nonce, accessToken: access_token })
+        const newDpopProof = yield* createToken({ htu: HEALTH_URL, htm: "GET", nonce, accessToken: access_token })
 
         const result = yield* client.status.health({
           headers: {
