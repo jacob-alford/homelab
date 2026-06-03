@@ -137,6 +137,11 @@
                   help = "Rebuild Augustus over ssh";
                   command = "nixos-rebuild --target-host jacob@augustus.plato-splunk.media switch --flake .#augustus --sudo --ask-sudo-password";
                 }
+                {
+                  name = "remote-build-praeconinus";
+                  help = "Rebuild Praeconinus over ssh";
+                  command = "nixos-rebuild --target-host jacob@praeconinus.neko-bicolor.ts.net switch --flake .#praeconinus --sudo --ask-sudo-password";
+                }
               ];
             };
           };
