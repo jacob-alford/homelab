@@ -2,6 +2,7 @@
   self,
   config,
   inputs,
+  lib,
   ...
 }:
 let
@@ -40,7 +41,7 @@ let
 
       yarnOfflineCache = fetcher.fetchYarnBerryDeps {
         inherit src missingHashes;
-        hash = "sha256-/Nerd3sldR0Ae7nR6VycFGUOhncWB/dmJlWfuYMumhc=";
+        hash = "sha256-df3AA+nzbDYHFrJma/ILs32/REF5YmAeTbhs6KLP8bY=";
       };
 
       optionalExport = name: value:
