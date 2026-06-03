@@ -9,11 +9,11 @@
 
     interfaces = {
       tailscale0 = {
-        allowedTCPPorts = [ 443 ];
+        allowedTCPPorts = [ 22 443 ];
       };
     };
 
-    allowedTCPPorts = [ 22 ];
+    allowedTCPPorts = [ 443 ];
   };
 
   services.openssh.openFirewall = false;

@@ -166,7 +166,7 @@ in
                 forwardAgent = true;
                 identityFile = "~/.ssh/yk_ssh_keys/id_ed25519_sk_yk3_backup";
               };
-              "172.19.19.138" = {
+              "praeconinus.neko-bicolor.ts.net" = {
                 inherit identityAgent;
                 user = "jacob";
                 addKeysToAgent = "yes";

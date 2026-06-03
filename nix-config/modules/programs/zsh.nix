@@ -21,7 +21,7 @@
           ssh_aug = "TERM=vt100 ssh augustus.plato-splunk.media";
           ssh_mini = "TERM=vt100 ssh jacob@mini.neko-bicolor.ts.net";
           ssh_sis = "TERM=vt100 ssh cicero.plato-splunk.media";
-          ssh_prae = "TERM=vt100 ssh jacob@172.19.19.138";
+          ssh_prae = "TERM=vt100 ssh praeconinus.neko-bicolor.ts.net";
         };
       };
     };
