@@ -27,7 +27,9 @@ In `src/lib/config.ts`, add:
 
 ```ts
 export const UPGRADE_STATUS_URL = Config.string("PUBLIC_UPGRADE_STATUS_URL")
-export const UPGRADE_TARGET_ORIGIN = Config.string("PUBLIC_UPGRADE_TARGET_ORIGIN")
+export const UPGRADE_TARGET_ORIGIN = Config.string(
+  "PUBLIC_UPGRADE_TARGET_ORIGIN",
+)
 ```
 
 In `src/lib/config-provider.ts`, conditionally spread them (same pattern as OIDC vars):
@@ -46,7 +48,11 @@ Only the praeconinus `.env` will set these. When unset, the effect short-circuit
 New file: `src/lib/upgrade/index.ts`
 
 ```ts
-import { HttpClient, HttpClientRequest, HttpClientResponse } from "@effect/platform"
+import {
+  HttpClient,
+  HttpClientRequest,
+  HttpClientResponse,
+} from "@effect/platform"
 import { Effect } from "effect"
 import { UPGRADE_STATUS_URL, UPGRADE_TARGET_ORIGIN } from "../config.js"
 
@@ -72,6 +78,7 @@ export const upgradeIfReachable = Effect.fn("upgradeIfReachable")(function*() {
 ```
 
 Key design decisions:
+
 - Uses `Effect.fn` for named, traceable effects (per steering docs).
 - Config values accessed via Effect's config system, not `import.meta.env` directly.
 - `yield* UPGRADE_STATUS_URL` short-circuits with a `ConfigError` when the env var is unset — this is the "feature flag" mechanism. On the internal deployment, the effect simply fails silently because the config isn't provided.
@@ -110,13 +117,13 @@ The internal deployment at `homelab.plato-splunk.media` does **not** set these, 
 
 ## Files Changed
 
-| File | Change |
-|------|--------|
-| `src/lib/config.ts` | Add `UPGRADE_STATUS_URL`, `UPGRADE_TARGET_ORIGIN` |
-| `src/lib/config-provider.ts` | Conditionally spread the two new env vars |
-| `src/lib/upgrade/index.ts` | New file — the upgrade detection effect |
-| `src/components/WifiPage/WifiPage.tsx` | Call `upgradeIfReachable()` in `onMount` |
-| Praeconinus `.env` / Nix config | Set the two `PUBLIC_UPGRADE_*` vars |
+| File                                   | Change                                            |
+| -------------------------------------- | ------------------------------------------------- |
+| `src/lib/config.ts`                    | Add `UPGRADE_STATUS_URL`, `UPGRADE_TARGET_ORIGIN` |
+| `src/lib/config-provider.ts`           | Conditionally spread the two new env vars         |
+| `src/lib/upgrade/index.ts`             | New file — the upgrade detection effect           |
+| `src/components/WifiPage/WifiPage.tsx` | Call `upgradeIfReachable()` in `onMount`          |
+| Praeconinus `.env` / Nix config        | Set the two `PUBLIC_UPGRADE_*` vars               |
 
 ## Edge Cases
 
