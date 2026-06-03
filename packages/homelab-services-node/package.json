@@ -14,7 +14,7 @@
   },
   "scripts": {
     "lint": "eslint src test test-utils",
-    "typecheck": "node ../../.yarn/sdks/typescript/bin/tsc -b tsconfig.json --noEmit",
+    "typecheck": "tsc -b tsconfig.json --noEmit",
     "test": "vitest run",
     "circular": "yarn madge --circular ./src/index.ts",
     "test:watch": "vitest watch"

@@ -22,7 +22,7 @@
     "circular": "yarn madge --circular ./src/index.ts",
     "codegen": "build-utils prepare-v2",
     "lint": "eslint src",
-    "typecheck": "node ../../.yarn/sdks/typescript/bin/tsc -b tsconfig.json --noEmit",
+    "typecheck": "tsc -b tsconfig.json --noEmit",
     "test:watch": "vitest watch",
     "test": "vitest run --pass-with-no-tests ",
     "test:staged": "vitest related --pass-with-no-tests --run",

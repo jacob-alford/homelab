@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "lint": "eslint src test-utils",
-    "typecheck": "node ../../.yarn/sdks/typescript/bin/tsc -b tsconfig.json --noEmit",
+    "typecheck": "tsc -b tsconfig.json --noEmit",
     "test:e2e:watch": "vitest watch",
     "test:e2e": "vitest run"
   },
