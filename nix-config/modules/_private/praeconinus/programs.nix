@@ -21,6 +21,7 @@ in
     requiresKanidm = false;
     apiKeys = { };
     featureFlags = [
+      "Config_Wifi.view"
       "Config_Wifi.create"
       "Config_Certs.view"
     ];
