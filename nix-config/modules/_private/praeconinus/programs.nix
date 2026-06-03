@@ -1,4 +1,10 @@
-{ lib, config, pkgs, inputs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
 let
   uiPkg = inputs.self.packages.aarch64-linux.homelab-ui;
 in
@@ -26,7 +32,7 @@ in
     apiKeys = { };
   };
 
-  services.caddy.virtualHosts."praeconinus.neko-bicolor.ts.net" = {
+  services.caddy.virtualHosts."https://praeconinus.neko-bicolor.ts.net" = {
     extraConfig = ''
       handle_path /api/* {
         reverse_proxy 127.0.0.1:35427
