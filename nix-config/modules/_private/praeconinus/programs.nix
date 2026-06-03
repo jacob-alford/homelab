@@ -32,7 +32,7 @@ in
     apiKeys = { };
   };
 
-  services.caddy.virtualHosts."https://praeconinus.neko-bicolor.ts.net" = {
+  services.caddy.virtualHosts."https://praeconinus.neko-bicolor.ts.net:8443" = {
     extraConfig = ''
       map {query} {fullquery} {
           ~(.+)   "?$1"
