@@ -22,7 +22,15 @@ in
       hm.zsh
       hm.desktop-theming
 
-      ({ inputs, lib, config, pkgs, pkgs-unstable, ... }:
+      (
+        {
+          inputs,
+          lib,
+          config,
+          pkgs,
+          pkgs-unstable,
+          ...
+        }:
         let
           identityAgent = "/run/user/1000/ssh-agent";
           vivaldi-nvidia = pkgs.vivaldi.override {
@@ -173,7 +181,7 @@ in
                 forwardAgent = true;
                 identityFile = [
                   "~/.ssh/yk_ssh_keys/id_ed25519_sk"
-                  "~/.ssh/yk_ssh_keys/id_ed25519_sk_yk3_backup"
+                  # "~/.ssh/yk_ssh_keys/id_ed25519_sk_yk3_backup"
                 ];
               };
               "mini.neko-bicolor.ts.net" = {
@@ -225,7 +233,8 @@ in
           systemd.user.startServices = "sd-switch";
 
           home.stateVersion = "24.05";
-        })
+        }
+      )
     ];
   };
 }
