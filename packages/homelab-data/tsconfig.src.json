@@ -4,6 +4,9 @@
   "compilerOptions": {
     "types": [],
     "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+    "composite": false,
     "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo"
   }
 }
