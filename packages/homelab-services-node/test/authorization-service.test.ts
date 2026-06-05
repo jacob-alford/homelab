@@ -384,6 +384,7 @@ function setupParams<Res extends ResourceURIs.ResourceURIs>(
     "Config_Certs": {},
     "Cert_Root": {},
     "Cert_Intermediate": {},
+    "Cert_Combined": {},
     "Status_Health": {},
     "OAuth_Token": {},
     "OAuth_ClaimCheck": {},

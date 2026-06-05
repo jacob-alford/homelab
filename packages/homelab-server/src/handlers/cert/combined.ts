@@ -3,24 +3,23 @@ import { Effect } from "effect"
 import type { Homelab } from "homelab-api"
 import { Middleware, Services } from "homelab-services"
 
-export const handleRoot = Effect.fn("handleRoot")(
-  function*(args: Homelab.CertEndpoints.Root.RootCertHandlerArgs) {
+export const handleCombined = Effect.fn("handleCombined")(
+  function*(args: Homelab.CertEndpoints.Combined.CombinedCertHandlerArgs) {
     const identity = yield* Middleware.CurrentIdentity
-    yield* Services.AuthorizationService.canView(identity, "Cert_Root", args)
+    yield* Services.AuthorizationService.canView(identity, "Cert_Combined", args)
 
     const certService = yield* Services.CertificateService.CertificateService
-    const cert = args.path.format === "der" ? certService.rootCert : certService.rootCrt
-    const ext = args.path.format === "der" ? "der" : "crt"
+    const combined = Buffer.concat([certService.rootCrt, Buffer.from("\n"), certService.intermediateCrt])
 
     yield* HttpApp.appendPreResponseHandler(
       (_, res) =>
         Effect.succeed(
           HttpServerResponse.setHeaders(res, {
-            "Content-Disposition": `attachment; filename="homelab-wifi-cert-root.${ext}"`,
+            "Content-Disposition": `attachment; filename="homelab-wifi-cert-combined.pem"`,
           }),
         ),
     )
 
-    return new Uint8Array(cert)
+    return new Uint8Array(combined)
   },
 )

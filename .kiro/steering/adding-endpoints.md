@@ -475,6 +475,7 @@ Every endpoint that uses `AuthorizationService.canView/canCreate` requires a **r
 | `Config_Certs`      | mobile-config | Certificate mobileconfig profile |
 | `Cert_Root`         | cert          | Raw root CA download             |
 | `Cert_Intermediate` | cert          | Raw intermediate CA download     |
+| `Cert_Combined`     | cert          | Combined PEM CA bundle           |
 | `Status_Health`     | status        | Health check                     |
 | `OAuth_Token`       | oauth         | Token issuance                   |
 | `OAuth_ClaimCheck`  | oauth         | Claim check creation             |

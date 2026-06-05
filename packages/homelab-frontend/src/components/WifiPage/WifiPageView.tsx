@@ -29,11 +29,11 @@ export interface WifiPageViewProps {
   onLogin: () => void
   onLogout: () => void
   onDownloadAppleProfile: () => void
-  onDownloadRootCert: () => void
-  onDownloadIntermediateCert: () => void
+  onDownloadCombinedCert: () => void
   onCopyDownloadLink: () => void
   onCopyUsername: () => void
   onCopyPassword: () => void
+  onCopyDomain: () => void
   onAdjustParameters: () => void
 }
 
@@ -94,10 +94,10 @@ export function WifiPageView(props: WifiPageViewProps) {
             ssid={props.ssid}
             effectiveUsername={props.effectiveUsername}
             password={props.password}
-            onDownloadRootCert={props.onDownloadRootCert}
-            onDownloadIntermediateCert={props.onDownloadIntermediateCert}
+            onDownloadCombinedCert={props.onDownloadCombinedCert}
             onCopyUsername={props.onCopyUsername}
             onCopyPassword={props.onCopyPassword}
+            onCopyDomain={props.onCopyDomain}
           />
         </Tabs.Content>
       </Tabs>

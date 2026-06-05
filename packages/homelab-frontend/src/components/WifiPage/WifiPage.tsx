@@ -7,8 +7,7 @@ import {
   $wifiParams,
   $wifiTab,
   downloadAppleProfile,
-  downloadCert,
-  downloadIntermediateCert,
+  downloadCombinedCert,
   fetchClaimCheckAndCopyLink,
   runEffect,
   type WifiTab,
@@ -82,14 +81,8 @@ export function WifiPage() {
       .finally(() => setCopyingLink(false))
   }
 
-  function handleDownloadRootCert() {
-    runEffect(downloadCert).catch((err) => {
-      showErrorToast(err instanceof Error ? err.message : "Failed to download cert")
-    })
-  }
-
-  function handleDownloadIntermediateCert() {
-    runEffect(downloadIntermediateCert).catch((err) => {
+  function handleDownloadCombinedCert() {
+    runEffect(downloadCombinedCert).catch((err) => {
       showErrorToast(err instanceof Error ? err.message : "Failed to download cert")
     })
   }
@@ -110,6 +103,10 @@ export function WifiPage() {
         navigator.clipboard.writeText(p)
       },
     })
+  }
+
+  function handleCopyDomain() {
+    navigator.clipboard.writeText("radius.plato-splunk.media")
   }
 
   function handleTabChange(t: WifiTab) {
@@ -155,11 +152,11 @@ export function WifiPage() {
           onLogin={handleLogin}
           onLogout={handleLogout}
           onDownloadAppleProfile={handleDownload}
-          onDownloadRootCert={handleDownloadRootCert}
-          onDownloadIntermediateCert={handleDownloadIntermediateCert}
+          onDownloadCombinedCert={handleDownloadCombinedCert}
           onCopyDownloadLink={handleCopyDownloadLink}
           onCopyUsername={handleCopyUsername}
           onCopyPassword={handleCopyPassword}
+          onCopyDomain={handleCopyDomain}
           onAdjustParameters={() => setConfirmed(false)}
         />
       )}

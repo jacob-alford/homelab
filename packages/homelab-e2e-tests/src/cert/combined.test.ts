@@ -1,0 +1,58 @@
+import { assert, describe, expect, it } from "@effect/vitest"
+import { Effect } from "effect"
+import { ApiErrors } from "homelab-services"
+import {
+  BASE_URL,
+  createToken,
+  E2ETestLayer,
+  getToken,
+  makeApiClient,
+  TEST_API_KEY,
+  TEST_LIMITED_API_KEY,
+} from "../../test-utils/index.js"
+
+const COMBINED_URL = new URL(`${BASE_URL}/cert/combined`)
+
+describe("GET /cert/combined", () => {
+  describe("authorization", () => {
+    it.live("rejects a request with insufficient permissions", () =>
+      Effect.gen(function*() {
+        const client = yield* makeApiClient
+        const { access_token, nonce, token_type } = yield* getToken(TEST_LIMITED_API_KEY)
+        const dpopProof = yield* createToken({
+          htu: COMBINED_URL,
+          htm: "GET",
+          nonce,
+          accessToken: access_token,
+        })
+        const result = yield* Effect.flip(
+          client.cert.combined({
+            headers: { dpop: dpopProof, authorization: `${token_type} ${access_token}` },
+          }),
+        )
+        assert(
+          result instanceof ApiErrors.AuthorizationError,
+          `Expected AuthorizationError, got ${result._tag ?? result}`,
+        )
+      }).pipe(Effect.provide(E2ETestLayer)))
+  })
+
+  describe("success", () => {
+    it.live("returns combined PEM certificate", () =>
+      Effect.gen(function*() {
+        const client = yield* makeApiClient
+        const { access_token, nonce, token_type } = yield* getToken(TEST_API_KEY)
+        const dpopProof = yield* createToken({
+          htu: COMBINED_URL,
+          htm: "GET",
+          nonce,
+          accessToken: access_token,
+        })
+        const result = yield* client.cert.combined({
+          headers: { dpop: dpopProof, authorization: `${token_type} ${access_token}` },
+        })
+        expect(result).toBeInstanceOf(Uint8Array)
+        expect(result.length).toBeGreaterThan(0)
+      }).pipe(Effect.provide(E2ETestLayer)))
+  })
+})

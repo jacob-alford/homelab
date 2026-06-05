@@ -98,3 +98,10 @@ export const downloadIntermediateCert = Effect.gen(function*() {
     window.location.href = `${apiBaseUrl}/cert/intermediate/der`
   })
 })
+
+export const downloadCombinedCert = Effect.gen(function*() {
+  const apiBaseUrl = yield* API_BASE_URL
+  yield* Effect.sync(() => {
+    window.location.href = `${apiBaseUrl}/cert/combined`
+  })
+})

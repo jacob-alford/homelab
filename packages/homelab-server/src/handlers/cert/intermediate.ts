@@ -16,7 +16,7 @@ export const handleIntermediate = Effect.fn("handleIntermediate")(
       (_, res) =>
         Effect.succeed(
           HttpServerResponse.setHeaders(res, {
-            "Content-Disposition": `attachment; filename="intermediate-ca.${ext}"`,
+            "Content-Disposition": `attachment; filename="homelab-wifi-cert-intermediate.${ext}"`,
           }),
         ),
     )
