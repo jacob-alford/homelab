@@ -1,3 +1,3 @@
-export { downloadAppleProfile, downloadCert, fetchClaimCheckAndCopyLink } from "./effects.js"
-export { $wifiParams, type WifiParams } from "./params.js"
+export { downloadAppleProfile, downloadCert, downloadIntermediateCert, fetchClaimCheckAndCopyLink } from "./effects.js"
+export { $wifiParams, $wifiTab, type WifiParams, type WifiTab } from "./params.js"
 export { runEffect } from "./runtime.js"

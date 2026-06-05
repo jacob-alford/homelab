@@ -58,6 +58,12 @@ export interface EnvDef {
 
   /** Absolute filesystem path to the intermediate CA certificate in DER format. */
   readonly intermediateCertDerPath: string
+
+  /** Absolute filesystem path to the root CA certificate in CRT (PEM) format. */
+  readonly rootCertCrtPath: string
+
+  /** Absolute filesystem path to the intermediate CA certificate in CRT (PEM) format. */
+  readonly intermediateCertCrtPath: string
 }
 
 export class Env extends Context.Tag("homelab-api/config/env/Env")<Env, EnvDef>() {}
@@ -109,3 +115,9 @@ export const rootCertDerPath = Env.pipe(Effect.map((_) => _.rootCertDerPath))
 
 /** {@inheritDoc EnvDef.intermediateCertDerPath} */
 export const intermediateCertDerPath = Env.pipe(Effect.map((_) => _.intermediateCertDerPath))
+
+/** {@inheritDoc EnvDef.rootCertCrtPath} */
+export const rootCertCrtPath = Env.pipe(Effect.map((_) => _.rootCertCrtPath))
+
+/** {@inheritDoc EnvDef.intermediateCertCrtPath} */
+export const intermediateCertCrtPath = Env.pipe(Effect.map((_) => _.intermediateCertCrtPath))

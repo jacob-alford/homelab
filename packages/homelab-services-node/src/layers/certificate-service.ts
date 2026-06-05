@@ -8,24 +8,22 @@ export const CertificateServiceLive = Layer.effect(
     const fs = yield* FileSystem.FileSystem
     const rootCertPath = yield* Config.Env.rootCertDerPath
     const intermediateCertPath = yield* Config.Env.intermediateCertDerPath
+    const rootCrtPath = yield* Config.Env.rootCertCrtPath
+    const intermediateCrtPath = yield* Config.Env.intermediateCertCrtPath
 
-    const rootCert = yield* fs.readFile(rootCertPath).pipe(
-      Effect.mapBoth({
-        onFailure: (error) => new Services.CertificateService.CertificateReadError({ error }),
-        onSuccess: (result) => Buffer.from(result),
-      }),
-    )
+    const readCert = (path: string) =>
+      fs.readFile(path).pipe(
+        Effect.mapBoth({
+          onFailure: (error) => new Services.CertificateService.CertificateReadError({ error }),
+          onSuccess: (result) => Buffer.from(result),
+        }),
+      )
 
-    const intermediateCert = yield* fs.readFile(intermediateCertPath).pipe(
-      Effect.mapBoth({
-        onFailure: (error) => new Services.CertificateService.CertificateReadError({ error }),
-        onSuccess: (result) => Buffer.from(result),
-      }),
-    )
+    const rootCert = yield* readCert(rootCertPath)
+    const intermediateCert = yield* readCert(intermediateCertPath)
+    const rootCrt = yield* readCert(rootCrtPath)
+    const intermediateCrt = yield* readCert(intermediateCrtPath)
 
-    return {
-      rootCert,
-      intermediateCert,
-    }
+    return { rootCert, intermediateCert, rootCrt, intermediateCrt }
   }),
 )

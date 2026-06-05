@@ -1,0 +1,13 @@
+import { HttpApiBuilder } from "@effect/platform"
+import { Homelab } from "homelab-api"
+import { handleIntermediate } from "./intermediate.js"
+import { handleRoot } from "./root.js"
+
+export const CertApiLive = HttpApiBuilder.group(
+  Homelab.HomelabApi,
+  "cert",
+  (handlers) =>
+    handlers
+      .handle("root", handleRoot)
+      .handle("intermediate", handleIntermediate),
+)

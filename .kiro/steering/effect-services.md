@@ -175,6 +175,26 @@ export * as Crypto from "./crypto.js"
 export * as ProfilePayload from "./profile-payload.js"
 ```
 
+### `Layer.provide` vs `Layer.provideMerge` in Aggregates
+
+Understanding the distinction is critical for correct dependency wiring:
+
+- **`Layer.provide(dep)`** — feeds `dep` as an input to the layer being piped. The dependency is consumed but NOT included in the aggregate's output. Handlers cannot `yield*` it directly.
+- **`Layer.provideMerge(dep)`** — provides `dep` as an input AND merges it into the output. Downstream consumers (including handlers) CAN `yield*` it.
+
+```typescript
+// CertificateServiceLive is provided as input only — NOT in aggregate output
+const ServiceDeps = RootPayloadServiceLive.pipe(
+  Layer.provideMerge(CertificateServiceLive), // available to sibling deps
+)
+
+export const Aggregate = CertProfileServiceLive.pipe(
+  Layer.provide(ServiceDeps), // ServiceDeps consumed, NOT exposed
+)
+```
+
+In this example, `CertificateService` is available to layers inside `ServiceDeps` and to `CertProfileServiceLive`, but handlers using this aggregate cannot `yield* CertificateService` directly. If a handler needs it, provide it separately in `main.ts` via `Layer.provide(Layers.CertificateService.CertificateServiceLive)`.
+
 ## Config Definition Pattern
 
 Configs follow the same Def/Tag/accessor pattern as services:

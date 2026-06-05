@@ -5,10 +5,13 @@ import { $displayName, $isAuthenticated, $username, clearAuth, login, oidcEnable
 import { upgradeIfReachable } from "../../lib/upgrade/index.js"
 import {
   $wifiParams,
+  $wifiTab,
   downloadAppleProfile,
   downloadCert,
+  downloadIntermediateCert,
   fetchClaimCheckAndCopyLink,
   runEffect,
+  type WifiTab,
 } from "../../lib/wifi/index.js"
 import { showErrorToast, showSuccessToast } from "../Toast/index.js"
 import { WifiPageView } from "./WifiPageView.js"
@@ -20,6 +23,7 @@ export function WifiPage() {
   const displayName = useStore($displayName)
   const username = useStore($username)
   const params = useStore($wifiParams)
+  const tab = useStore($wifiTab)
   const [mounted, setMounted] = createSignal(false)
   const [copyingLink, setCopyingLink] = createSignal(false)
 
@@ -78,8 +82,14 @@ export function WifiPage() {
       .finally(() => setCopyingLink(false))
   }
 
-  function handleDownloadCert() {
+  function handleDownloadRootCert() {
     runEffect(downloadCert).catch((err) => {
+      showErrorToast(err instanceof Error ? err.message : "Failed to download cert")
+    })
+  }
+
+  function handleDownloadIntermediateCert() {
+    runEffect(downloadIntermediateCert).catch((err) => {
       showErrorToast(err instanceof Error ? err.message : "Failed to download cert")
     })
   }
@@ -100,6 +110,10 @@ export function WifiPage() {
         navigator.clipboard.writeText(p)
       },
     })
+  }
+
+  function handleTabChange(t: WifiTab) {
+    $wifiTab.set(t)
   }
 
   return (
@@ -134,12 +148,15 @@ export function WifiPage() {
           effectiveUsername={effectiveUsername()}
           username={params().username}
           password={params().password}
+          tab={tab()}
+          onTabChange={handleTabChange}
           onUsernameChange={(v) => $wifiParams.setKey("username", v ? Option.some(v) : Option.none())}
           onPasswordChange={(v) => $wifiParams.setKey("password", v ? Option.some(v) : Option.none())}
           onLogin={handleLogin}
           onLogout={handleLogout}
           onDownloadAppleProfile={handleDownload}
-          onDownloadCert={handleDownloadCert}
+          onDownloadRootCert={handleDownloadRootCert}
+          onDownloadIntermediateCert={handleDownloadIntermediateCert}
           onCopyDownloadLink={handleCopyDownloadLink}
           onCopyUsername={handleCopyUsername}
           onCopyPassword={handleCopyPassword}

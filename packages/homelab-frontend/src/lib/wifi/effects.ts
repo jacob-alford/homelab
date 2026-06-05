@@ -88,6 +88,13 @@ export const fetchClaimCheckAndCopyLink = Effect.fn("fetchClaimCheckAndCopyLink"
 export const downloadCert = Effect.gen(function*() {
   const apiBaseUrl = yield* API_BASE_URL
   yield* Effect.sync(() => {
-    window.location.href = `${apiBaseUrl}/mobile-config/certs/_download`
+    window.location.href = `${apiBaseUrl}/cert/root/der`
+  })
+})
+
+export const downloadIntermediateCert = Effect.gen(function*() {
+  const apiBaseUrl = yield* API_BASE_URL
+  yield* Effect.sync(() => {
+    window.location.href = `${apiBaseUrl}/cert/intermediate/der`
   })
 })

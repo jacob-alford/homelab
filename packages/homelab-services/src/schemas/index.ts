@@ -1,4 +1,5 @@
 export * as Buffer from "./Buffer.js"
+export * as CertFormat from "./cert-format.js"
 export * as ClaimCheck from "./claim-check.js"
 export * as ACME from "./config-acme.js"
 export * as CertificatePayload from "./config-certificate.js"

@@ -13,6 +13,7 @@ const acmeArgs = (
   path: { clientIdentifier },
   request: {} as any,
   headers: {},
+  urlParams: {},
 })
 
 const authorizedIdentity = new Identity.OIDCIdentity(

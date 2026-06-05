@@ -15,6 +15,7 @@ const ServerLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(Shell.Authorization.Aggregate),
   Layer.provide(Shell.Crypto.Aggregate),
   Layer.provide(Shell.ProfilePayload.Aggregate),
+  Layer.provide(Layers.CertificateService.CertificateServiceLive),
   Layer.provide(Layers.UuidService.UuidServiceLive),
   Layer.provide(ProfileUuidConfigLive),
   Layer.provide(NodeConfig.ConfigLive),

@@ -19,5 +19,7 @@ export const EnvLive = Layer.effect(
     apiKeysFilePath: Config.string("API_KEYS_FILE"),
     rootCertDerPath: Config.string("ROOT_CERT_DER"),
     intermediateCertDerPath: Config.string("INTERMEDIATE_CERT_DER"),
+    rootCertCrtPath: Config.string("ROOT_CERT_CRT"),
+    intermediateCertCrtPath: Config.string("INTERMEDIATE_CERT_CRT"),
   }),
 )

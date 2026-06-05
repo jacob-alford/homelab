@@ -19,6 +19,8 @@ const TestConfigProvider = Layer.setConfigProvider(
       ["FEATURE_FLAGS", "*"],
       ["ROOT_CERT_DER", path.join(privateDir, "root.crt")],
       ["INTERMEDIATE_CERT_DER", path.join(privateDir, "intermediate.crt")],
+      ["ROOT_CERT_CRT", path.join(privateDir, "root.crt")],
+      ["INTERMEDIATE_CERT_CRT", path.join(privateDir, "intermediate.crt")],
       ["KANIDM_OPENID_PROVIDER_URL", "https://kanidm.test/oauth2/openid/test/.well-known/openid-configuration"],
     ]),
   ),
@@ -42,6 +44,8 @@ const TestEnvLive = Layer.effect(
     apiKeysFilePath: Config.string("API_KEYS_FILE"),
     rootCertDerPath: Config.string("ROOT_CERT_DER"),
     intermediateCertDerPath: Config.string("INTERMEDIATE_CERT_DER"),
+    rootCertCrtPath: Config.string("ROOT_CERT_CRT"),
+    intermediateCertCrtPath: Config.string("INTERMEDIATE_CERT_CRT"),
   }),
 ).pipe(Layer.provide(TestConfigProvider))
 
@@ -64,6 +68,8 @@ export const makeTestEnvWithFlags = (
     apiKeysFilePath: path.join(privateDir, "api-keys"),
     rootCertDerPath: path.join(privateDir, "root.crt"),
     intermediateCertDerPath: path.join(privateDir, "intermediate.crt"),
+    rootCertCrtPath: path.join(privateDir, "root.crt"),
+    intermediateCertCrtPath: path.join(privateDir, "intermediate.crt"),
   })
 
 const TestRemoteOIDCWellKnownDetails = Layer.succeed(

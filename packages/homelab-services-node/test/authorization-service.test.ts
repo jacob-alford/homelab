@@ -382,6 +382,8 @@ function setupParams<Res extends ResourceURIs.ResourceURIs>(
       path: { clientIdentifier: "test-client", ...(overrides["Config_ACME"] as any)?.path },
     },
     "Config_Certs": {},
+    "Cert_Root": {},
+    "Cert_Intermediate": {},
     "Status_Health": {},
     "OAuth_Token": {},
     "OAuth_ClaimCheck": {},

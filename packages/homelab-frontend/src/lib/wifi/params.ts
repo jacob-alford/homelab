@@ -1,5 +1,7 @@
 import { Option, Record } from "effect"
-import { map, onSet } from "nanostores"
+import { atom, map, onSet } from "nanostores"
+
+export type WifiTab = "apple" | "android"
 
 export type WifiParams = {
   ssid: Option.Option<string>
@@ -7,6 +9,12 @@ export type WifiParams = {
   password: Option.Option<string>
   username: Option.Option<string>
   disableMACRandomization: Option.Option<boolean>
+}
+
+function initTabFromURL(): WifiTab {
+  if (typeof window === "undefined") return "apple"
+  const tab = new URLSearchParams(window.location.search).get("tab")
+  return tab === "android" ? "android" : "apple"
 }
 
 function initFromURL(): WifiParams {
@@ -27,20 +35,29 @@ function initFromURL(): WifiParams {
   }
 }
 
+export const $wifiTab = atom<WifiTab>(initTabFromURL())
+
 export const $wifiParams = map<WifiParams>(initFromURL())
 
-onSet($wifiParams, ({ newValue }) => {
+function syncURL() {
   if (typeof window === "undefined") return
 
+  const params = $wifiParams.get()
+  const tab = $wifiTab.get()
+
   const somes = Record.getSomes({
-    ssid: newValue.ssid,
-    encryption: newValue.encryption,
-    password: newValue.password,
-    username: newValue.username,
-    disableMACRandomization: Option.map(newValue.disableMACRandomization, String),
+    ssid: params.ssid,
+    encryption: params.encryption,
+    password: params.password,
+    username: params.username,
+    disableMACRandomization: Option.map(params.disableMACRandomization, String),
+    tab: tab === "android" ? Option.some("android") : Option.none(),
   })
 
   const qs = new URLSearchParams(somes).toString()
   const newUrl = qs ? `${window.location.pathname}?${qs}` : window.location.pathname
   history.replaceState(null, "", newUrl)
-})
+}
+
+onSet($wifiParams, () => syncURL())
+onSet($wifiTab, () => syncURL())

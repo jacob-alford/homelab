@@ -184,7 +184,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-  padding-left: var(--space-lg);
 }
 
 .wifi-page__steps li {
@@ -236,6 +235,7 @@
   color: var(--text-primary);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
+  max-width: 14rem;
   transition:
     background-color var(--transition-fast),
     border-color var(--transition-fast);
@@ -253,6 +253,23 @@
 .wifi-page__copy-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.wifi-page__copy-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs, 0.25rem);
+}
+
+.wifi-page__copy-subtext {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  padding-left: var(--space-xs, 0.25rem);
+}
+
+.wifi-page__link {
+  color: var(--link-color, #3b82f6);
+  text-decoration: underline;
 }
 
 .wifi-page__actions {

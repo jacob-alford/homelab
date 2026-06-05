@@ -4,6 +4,7 @@ import { Tabs } from "@kobalte/core/tabs"
 import { Option } from "effect"
 import { FaSolidCircleArrowLeft } from "solid-icons/fa"
 import { Show } from "solid-js"
+import type { WifiTab } from "../../lib/wifi/index.js"
 import { ToastRegion } from "../Toast/index.js"
 import { AndroidTab } from "./AndroidTab.js"
 import { AppleTab } from "./AppleTab.js"
@@ -21,12 +22,15 @@ export interface WifiPageViewProps {
   effectiveUsername: Option.Option<string>
   username: Option.Option<string>
   password: Option.Option<string>
+  tab: WifiTab
+  onTabChange: (tab: WifiTab) => void
   onUsernameChange: (value: string) => void
   onPasswordChange: (value: string) => void
   onLogin: () => void
   onLogout: () => void
   onDownloadAppleProfile: () => void
-  onDownloadCert: () => void
+  onDownloadRootCert: () => void
+  onDownloadIntermediateCert: () => void
   onCopyDownloadLink: () => void
   onCopyUsername: () => void
   onCopyPassword: () => void
@@ -61,7 +65,7 @@ export function WifiPageView(props: WifiPageViewProps) {
         <span>Adjust parameters</span>
       </Link>
 
-      <Tabs defaultValue="apple" class="wifi-page__tabs">
+      <Tabs value={props.tab} onChange={(v) => props.onTabChange(v as WifiTab)} class="wifi-page__tabs">
         <Tabs.List class="wifi-page__tabs-list">
           <Tabs.Trigger value="apple" class="wifi-page__tabs-trigger">Apple</Tabs.Trigger>
           <Tabs.Trigger value="android" class="wifi-page__tabs-trigger">Android</Tabs.Trigger>
@@ -89,7 +93,9 @@ export function WifiPageView(props: WifiPageViewProps) {
           <AndroidTab
             ssid={props.ssid}
             effectiveUsername={props.effectiveUsername}
-            onDownloadCert={props.onDownloadCert}
+            password={props.password}
+            onDownloadRootCert={props.onDownloadRootCert}
+            onDownloadIntermediateCert={props.onDownloadIntermediateCert}
             onCopyUsername={props.onCopyUsername}
             onCopyPassword={props.onCopyPassword}
           />

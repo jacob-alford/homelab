@@ -1,0 +1,79 @@
+import { assert, describe, expect, it } from "@effect/vitest"
+import { Effect } from "effect"
+import { ApiErrors } from "homelab-services"
+import {
+  BASE_URL,
+  createToken,
+  E2ETestLayer,
+  getToken,
+  makeApiClient,
+  TEST_API_KEY,
+  TEST_LIMITED_API_KEY,
+} from "../../test-utils/index.js"
+
+const INTERMEDIATE_DER_URL = new URL(`${BASE_URL}/cert/intermediate/der`)
+const INTERMEDIATE_CRT_URL = new URL(`${BASE_URL}/cert/intermediate/crt`)
+
+describe("GET /cert/intermediate/:format", () => {
+  describe("authorization", () => {
+    it.live("rejects a request with insufficient permissions", () =>
+      Effect.gen(function*() {
+        const client = yield* makeApiClient
+        const { access_token, nonce, token_type } = yield* getToken(TEST_LIMITED_API_KEY)
+        const dpopProof = yield* createToken({
+          htu: INTERMEDIATE_DER_URL,
+          htm: "GET",
+          nonce,
+          accessToken: access_token,
+        })
+        const result = yield* Effect.flip(
+          client.cert.intermediate({
+            path: { format: "der" },
+            headers: { dpop: dpopProof, authorization: `${token_type} ${access_token}` },
+          }),
+        )
+        assert(
+          result instanceof ApiErrors.AuthorizationError,
+          `Expected AuthorizationError, got ${result._tag ?? result}`,
+        )
+      }).pipe(Effect.provide(E2ETestLayer)))
+  })
+
+  describe("success", () => {
+    it.live("returns intermediate certificate in DER format", () =>
+      Effect.gen(function*() {
+        const client = yield* makeApiClient
+        const { access_token, nonce, token_type } = yield* getToken(TEST_API_KEY)
+        const dpopProof = yield* createToken({
+          htu: INTERMEDIATE_DER_URL,
+          htm: "GET",
+          nonce,
+          accessToken: access_token,
+        })
+        const result = yield* client.cert.intermediate({
+          path: { format: "der" },
+          headers: { dpop: dpopProof, authorization: `${token_type} ${access_token}` },
+        })
+        expect(result).toBeInstanceOf(Uint8Array)
+        expect(result.length).toBeGreaterThan(0)
+      }).pipe(Effect.provide(E2ETestLayer)))
+
+    it.live("returns intermediate certificate in CRT format", () =>
+      Effect.gen(function*() {
+        const client = yield* makeApiClient
+        const { access_token, nonce, token_type } = yield* getToken(TEST_API_KEY)
+        const dpopProof = yield* createToken({
+          htu: INTERMEDIATE_CRT_URL,
+          htm: "GET",
+          nonce,
+          accessToken: access_token,
+        })
+        const result = yield* client.cert.intermediate({
+          path: { format: "crt" },
+          headers: { dpop: dpopProof, authorization: `${token_type} ${access_token}` },
+        })
+        expect(result).toBeInstanceOf(Uint8Array)
+        expect(result.length).toBeGreaterThan(0)
+      }).pipe(Effect.provide(E2ETestLayer)))
+  })
+})

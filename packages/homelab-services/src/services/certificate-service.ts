@@ -15,6 +15,12 @@ export interface CertificateServiceDef {
 
   /** The DER-encoded intermediate CA certificate loaded from disk. */
   readonly intermediateCert: Buffer
+
+  /** The PEM-encoded (CRT) root CA certificate loaded from disk. */
+  readonly rootCrt: Buffer
+
+  /** The PEM-encoded (CRT) intermediate CA certificate loaded from disk. */
+  readonly intermediateCrt: Buffer
 }
 
 export class CertificateService extends Context.Tag(CertificateServiceId)<CertificateService, CertificateServiceDef>() {
