@@ -13,7 +13,6 @@ describe("HealthResponseSchema", () => {
           Jellyfin: "Healthy",
           Kanidm: "Healthy",
           "Step-CA": "Healthy",
-          RADIUS: "Healthy",
         })
       }))
 
@@ -25,7 +24,6 @@ describe("HealthResponseSchema", () => {
           Jellyfin: "Unreachable",
           Kanidm: "Healthy",
           "Step-CA": "Healthy",
-          RADIUS: "Healthy",
         })
       }))
 
@@ -39,7 +37,6 @@ describe("HealthResponseSchema", () => {
           Jellyfin: "Unreachable",
           Kanidm: "Unhealthy",
           "Step-CA": "Unreachable",
-          RADIUS: "Healthy",
         })
       }))
   })
@@ -51,7 +48,6 @@ describe("HealthResponseSchema", () => {
           Jellyfin: "Healthy",
           Kanidm: "Healthy",
           "Step-CA": "Healthy",
-          RADIUS: "Healthy",
         })
 
         expect(result).toBe("All services healthy")
@@ -63,7 +59,6 @@ describe("HealthResponseSchema", () => {
           Jellyfin: "Unreachable",
           Kanidm: "Healthy",
           "Step-CA": "Healthy",
-          RADIUS: "Healthy",
         })
 
         expect(result).toBe("Jellyfin is Unreachable")
@@ -75,7 +70,6 @@ describe("HealthResponseSchema", () => {
           Jellyfin: "Unreachable",
           Kanidm: "Unhealthy",
           "Step-CA": "Healthy",
-          RADIUS: "Healthy",
         })
 
         expect(result).toBe("Jellyfin is Unreachable, Kanidm is Unhealthy")

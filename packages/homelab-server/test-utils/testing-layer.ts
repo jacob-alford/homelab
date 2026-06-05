@@ -1,5 +1,6 @@
+import { FetchHttpClient, HttpClient } from "@effect/platform"
 import { NodeFileSystem, NodePath } from "@effect/platform-node"
-import { ConfigProvider, Layer } from "effect"
+import { ConfigProvider, Effect, Layer } from "effect"
 import { Layers } from "homelab-services-node"
 import {
   IntegrationTestLayer as ApiIntegrationTestLayer,
@@ -100,6 +101,13 @@ const TestCertProfileGeneratorService = Layers.CertProfileGeneratorService.CertP
 
 export const TestUuidService = Layers.UuidService.UuidServiceLive
 
+const FetchTest = Layer.succeed(FetchHttpClient.Fetch, () => Promise.resolve(new Response("ok", { status: 200 })))
+
+export const TestHttpClient = Layer.effect(
+  HttpClient.HttpClient,
+  Effect.map(HttpClient.HttpClient, HttpClient.filterStatusOk),
+).pipe(Layer.provide(FetchHttpClient.layer), Layer.provide(FetchTest))
+
 export const HandlerTestLayer = Layer.mergeAll(
   TestAuthorizationService,
   TestXmlPrintingService,
@@ -107,12 +115,16 @@ export const HandlerTestLayer = Layer.mergeAll(
   TestAcmeProfileGeneratorService,
   TestCertProfileGeneratorService,
   TestUuidService,
+  TestHttpClient,
   NodeFileSystem.layer,
   NodePath.layer,
 )
 
 export const IntegrationTestLayer = Layer.mergeAll(
-  ApiIntegrationTestLayer,
   TestAuthenticationService,
   TestAuthorizationService,
+).pipe(
+  Layer.provideMerge(
+    ApiIntegrationTestLayer,
+  ),
 )

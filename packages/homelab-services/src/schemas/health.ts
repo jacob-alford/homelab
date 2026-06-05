@@ -5,7 +5,6 @@ export const ServiceNameSchema = Schema.Literal(
   "Jellyfin",
   "Kanidm",
   "Step-CA",
-  "RADIUS",
 )
 
 export const StatusSchema = Schema.Literal(
@@ -55,7 +54,6 @@ export const HealthResponseSchema = Schema.transformOrFail(
           Jellyfin: "Healthy",
           Kanidm: "Healthy",
           "Step-CA": "Healthy",
-          RADIUS: "Healthy",
         })
       }
 
@@ -72,8 +70,6 @@ export const HealthResponseSchema = Schema.transformOrFail(
           Kanidm: "Healthy",
           // @ts-expect-error
           "Step-CA": "Healthy",
-          // @ts-expect-error
-          "RADIUS": "Healthy",
           ...unhealthies,
         },
       )

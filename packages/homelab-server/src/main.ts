@@ -1,4 +1,4 @@
-import { FetchHttpClient, HttpApiBuilder, HttpApiSwagger, HttpMiddleware } from "@effect/platform"
+import { FetchHttpClient, HttpApiBuilder, HttpApiSwagger, HttpClient, HttpMiddleware } from "@effect/platform"
 import { NodeFileSystem, NodeRuntime } from "@effect/platform-node"
 import { Console, Effect, Layer } from "effect"
 import { Config as NodeConfig, Layers, Shell } from "homelab-services-node"
@@ -20,7 +20,12 @@ const ServerLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(NodeConfig.ConfigLive),
   Layer.provide(EnvLive),
   Layer.provide(NodeFileSystem.layer),
-  Layer.provide(FetchHttpClient.layer),
+  Layer.provide(
+    Layer.effect(
+      HttpClient.HttpClient,
+      Effect.map(HttpClient.HttpClient, HttpClient.filterStatusOk),
+    ).pipe(Layer.provide(FetchHttpClient.layer)),
+  ),
   Layer.provide(Layer.succeed(FetchHttpClient.Fetch, globalThis.fetch)),
 )
 

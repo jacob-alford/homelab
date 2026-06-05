@@ -87,7 +87,6 @@ describe("PUT /status/health", () => {
           {
             Jellyfin: "Healthy",
             Kanidm: "Healthy",
-            RADIUS: "Healthy",
             "Step-CA": "Healthy",
           },
         )
@@ -104,7 +103,6 @@ describe("PUT /status/health", () => {
           {
             Jellyfin: "Healthy",
             Kanidm: "Healthy",
-            RADIUS: "Healthy",
             "Step-CA": "Healthy",
           },
         )
