@@ -105,6 +105,9 @@ in
                       "Config_Wifi"
                       "Config_ACME"
                       "Config_Certs"
+                      "Cert_Root"
+                      "Cert_Intermediate"
+                      "Cert_Combined"
                       "Status_Health"
                       "OAuth_Token"
                       "OAuth_ClaimCheck"
@@ -152,6 +155,8 @@ in
 
             ROOT_CERT_DER=${c.ca.rootCertDer}
             INTERMEDIATE_CERT_DER=${c.ca.intermediateCertDer}
+            ROOT_CERT_CRT=${c.ca.rootCert}
+            INTERMEDIATE_CERT_CRT=${c.ca.intermediateCert}
 
             HOMELAB_ORIGIN_URL=${cfg.originUrl}
 
