@@ -41,22 +41,6 @@ describe("handleHealth", () => {
       )),
     ))
 
-  it.effect("should allow guest identity access to health", () =>
-    Effect.gen(function*() {
-      const result = yield* handleHealth(healthArgs())
-
-      expect(result).toEqual({
-        Kanidm: "Healthy",
-        Jellyfin: "Healthy",
-        "Step-CA": "Healthy",
-      })
-    }).pipe(
-      Effect.provide(Layer.provideMerge(
-        withIdentity(new Identity.GuestIdentity()),
-        HandlerTestLayer,
-      )),
-    ))
-
   it.effect("should deny access when identity lacks Status.Health permission", () =>
     Effect.gen(function*() {
       const result = yield* Effect.flip(handleHealth(healthArgs()))

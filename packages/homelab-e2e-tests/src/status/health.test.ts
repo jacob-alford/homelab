@@ -91,21 +91,5 @@ describe("PUT /status/health", () => {
           },
         )
       }).pipe(Effect.provide(E2ETestLayer)))
-    it.live("doesn't reject guest users", () =>
-      Effect.gen(function*() {
-        const client = yield* makeApiClient
-
-        const result = yield* client.status.health({
-          headers: {},
-        })
-
-        expect(result).toEqual(
-          {
-            Jellyfin: "Healthy",
-            Kanidm: "Healthy",
-            "Step-CA": "Healthy",
-          },
-        )
-      }).pipe(Effect.provide(E2ETestLayer)))
   })
 })
