@@ -33,10 +33,10 @@ in
         }:
         let
           identityAgent = "/run/user/1000/ssh-agent";
-          vivaldi-nvidia = pkgs.vivaldi.override {
-            commandLineArgs = [ ];
-            enableWidevine = true;
-          };
+          # vivaldi-nvidia = pkgs.vivaldi.override {
+          #   commandLineArgs = [ ];
+          #   enableWidevine = true;
+          # };
         in
         {
           nixpkgs = {
@@ -79,7 +79,8 @@ in
             vlc
             step-cli
             teams-for-linux
-            vivaldi-nvidia
+            # vivaldi-nvidia
+            vivaldi
             clipboard-jh
           ];
 
