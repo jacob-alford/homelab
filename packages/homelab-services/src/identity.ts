@@ -50,6 +50,7 @@ export class GuestIdentity extends IdentityBase implements Permissions {
     "Cert_Root.view",
     "Cert_Intermediate.view",
     "Cert_Combined.view",
+    "Status_Health.view",
   ])
 }
 
