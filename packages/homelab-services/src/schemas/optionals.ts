@@ -1,4 +1,5 @@
 import { Schema } from "effect"
+import { type LazyArg } from "effect/Function"
 
 export const OptionalStringOrArray = Optional(
   Schema.Union(
@@ -22,5 +23,14 @@ export function OptionalArray<A, I, R>(schema: Schema.Schema<A, I, R>) {
 export function Optional<A, I, R>(schema: Schema.Schema<A, I, R>) {
   return schema.pipe(
     Schema.optionalWith({ exact: true }),
+  )
+}
+
+export function OptionalWithDefault<A, I, R>(schema: Schema.Schema<A, I, R>, _default: LazyArg<A>) {
+  return schema.pipe(
+    Schema.optionalWith({
+      exact: true,
+      default: _default,
+    }),
   )
 }

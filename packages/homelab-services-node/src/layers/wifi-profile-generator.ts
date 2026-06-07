@@ -47,6 +47,7 @@ class WifiProfileServiceImpl implements Services.WifiProfileGeneratorService.Wif
 
       return yield* pipe(
         rootPayloadService.rootPayload(
+          "Wifi",
           rootCertPayload,
           intermediatePayload,
           wifiPayload,
@@ -90,6 +91,7 @@ class WifiProfileServiceImpl implements Services.WifiProfileGeneratorService.Wif
 
       return yield* pipe(
         rootPayloadService.rootPayload(
+          "Wifi",
           rootCertPayload,
           intermediatePayload,
           wifiPayload,

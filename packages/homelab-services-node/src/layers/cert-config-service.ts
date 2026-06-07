@@ -20,7 +20,7 @@ class CertConfigServiceImpl implements Services.CertConfigService.CertConfigServ
     return this.cert(
       filename,
       payload,
-      this.uuids.intermediateCertPayloadUuid,
+      this.uuids.homelabPayloadIntermediateCertUuid,
       "Plato Splunk Intermediate",
       "An intermediate CA certificate belonging to a RADIUS authentication server",
     )
@@ -30,7 +30,7 @@ class CertConfigServiceImpl implements Services.CertConfigService.CertConfigServ
     return this.cert(
       filename,
       payload,
-      this.uuids.rootCertPayloadUuid,
+      this.uuids.homelabPayloadRootCertUuid,
       "Plato Splunk Root",
       "A root CA certificate for TLS and RADIUS authentication",
     )

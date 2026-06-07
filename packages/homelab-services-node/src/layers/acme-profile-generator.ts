@@ -39,6 +39,7 @@ class AcmeProfileServiceImpl implements Services.AcmeProfileGeneratorService.Acm
 
       return yield* pipe(
         rootPayloadService.rootPayload(
+          "ACME",
           rootCertPayload,
           acmePayload,
         ),

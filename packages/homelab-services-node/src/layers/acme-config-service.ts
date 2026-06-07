@@ -34,9 +34,9 @@ class AcmeConfigServiceImpl implements Services.AcmeConfigService.AcmeConfigServ
         KeyType: this.keyType,
         PayloadDescription: "Configures ACME settings",
         PayloadDisplayName: "ACME",
-        PayloadIdentifier: `com.apple.security.acme.${this.uuids.platoSplunkAcmePayloadUuid}`,
+        PayloadIdentifier: `com.apple.security.acme.${this.uuids.homelabPayloadAcmeUuid}`,
         PayloadType: "com.apple.security.acme",
-        PayloadUUID: this.uuids.platoSplunkAcmePayloadUuid,
+        PayloadUUID: this.uuids.homelabPayloadAcmeUuid,
         PayloadVersion: 1,
       } satisfies Schemas.ACME.AcmeConfig,
     )

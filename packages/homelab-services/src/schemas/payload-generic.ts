@@ -1,15 +1,16 @@
 import { Schema } from "effect"
 import { JSONExtensions } from "./JSONExt.js"
+import { Optional } from "./optionals.js"
 
 export const GenericPayloadSchema = Schema.Struct({
-  PayloadContent: JSONExtensions.pipe(Schema.optionalWith({ exact: true })),
+  PayloadContent: Optional(JSONExtensions),
   PayloadDescription: Schema.String,
   PayloadDisplayName: Schema.String,
   PayloadIdentifier: Schema.String,
-  PayloadOrganization: Schema.String.pipe(Schema.optionalWith({ exact: true })),
-  PayloadRemovalDisallowed: Schema.Boolean.pipe(Schema.optionalWith({ exact: true })),
+  PayloadOrganization: Optional(Schema.String),
+  PayloadRemovalDisallowed: Optional(Schema.Boolean),
   PayloadType: Schema.String,
-  PayloadScope: Schema.String.pipe(Schema.optionalWith({ exact: true })),
+  PayloadScope: Optional(Schema.String),
   PayloadUUID: Schema.UUID,
   PayloadVersion: Schema.Int.pipe(Schema.positive()),
 })

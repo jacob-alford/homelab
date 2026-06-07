@@ -22,7 +22,7 @@ class WifiConfigServiceImpl implements Services.WifiConfigService.WifiConfigServ
     password: string,
     disableMACRandomization: boolean = false,
   ): Effect.Effect<Schemas.WifiConfig.WifiConfig, Services.WifiConfigService.WifiConfigGenerationError> {
-    const payloadUuid = this.uuids.wifiPayloadUUID(ssidString)
+    const payloadUuid = this.uuids.homelabPayloadWifiUuid(ssidString)
 
     if (!payloadUuid) {
       return Effect.fail(
@@ -60,7 +60,7 @@ class WifiConfigServiceImpl implements Services.WifiConfigService.WifiConfigServ
     password: string,
     disableMACRandomization: boolean = false,
   ): Effect.Effect<Schemas.WifiConfig.WifiConfig, Services.WifiConfigService.WifiConfigGenerationError> {
-    const payloadUuid = this.uuids.wifiPayloadUUID(ssidString)
+    const payloadUuid = this.uuids.homelabPayloadWifiUuid(ssidString)
 
     if (!payloadUuid) {
       return Effect.fail(
@@ -79,8 +79,8 @@ class WifiConfigServiceImpl implements Services.WifiConfigService.WifiConfigServ
         EAPClientConfiguration: {
           AcceptEAPTypes: [25],
           PayloadCertificateAnchorUUID: [
-            this.uuids.rootCertPayloadUuid,
-            this.uuids.intermediateCertPayloadUuid,
+            this.uuids.homelabPayloadRootCertUuid,
+            this.uuids.homelabPayloadIntermediateCertUuid,
           ],
           TLSMaximumVersion: "1.3",
           TLSMinimumVersion: "1.2",

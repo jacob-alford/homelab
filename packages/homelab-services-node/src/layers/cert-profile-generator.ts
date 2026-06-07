@@ -37,6 +37,7 @@ class CertProfileServiceImpl implements Services.CertProfileGeneratorService.Cer
 
       return yield* pipe(
         rootPayloadService.rootPayload(
+          "Certs",
           rootCertPayload,
           intermediatePayload,
         ),

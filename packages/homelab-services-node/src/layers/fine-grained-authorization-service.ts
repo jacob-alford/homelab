@@ -44,6 +44,7 @@ class FineGrainedAuthorizationServiceImpl
         }),
         "Config_ACME": () => Effect.succeed(true as const),
         "Config_Certs": () => Effect.succeed(true as const),
+        "Config_DNS": () => Effect.succeed(true as const),
         "Cert_Root": () => Effect.succeed(true as const),
         "Cert_Intermediate": () => Effect.succeed(true as const),
         "Cert_Combined": () => Effect.succeed(true as const),

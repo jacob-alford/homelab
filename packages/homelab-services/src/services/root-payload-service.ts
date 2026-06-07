@@ -8,6 +8,7 @@ export const RootPayloadServiceId = "homelab-api/services/root-payload-service/R
 export interface RootPayloadServiceDef {
   /** Assembles the top-level MDM configuration profile from the provided payload entries. */
   rootPayload(
+    payloadId: "Wifi" | "ACME" | "Certs" | "DNS",
     ...additionalPayloads: ReadonlyArray<Schemas.RootPayload.AllPayloads>
   ): Effect.Effect<Schemas.RootPayload.RootPayload>
 }
