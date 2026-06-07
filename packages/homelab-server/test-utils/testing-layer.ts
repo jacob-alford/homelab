@@ -101,6 +101,15 @@ const TestCertProfileGeneratorService = Layers.CertProfileGeneratorService.CertP
   Layer.provide(TestRootPayloadService),
 )
 
+const TestDnsConfigService = Layers.DnsConfigService.DnsConfigServiceLive.pipe(
+  Layer.provide(ProfileUuidConfigLive),
+)
+
+const TestDnsProfileGeneratorService = Layers.DnsProfileGeneratorService.DnsProfileServiceLive.pipe(
+  Layer.provide(TestDnsConfigService),
+  Layer.provide(TestRootPayloadService),
+)
+
 export const TestUuidService = Layers.UuidService.UuidServiceLive
 
 const FetchTest = Layer.succeed(FetchHttpClient.Fetch, () => Promise.resolve(new Response("ok", { status: 200 })))
@@ -116,6 +125,7 @@ export const HandlerTestLayer = Layer.mergeAll(
   TestWifiProfileGeneratorService,
   TestAcmeProfileGeneratorService,
   TestCertProfileGeneratorService,
+  TestDnsProfileGeneratorService,
   TestCertificateService,
   TestUuidService,
   TestHttpClient,

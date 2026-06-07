@@ -1,6 +1,7 @@
 import { Schema } from "effect"
 import { AcmeConfigSchema } from "./config-acme.js"
 import { CertificateConfigSchema } from "./config-certificate.js"
+import { DNSConfigSchema } from "./config-dns.js"
 import { WifiConfigSchema } from "./config-wifi.js"
 import { ConsentTextSchema } from "./ConsentText.js"
 import { GenericPayloadSchema } from "./payload-generic.js"
@@ -9,6 +10,7 @@ export const AllPayloadsSchema = Schema.Union(
   WifiConfigSchema,
   CertificateConfigSchema,
   AcmeConfigSchema,
+  DNSConfigSchema,
 )
 
 export type AllPayloads = typeof AllPayloadsSchema.Type

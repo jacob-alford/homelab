@@ -4,6 +4,8 @@ import { AcmeProfileServiceLive } from "../layers/acme-profile-generator.js"
 import { CertConfigServiceLive } from "../layers/cert-config-service.js"
 import { CertProfileServiceLive } from "../layers/cert-profile-generator.js"
 import { CertificateServiceLive } from "../layers/certificate-service.js"
+import { DnsConfigServiceLive } from "../layers/dns-config-service.js"
+import { DnsProfileServiceLive } from "../layers/dns-profile-generator.js"
 import { RootPayloadServiceLive } from "../layers/root-payload-service.js"
 import { WifiConfigServiceLive } from "../layers/wifi-config-service.js"
 import { WifiProfileServiceLive } from "../layers/wifi-profile-generator.js"
@@ -14,12 +16,13 @@ const ServiceDeps = RootPayloadServiceLive.pipe(
   Layer.provideMerge(WifiConfigServiceLive),
   Layer.provideMerge(CertConfigServiceLive),
   Layer.provideMerge(CertificateServiceLive),
+  Layer.provideMerge(DnsConfigServiceLive),
 )
 
 export const Aggregate = Layer.merge(
   Layer.merge(AcmeProfileServiceLive, WifiProfileServiceLive),
   Layer.merge(
-    CertProfileServiceLive,
+    Layer.merge(CertProfileServiceLive, DnsProfileServiceLive),
     AppleMdmXmlPrintingLive.pipe(Layer.provide(AppleMdmXmlPrintingConfigDefault)),
   ),
 ).pipe(

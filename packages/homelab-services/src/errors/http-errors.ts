@@ -29,6 +29,7 @@ export class NotFound extends Schema.TaggedError<NotFound>()(
 export const BadRequestReasonsSchema = Schema.Literal(
   "eap-client-username-required",
   "acme-invalid-client-identifier",
+  "dns-ssid-required",
 )
 
 export class BadRequest extends Schema.TaggedError<BadRequest>()(
