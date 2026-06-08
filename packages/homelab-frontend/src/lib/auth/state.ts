@@ -1,9 +1,7 @@
 import { Option } from "effect"
 import { computed, map, onSet, task } from "nanostores"
+import { TOKEN_EXPIRY_KEY, TOKEN_KEY } from "./constants.js"
 import type { TokenResponse } from "./schema.js"
-
-const TOKEN_KEY = "oidc_token"
-const TOKEN_EXPIRY_KEY = "oidc_token_expiry"
 
 export type AuthState = {
   token: Option.Option<TokenResponse>

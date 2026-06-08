@@ -1,8 +1,9 @@
 import { Link } from "@kobalte/core/link"
 import { Tabs } from "@kobalte/core/tabs"
 import type { Option } from "effect"
-import { FaSolidCircleArrowLeft, FaSolidCircleArrowRight } from "solid-icons/fa"
-import type { WifiTab } from "../../lib/wifi/index.js"
+import { FaSolidCircleArrowLeft } from "solid-icons/fa"
+import type * as Lib from "../../lib/index.js"
+import { PageNav } from "../PageNav/index.js"
 import { ToastRegion } from "../Toast/index.js"
 import { AndroidTab } from "./AndroidTab.js"
 import { AppleTab } from "./AppleTab.js"
@@ -19,8 +20,9 @@ export interface WifiPageViewProps {
   effectiveUsername: Option.Option<string>
   username: Option.Option<string>
   password: Option.Option<string>
-  tab: WifiTab
-  onTabChange: (tab: WifiTab) => void
+  tab: Lib.State.Tab
+  dnsHref: string
+  onTabChange: (tab: Lib.State.Tab) => void
   onUsernameChange: (value: string) => void
   onPasswordChange: (value: string) => void
   onDownloadAppleProfile: () => void
@@ -33,11 +35,6 @@ export interface WifiPageViewProps {
 }
 
 export function WifiPageView(props: WifiPageViewProps) {
-  const dnsHref = () => {
-    if (typeof window === "undefined") return "/dns"
-    const qs = window.location.search
-    return qs ? `/dns${qs}` : "/dns"
-  }
   return (
     <div class="wifi-page">
       <Link class="wifi-page__adjust-link" onClick={props.onAdjustParameters}>
@@ -45,7 +42,7 @@ export function WifiPageView(props: WifiPageViewProps) {
         <span>Adjust parameters</span>
       </Link>
 
-      <Tabs value={props.tab} onChange={(v) => props.onTabChange(v as WifiTab)} class="wifi-page__tabs">
+      <Tabs value={props.tab} onChange={(v) => props.onTabChange(v as Lib.State.Tab)} class="wifi-page__tabs">
         <Tabs.List class="wifi-page__tabs-list">
           <Tabs.Trigger value="apple" class="wifi-page__tabs-trigger">Apple</Tabs.Trigger>
           <Tabs.Trigger value="android" class="wifi-page__tabs-trigger">Android</Tabs.Trigger>
@@ -82,10 +79,7 @@ export function WifiPageView(props: WifiPageViewProps) {
         </Tabs.Content>
       </Tabs>
 
-      <a href={dnsHref()} class="wifi-page__dns-link">
-        <span>Configure DNS</span>
-        <FaSolidCircleArrowRight />
-      </a>
+      <PageNav href={props.dnsHref} label="Configure DNS" direction="forward" />
 
       <ToastRegion />
     </div>

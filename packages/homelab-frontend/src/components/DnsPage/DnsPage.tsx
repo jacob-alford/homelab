@@ -1,78 +1,88 @@
 import { useStore } from "@nanostores/solid"
 import { Option } from "effect"
-import { createEffect, createSignal, onMount } from "solid-js"
-import { $isAuthenticated } from "../../lib/auth/index.js"
-import {
-  $dnsParams,
-  $dnsTab,
-  copyDnsDownloadLink,
-  deriveProfile,
-  type DnsTab,
-  downloadDnsProfile,
-  profileFriendlyName,
-  reinitDnsFromURL,
-} from "../../lib/dns/index.js"
-import { runEffect } from "../../lib/wifi/index.js"
+import { createEffect, createSignal } from "solid-js"
+import * as Lib from "../../lib/index.js"
 import { showErrorToast, showSuccessToast } from "../Toast/index.js"
 import { DnsPageView } from "./DnsPageView.js"
 import "./DnsPage.css"
 
 export function DnsPage() {
-  const isAuthenticated = useStore($isAuthenticated)
-  const params = useStore($dnsParams)
-  const tab = useStore($dnsTab)
+  const isAuthenticated = useStore(Lib.Auth.State.$isAuthenticated)
+  const auth = useStore(Lib.Auth.State.$auth)
+  const dns = Lib.Dns.State.useDnsParams()
   const [copyingLink, setCopyingLink] = createSignal(false)
 
+  const dnsParams = dns.params
+
   const effectiveBlockAds = () => {
-    const p = params()
+    const p = dnsParams()
     const ts = Option.getOrElse(p.tailscale, () => false)
     return ts ? true : Option.getOrElse(p.blockAds, () => true)
   }
-  const effectiveTailscale = () => Option.getOrElse(params().tailscale, () => false)
-  const effectiveKeepLogs = () => Option.getOrElse(params().keepLogs, () => false)
+  const effectiveTailscale = () => Option.getOrElse(dnsParams().tailscale, () => false)
+  const effectiveKeepLogs = () => Option.getOrElse(dnsParams().keepLogs, () => false)
 
-  onMount(() => reinitDnsFromURL())
+  const wifiHref = () => {
+    const qs = dns.queryString()
+    return qs ? `${Lib.Env.appPath("/")}?${qs}` : Lib.Env.appPath("/")
+  }
 
   createEffect(() => {
-    const profile = deriveProfile({
+    const profile = Lib.Dns.State.deriveProfile({
       blockAds: effectiveBlockAds(),
       tailscale: effectiveTailscale(),
       keepLogs: effectiveKeepLogs(),
     })
-    document.title = `Homelab | DNS | ${profileFriendlyName(profile)}`
+    document.title = `Homelab | DNS | ${Lib.Dns.State.profileFriendlyName(profile)}`
   })
 
+  const token = () =>
+    Option.map(auth().token, (t) => t.id_token ?? "").pipe(
+      Option.filter((t) => t !== ""),
+    )
+
   function handleDownload() {
-    runEffect(downloadDnsProfile()).catch((err) => {
+    const p = dnsParams()
+    Lib.Runtime.runEffect(Lib.Dns.Effects.downloadDnsProfile({
+      blockAds: p.blockAds,
+      tailscale: p.tailscale,
+      keepLogs: p.keepLogs,
+      token: token(),
+    })).catch((err) => {
       showErrorToast(err instanceof Error ? err.message : "Failed to download DNS profile")
     })
   }
 
   function handleCopyDownloadLink() {
     setCopyingLink(true)
-    runEffect(copyDnsDownloadLink())
+    const p = dnsParams()
+    Lib.Runtime.runEffect(Lib.Dns.Effects.copyDnsDownloadLink({
+      blockAds: p.blockAds,
+      tailscale: p.tailscale,
+      keepLogs: p.keepLogs,
+    }))
       .then(() => showSuccessToast("Download link copied to clipboard"))
       .catch((err) => showErrorToast(err instanceof Error ? err.message : "Failed to copy link"))
       .finally(() => setCopyingLink(false))
   }
 
-  function handleTabChange(t: DnsTab) {
-    $dnsTab.set(t)
+  function handleTabChange(t: Lib.State.Tab) {
+    dns.setTab(t)
   }
 
   function handleBlockAdsChange(value: boolean) {
-    $dnsParams.setKey("blockAds", Option.some(value))
+    dns.setBlockAds(Option.some(value))
   }
 
   function handleTailscaleChange(value: boolean) {
-    $dnsParams.setKey("tailscale", Option.some(value))
+    dns.setTailscale(Option.some(value))
     if (value) {
-      $dnsParams.setKey("blockAds", Option.some(true))
+      dns.setBlockAds(Option.some(true))
     }
   }
 
   function handleKeepLogsChange(value: boolean) {
-    $dnsParams.setKey("keepLogs", Option.some(value))
+    dns.setKeepLogs(Option.some(value))
   }
 
   return (
@@ -81,8 +91,9 @@ export function DnsPage() {
       blockAds={effectiveBlockAds()}
       tailscale={effectiveTailscale()}
       keepLogs={effectiveKeepLogs()}
-      tab={tab()}
+      tab={dns.tab()}
       copyingLink={copyingLink()}
+      wifiHref={wifiHref()}
       onTabChange={handleTabChange}
       onBlockAdsChange={handleBlockAdsChange}
       onTailscaleChange={handleTailscaleChange}

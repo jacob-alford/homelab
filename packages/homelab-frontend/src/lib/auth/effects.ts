@@ -1,19 +1,26 @@
 import { HttpClient, HttpClientRequest, HttpClientResponse } from "@effect/platform"
 import { Effect } from "effect"
-import { StorageService } from "../storage/index.js"
-import { OIDC_CLIENT_ID, OIDC_REDIRECT_PATH } from "./config.js"
-import { generatePKCE, generateRandomString } from "./pkce.js"
+import { Schemas } from "homelab-services"
+import * as Storage from "../storage/index.js"
+import { PKCE_STATE_KEY, PKCE_VERIFIER_KEY, RETURN_URL_KEY } from "./constants.js"
+import { OIDC_CLIENT_ID, OIDC_REDIRECT_PATH, OIDC_WELL_KNOWN_URL } from "./env.js"
 import { TokenResponse } from "./schema.js"
-import { fetchOIDCWellKnown } from "./well-known.js"
-
-const PKCE_VERIFIER_KEY = "oidc_pkce_verifier"
-const PKCE_STATE_KEY = "oidc_state"
-const RETURN_URL_KEY = "oidc_return_url"
+import { generatePKCE, generateRandomString } from "./utils.js"
 
 const getRedirectUri = () => `${window.location.origin}${OIDC_REDIRECT_PATH}`
 
+export const fetchOIDCWellKnown = Effect.fn("fetchOIDCWellKnown")(function*() {
+  const wellKnownUrl = yield* OIDC_WELL_KNOWN_URL
+
+  const client = (yield* HttpClient.HttpClient).pipe(
+    HttpClient.withTracerPropagation(false),
+  )
+  const response = yield* client.execute(HttpClientRequest.get(wellKnownUrl))
+  return yield* HttpClientResponse.schemaBodyJson(Schemas.OIDC.OIDCWellKnown)(response)
+})
+
 export const login = Effect.fn("login")(function*() {
-  const storage = yield* StorageService
+  const storage = yield* Storage.Service.StorageService
   const clientId = yield* OIDC_CLIENT_ID
   const wk = yield* fetchOIDCWellKnown()
   const { codeChallenge, codeVerifier } = yield* generatePKCE()
@@ -39,7 +46,7 @@ export const login = Effect.fn("login")(function*() {
 })
 
 export const handleOIDCCallback = Effect.fn("handleOIDCCallback")(function*() {
-  const storage = yield* StorageService
+  const storage = yield* Storage.Service.StorageService
   const clientId = yield* OIDC_CLIENT_ID
 
   const urlParams = new URLSearchParams(window.location.search)
@@ -84,7 +91,7 @@ export const handleOIDCCallback = Effect.fn("handleOIDCCallback")(function*() {
 })
 
 export const consumeReturnUrl = Effect.fn("consumeReturnUrl")(function*() {
-  const storage = yield* StorageService
+  const storage = yield* Storage.Service.StorageService
   const url = yield* storage.get(RETURN_URL_KEY).pipe(Effect.map((_) => _._tag === "Some" ? _.value : "/"))
   yield* storage.remove(RETURN_URL_KEY)
   return url

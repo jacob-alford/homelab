@@ -47,6 +47,7 @@ export class GuestIdentity extends IdentityBase implements Permissions {
     "Config_Wifi.create",
     "Config_Certs.view",
     "Config_Certs.create",
+    "Config_DNS.view",
     "Cert_Root.view",
     "Cert_Intermediate.view",
     "Cert_Combined.view",

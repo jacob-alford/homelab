@@ -1,0 +1,5 @@
+export const PKCE_VERIFIER_KEY = "oidc_pkce_verifier"
+export const PKCE_STATE_KEY = "oidc_state"
+export const RETURN_URL_KEY = "oidc_return_url"
+export const TOKEN_KEY = "oidc_token"
+export const TOKEN_EXPIRY_KEY = "oidc_token_expiry"

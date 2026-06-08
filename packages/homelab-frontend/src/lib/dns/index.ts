@@ -1,10 +1,2 @@
-export { copyDnsDownloadLink, downloadDnsProfile } from "./effects.js"
-export {
-  $dnsParams,
-  $dnsTab,
-  deriveProfile,
-  type DnsParams,
-  type DnsTab,
-  profileFriendlyName,
-  reinitDnsFromURL,
-} from "./params.js"
+export * as Effects from "./effects.js"
+export * as State from "./state.js"

@@ -24,6 +24,7 @@ in
       "Config_Wifi.view"
       "Config_Wifi.create"
       "Config_Certs.view"
+      "Config_DNS.view"
       "Cert_Root"
       "Cert_Intermediate"
       "Cert_Combined"

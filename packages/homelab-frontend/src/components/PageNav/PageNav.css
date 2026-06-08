@@ -1,0 +1,29 @@
+.page-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xl);
+  margin-top: var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.page-nav:visited {
+  color: var(--text-secondary);
+}
+
+.page-nav:hover {
+  color: var(--text-primary);
+}
+
+.page-nav--forward {
+  align-self: flex-end;
+  margin-right: var(--space-lg);
+}
+
+.page-nav--back {
+  align-self: flex-start;
+  margin-left: var(--space-lg);
+}

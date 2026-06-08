@@ -1,6 +1,6 @@
 import { Tabs } from "@kobalte/core/tabs"
-import { FaSolidCircleArrowLeft } from "solid-icons/fa"
-import type { DnsTab } from "../../lib/dns/index.js"
+import type * as Lib from "../../lib/index.js"
+import { PageNav } from "../PageNav/index.js"
 import { ToastRegion } from "../Toast/index.js"
 import { AndroidTab } from "./AndroidTab.js"
 import { AppleTab } from "./AppleTab.js"
@@ -11,9 +11,10 @@ export interface DnsPageViewProps {
   blockAds: boolean
   tailscale: boolean
   keepLogs: boolean
-  tab: DnsTab
+  tab: Lib.State.Tab
   copyingLink: boolean
-  onTabChange: (tab: DnsTab) => void
+  wifiHref: string
+  onTabChange: (tab: Lib.State.Tab) => void
   onBlockAdsChange: (value: boolean) => void
   onTailscaleChange: (value: boolean) => void
   onKeepLogsChange: (value: boolean) => void
@@ -22,15 +23,9 @@ export interface DnsPageViewProps {
 }
 
 export function DnsPageView(props: DnsPageViewProps) {
-  const wifiHref = () => {
-    if (typeof window === "undefined") return "/"
-    const qs = window.location.search
-    return qs ? `/${qs}` : "/"
-  }
-
   return (
     <div class="dns-page">
-      <Tabs value={props.tab} onChange={(v) => props.onTabChange(v as DnsTab)} class="dns-page__tabs">
+      <Tabs value={props.tab} onChange={(v) => props.onTabChange(v as Lib.State.Tab)} class="dns-page__tabs">
         <Tabs.List class="dns-page__tabs-list">
           <Tabs.Trigger value="apple" class="dns-page__tabs-trigger">Apple</Tabs.Trigger>
           <Tabs.Trigger value="android" class="dns-page__tabs-trigger">Android</Tabs.Trigger>
@@ -57,10 +52,7 @@ export function DnsPageView(props: DnsPageViewProps) {
         </Tabs.Content>
       </Tabs>
 
-      <a href={wifiHref()} class="dns-page__back-link">
-        <FaSolidCircleArrowLeft />
-        <span>Configure Wi-Fi</span>
-      </a>
+      <PageNav href={props.wifiHref} label="Configure Wi-Fi" direction="back" />
 
       <ToastRegion />
     </div>

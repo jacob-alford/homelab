@@ -230,7 +230,7 @@
 
 .wifi-page__note {
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   font-style: italic;
 }
 
@@ -307,7 +307,7 @@
 
 .wifi-page__copy-subtext {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   padding-left: var(--space-xs, 0.25rem);
 }
 
@@ -386,26 +386,4 @@
 .wifi-page__description a {
   color: var(--interactive-primary);
   text-decoration: underline;
-}
-
-.wifi-page__dns-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  align-self: flex-end;
-  margin-right: var(--space-lg);
-  margin-bottom: var(--space-xl);
-  margin-top: var(--space-md);
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.wifi-page__dns-link:visited {
-  color: var(--text-secondary);
-}
-
-.wifi-page__dns-link:hover {
-  color: var(--text-primary);
 }

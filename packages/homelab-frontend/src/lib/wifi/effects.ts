@@ -1,89 +1,98 @@
 import { HttpApiClient } from "@effect/platform"
 import { Console, Effect, Option } from "effect"
 import { Homelab } from "homelab-api"
-import { $auth, $username } from "../auth/index.js"
-import { API_BASE_URL } from "../config.js"
-import { $wifiParams } from "./params.js"
+import { API_BASE_URL } from "../env.js"
+import { fromOption, MissingParamError } from "../util.js"
 
-export const downloadAppleProfile = Effect.fn("downloadAppleProfile")(function*() {
-  const auth = $auth.get()
-  const params = $wifiParams.get()
-  const ssid = yield* params.ssid
-  const password = yield* params.password
-  const encryption = Option.getOrElse(params.encryption, () => "WPA3" as const)
+export const downloadAppleProfile = Effect.fn("downloadAppleProfile")(
+  function*(args: {
+    ssid: Option.Option<string>
+    encryption: Option.Option<"WPA2" | "WPA3">
+    password: Option.Option<string>
+    username: Option.Option<string>
+    disableMACRandomization: Option.Option<boolean>
+    token: Option.Option<string>
+  }) {
+    const ssid = yield* fromOption(args.ssid, () => new MissingParamError({ param: "SSID" }))
+    const password = yield* fromOption(args.password, () => new MissingParamError({ param: "Password" }))
+    const encryption = Option.getOrElse(args.encryption, () => "WPA3" as const)
+    const disableMACRandomization = Option.getOrElse(args.disableMACRandomization, () => false)
+    const username = Option.getOrUndefined(args.username)
+    const token = Option.getOrUndefined(args.token)
 
-  const token = Option.getOrUndefined(auth.token)
-  const username = Option.orElse(params.username, () => $username.get())
+    if (username && username !== "guest" && !token) {
+      return yield* Effect.fail(new MissingParamError({ param: "Authentication token" }))
+    }
 
-  if (Option.isSome(username) && username.value !== "guest" && !token?.id_token) {
-    return yield* Effect.fail(new Error("Login required to download profiles with a non-guest username"))
-  }
+    const apiBaseUrl = yield* API_BASE_URL
+    const client = yield* HttpApiClient.make(Homelab.HomelabApi, { baseUrl: apiBaseUrl })
 
-  const apiBaseUrl = yield* API_BASE_URL
-  const client = yield* HttpApiClient.make(Homelab.HomelabApi, { baseUrl: apiBaseUrl })
+    const result = yield* client["mobile-config"].wifi({
+      path: { ssid, encryption },
+      payload: {
+        username,
+        password,
+        disableMACRandomization,
+        ...username ? { enterpriseClientType: "PEAP" as const } : {},
+      },
+      ...token ? { headers: { authorization: `Bearer ${token}` } } : { headers: {} },
+    })
 
-  const result = yield* client["mobile-config"].wifi({
-    path: { ssid, encryption },
-    payload: {
-      username: Option.getOrUndefined(username),
-      password,
-      disableMACRandomization: Option.getOrElse(params.disableMACRandomization, () => false),
-      ...Option.isSome(username)
-        ? { enterpriseClientType: "PEAP" as const }
-        : {},
-    },
-    ...token?.id_token ? { headers: { authorization: `Bearer ${token.id_token}` } } : { headers: {} },
-  })
+    yield* Effect.sync(() => {
+      const blob = new Blob([result as unknown as string], { type: "application/x-apple-aspen-config" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `${ssid}.mobileconfig`
+      a.click()
+      URL.revokeObjectURL(url)
+    })
+  },
+  Effect.tapError(Console.error),
+)
 
-  yield* Effect.sync(() => {
-    const blob = new Blob([result as unknown as string], { type: "application/x-apple-aspen-config" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `${ssid}.mobileconfig`
-    a.click()
-    URL.revokeObjectURL(url)
-  })
-}, Effect.tapError(Console.error))
+export const fetchClaimCheckAndCopyLink = Effect.fn("fetchClaimCheckAndCopyLink")(
+  function*(args: {
+    ssid: Option.Option<string>
+    encryption: Option.Option<"WPA2" | "WPA3">
+    password: Option.Option<string>
+    username: Option.Option<string>
+    disableMACRandomization: Option.Option<boolean>
+    token: Option.Option<string>
+  }) {
+    const token = yield* fromOption(args.token, () => new MissingParamError({ param: "Authentication token" }))
+    const ssid = yield* fromOption(args.ssid, () => new MissingParamError({ param: "SSID" }))
+    const password = yield* fromOption(args.password, () => new MissingParamError({ param: "Password" }))
+    const encryption = Option.getOrElse(args.encryption, () => "WPA3" as const)
+    const username = Option.getOrUndefined(args.username)
+    const disableMACRandomization = Option.getOrElse(args.disableMACRandomization, () => false)
 
-export const fetchClaimCheckAndCopyLink = Effect.fn("fetchClaimCheckAndCopyLink")(function*() {
-  const auth = $auth.get()
-  const token = yield* auth.token
-  if (!token.id_token) return yield* Effect.fail(new Error("Not authenticated"))
+    const apiBaseUrl = yield* API_BASE_URL
+    const client = yield* HttpApiClient.make(Homelab.HomelabApi, { baseUrl: apiBaseUrl })
 
-  const params = $wifiParams.get()
-  const ssid = yield* params.ssid
-  const password = yield* params.password
-  const encryption = Option.getOrElse(params.encryption, () => "WPA3" as const)
-  const username = Option.orElse(params.username, () => $username.get())
+    const { claim_check } = yield* client.oauth["claim-check"]({
+      headers: { authorization: `Bearer ${token}` },
+    })
 
-  const apiBaseUrl = yield* API_BASE_URL
-  const client = yield* HttpApiClient.make(Homelab.HomelabApi, { baseUrl: apiBaseUrl })
+    const linkParams = new URLSearchParams({ claim_check, password })
 
-  const { claim_check } = yield* client.oauth["claim-check"]({
-    headers: { authorization: `Bearer ${token.id_token}` },
-  })
+    if (username) {
+      linkParams.set("username", username)
+      linkParams.set("enterpriseClientType", "PEAP")
+    }
 
-  const linkParams = new URLSearchParams({
-    claim_check,
-    password,
-  })
+    if (disableMACRandomization) {
+      linkParams.set("disableMACRandomization", "true")
+    }
 
-  if (Option.isSome(username)) {
-    linkParams.set("username", username.value)
-    linkParams.set("enterpriseClientType", "PEAP")
-  }
+    const link = `${apiBaseUrl}/mobile-config/wifi/${
+      encodeURIComponent(ssid)
+    }/${encryption}/_download?${linkParams.toString()}`
 
-  if (Option.getOrElse(params.disableMACRandomization, () => false)) {
-    linkParams.set("disableMACRandomization", "true")
-  }
-
-  const link = `${apiBaseUrl}/mobile-config/wifi/${
-    encodeURIComponent(ssid)
-  }/${encryption}/_download?${linkParams.toString()}`
-
-  yield* Effect.promise(() => navigator.clipboard.writeText(link))
-}, Effect.tapError(Console.error))
+    yield* Effect.promise(() => navigator.clipboard.writeText(link))
+  },
+  Effect.tapError(Console.error),
+)
 
 export const downloadCert = Effect.gen(function*() {
   const apiBaseUrl = yield* API_BASE_URL

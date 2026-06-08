@@ -1,6 +1,7 @@
 import { Button } from "@kobalte/core/button"
 import { Option } from "effect"
 import { Show } from "solid-js"
+import * as Lib from "../../lib/index.js"
 import "./NavBar.css"
 
 export interface NavBarProps {
@@ -9,26 +10,23 @@ export interface NavBarProps {
   oidcEnabled: boolean
   isAuthenticated: boolean
   displayName: Option.Option<string>
+  wifiHref: string
+  dnsHref: string
   onLogin: () => void
   onLogout: () => void
 }
 
 export function NavBar(props: NavBarProps) {
-  const isActive = (path: string) => props.currentPath === path
-  const withParams = (path: string) => {
-    if (typeof window === "undefined") return path
-    const qs = window.location.search
-    return qs ? `${path}${qs}` : path
-  }
+  const isActive = (route: string) => Lib.Env.isAppPath(props.currentPath, route)
 
   return (
     <nav class="navbar">
       <div class="navbar__left">
-        <img src="/logo.png" alt="Homelab" class="navbar__logo" />
-        <a href={withParams("/")} class="navbar__link" classList={{ "navbar__link--active": isActive("/") }}>
+        <img src={`${Lib.Env.BASE_PATH}/logo.png`} alt="Homelab" class="navbar__logo" />
+        <a href={props.wifiHref} class="navbar__link" classList={{ "navbar__link--active": isActive("/") }}>
           Wifi
         </a>
-        <a href={withParams("/dns")} class="navbar__link" classList={{ "navbar__link--active": isActive("/dns") }}>
+        <a href={props.dnsHref} class="navbar__link" classList={{ "navbar__link--active": isActive("/dns") }}>
           DNS
         </a>
       </div>

@@ -1,6 +1,6 @@
 import { HttpClient, HttpClientRequest } from "@effect/platform"
 import { Effect } from "effect"
-import { UPGRADE_STATUS_URL, UPGRADE_TARGET_ORIGIN } from "../config.js"
+import { UPGRADE_STATUS_URL, UPGRADE_TARGET_ORIGIN } from "../env.js"
 
 export const upgradeIfReachable = Effect.fn("upgradeIfReachable")(function*(preRedirect: () => void) {
   const statusUrl = yield* UPGRADE_STATUS_URL
