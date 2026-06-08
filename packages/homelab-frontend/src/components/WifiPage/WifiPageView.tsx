@@ -1,10 +1,9 @@
-import { Button } from "@kobalte/core/button"
 import { Link } from "@kobalte/core/link"
 import { Tabs } from "@kobalte/core/tabs"
-import { Option } from "effect"
-import { FaSolidCircleArrowLeft } from "solid-icons/fa"
-import { Show } from "solid-js"
+import type { Option } from "effect"
+import { FaSolidCircleArrowLeft, FaSolidCircleArrowRight } from "solid-icons/fa"
 import type { WifiTab } from "../../lib/wifi/index.js"
+import { NavBar } from "../NavBar/index.js"
 import { ToastRegion } from "../Toast/index.js"
 import { AndroidTab } from "./AndroidTab.js"
 import { AppleTab } from "./AppleTab.js"
@@ -38,27 +37,22 @@ export interface WifiPageViewProps {
 }
 
 export function WifiPageView(props: WifiPageViewProps) {
+  const dnsHref = () => {
+    if (typeof window === "undefined") return "/dns"
+    const qs = window.location.search
+    return qs ? `/dns${qs}` : "/dns"
+  }
   return (
     <div class="wifi-page">
-      <nav class="wifi-page__topbar">
-        <Show when={props.mounted && props.oidcEnabled}>
-          <Show
-            when={props.isAuthenticated}
-            fallback={
-              <Button class="wifi-page__login-btn" onClick={props.onLogin}>
-                Login
-              </Button>
-            }
-          >
-            <div class="wifi-page__user-info">
-              <span class="wifi-page__display-name">{Option.getOrElse(props.displayName, () => "Guest")}</span>
-              <Button class="wifi-page__login-btn" onClick={props.onLogout}>
-                Logout
-              </Button>
-            </div>
-          </Show>
-        </Show>
-      </nav>
+      <NavBar
+        currentPath="/"
+        mounted={props.mounted}
+        oidcEnabled={props.oidcEnabled}
+        isAuthenticated={props.isAuthenticated}
+        displayName={props.displayName}
+        onLogin={props.onLogin}
+        onLogout={props.onLogout}
+      />
 
       <Link class="wifi-page__adjust-link" onClick={props.onAdjustParameters}>
         <FaSolidCircleArrowLeft />
@@ -101,6 +95,12 @@ export function WifiPageView(props: WifiPageViewProps) {
           />
         </Tabs.Content>
       </Tabs>
+
+      <a href={dnsHref()} class="wifi-page__dns-link">
+        <span>Configure DNS</span>
+        <FaSolidCircleArrowRight />
+      </a>
+
       <ToastRegion />
     </div>
   )

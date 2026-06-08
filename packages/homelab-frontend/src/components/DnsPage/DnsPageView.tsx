@@ -1,0 +1,85 @@
+import { Tabs } from "@kobalte/core/tabs"
+import type { Option } from "effect"
+import { FaSolidCircleArrowLeft } from "solid-icons/fa"
+import type { DnsTab } from "../../lib/dns/index.js"
+import { NavBar } from "../NavBar/index.js"
+import { ToastRegion } from "../Toast/index.js"
+import { AndroidTab } from "./AndroidTab.js"
+import { AppleTab } from "./AppleTab.js"
+import "./DnsPage.css"
+
+export interface DnsPageViewProps {
+  mounted: boolean
+  oidcEnabled: boolean
+  isAuthenticated: boolean
+  displayName: Option.Option<string>
+  blockAds: boolean
+  tailscale: boolean
+  keepLogs: boolean
+  tab: DnsTab
+  copyingLink: boolean
+  onTabChange: (tab: DnsTab) => void
+  onBlockAdsChange: (value: boolean) => void
+  onTailscaleChange: (value: boolean) => void
+  onKeepLogsChange: (value: boolean) => void
+  onDownload: () => void
+  onCopyDownloadLink: () => void
+  onLogin: () => void
+  onLogout: () => void
+}
+
+export function DnsPageView(props: DnsPageViewProps) {
+  const wifiHref = () => {
+    if (typeof window === "undefined") return "/"
+    const qs = window.location.search
+    return qs ? `/${qs}` : "/"
+  }
+
+  return (
+    <div class="dns-page">
+      <NavBar
+        currentPath="/dns"
+        mounted={props.mounted}
+        oidcEnabled={props.oidcEnabled}
+        isAuthenticated={props.isAuthenticated}
+        displayName={props.displayName}
+        onLogin={props.onLogin}
+        onLogout={props.onLogout}
+      />
+
+      <Tabs value={props.tab} onChange={(v) => props.onTabChange(v as DnsTab)} class="dns-page__tabs">
+        <Tabs.List class="dns-page__tabs-list">
+          <Tabs.Trigger value="apple" class="dns-page__tabs-trigger">Apple</Tabs.Trigger>
+          <Tabs.Trigger value="android" class="dns-page__tabs-trigger">Android</Tabs.Trigger>
+          <Tabs.Indicator class="dns-page__tabs-indicator" />
+        </Tabs.List>
+
+        <Tabs.Content value="apple" class="dns-page__tabs-content">
+          <AppleTab
+            isAuthenticated={props.isAuthenticated}
+            blockAds={props.blockAds}
+            tailscale={props.tailscale}
+            keepLogs={props.keepLogs}
+            copyingLink={props.copyingLink}
+            onBlockAdsChange={props.onBlockAdsChange}
+            onTailscaleChange={props.onTailscaleChange}
+            onKeepLogsChange={props.onKeepLogsChange}
+            onDownload={props.onDownload}
+            onCopyDownloadLink={props.onCopyDownloadLink}
+          />
+        </Tabs.Content>
+
+        <Tabs.Content value="android" class="dns-page__tabs-content">
+          <AndroidTab />
+        </Tabs.Content>
+      </Tabs>
+
+      <a href={wifiHref()} class="dns-page__back-link">
+        <FaSolidCircleArrowLeft />
+        <span>Configure Wi-Fi</span>
+      </a>
+
+      <ToastRegion />
+    </div>
+  )
+}

@@ -7,7 +7,7 @@ This document describes the validation steps to run after making changes.
 Run these commands from the repo root in order:
 
 ```sh
-dprint fmt
+dprint fmt fmt .
 yarn lint --fix
 yarn lint
 yarn typecheck
@@ -19,7 +19,7 @@ yarn test
 ### Format
 
 ```sh
-dprint fmt
+dprint fmt fmt .
 ```
 
 Formats all files in the repo. Run this before linting.

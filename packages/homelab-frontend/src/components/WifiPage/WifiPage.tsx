@@ -1,6 +1,6 @@
 import { useStore } from "@nanostores/solid"
 import { Option } from "effect"
-import { createSignal, onMount, Show } from "solid-js"
+import { createEffect, createSignal, onMount, Show } from "solid-js"
 import { $displayName, $isAuthenticated, $username, clearAuth, login, oidcEnabled } from "../../lib/auth/index.js"
 import { upgradeIfReachable } from "../../lib/upgrade/index.js"
 import {
@@ -45,6 +45,11 @@ export function WifiPage() {
   onMount(() => {
     setMounted(true)
     runEffect(upgradeIfReachable(() => showSuccessToast("Redirecting to internal servers..."))).catch(() => {})
+  })
+
+  createEffect(() => {
+    const u = Option.getOrUndefined(effectiveUsername())
+    document.title = u ? `Homelab | Wi-Fi | ${u}` : "Homelab | Wi-Fi"
   })
 
   function handleLogin() {
