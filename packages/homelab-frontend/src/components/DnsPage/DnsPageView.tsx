@@ -1,18 +1,13 @@
 import { Tabs } from "@kobalte/core/tabs"
-import type { Option } from "effect"
 import { FaSolidCircleArrowLeft } from "solid-icons/fa"
 import type { DnsTab } from "../../lib/dns/index.js"
-import { NavBar } from "../NavBar/index.js"
 import { ToastRegion } from "../Toast/index.js"
 import { AndroidTab } from "./AndroidTab.js"
 import { AppleTab } from "./AppleTab.js"
 import "./DnsPage.css"
 
 export interface DnsPageViewProps {
-  mounted: boolean
-  oidcEnabled: boolean
   isAuthenticated: boolean
-  displayName: Option.Option<string>
   blockAds: boolean
   tailscale: boolean
   keepLogs: boolean
@@ -24,8 +19,6 @@ export interface DnsPageViewProps {
   onKeepLogsChange: (value: boolean) => void
   onDownload: () => void
   onCopyDownloadLink: () => void
-  onLogin: () => void
-  onLogout: () => void
 }
 
 export function DnsPageView(props: DnsPageViewProps) {
@@ -37,16 +30,6 @@ export function DnsPageView(props: DnsPageViewProps) {
 
   return (
     <div class="dns-page">
-      <NavBar
-        currentPath="/dns"
-        mounted={props.mounted}
-        oidcEnabled={props.oidcEnabled}
-        isAuthenticated={props.isAuthenticated}
-        displayName={props.displayName}
-        onLogin={props.onLogin}
-        onLogout={props.onLogout}
-      />
-
       <Tabs value={props.tab} onChange={(v) => props.onTabChange(v as DnsTab)} class="dns-page__tabs">
         <Tabs.List class="dns-page__tabs-list">
           <Tabs.Trigger value="apple" class="dns-page__tabs-trigger">Apple</Tabs.Trigger>

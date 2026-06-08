@@ -3,7 +3,6 @@ import { Tabs } from "@kobalte/core/tabs"
 import type { Option } from "effect"
 import { FaSolidCircleArrowLeft, FaSolidCircleArrowRight } from "solid-icons/fa"
 import type { WifiTab } from "../../lib/wifi/index.js"
-import { NavBar } from "../NavBar/index.js"
 import { ToastRegion } from "../Toast/index.js"
 import { AndroidTab } from "./AndroidTab.js"
 import { AppleTab } from "./AppleTab.js"
@@ -15,7 +14,6 @@ export interface WifiPageViewProps {
   encryption: "WPA2" | "WPA3"
   oidcEnabled: boolean
   isAuthenticated: boolean
-  displayName: Option.Option<string>
   copyingLink: boolean
   canDownload: boolean
   effectiveUsername: Option.Option<string>
@@ -25,8 +23,6 @@ export interface WifiPageViewProps {
   onTabChange: (tab: WifiTab) => void
   onUsernameChange: (value: string) => void
   onPasswordChange: (value: string) => void
-  onLogin: () => void
-  onLogout: () => void
   onDownloadAppleProfile: () => void
   onDownloadCombinedCert: () => void
   onCopyDownloadLink: () => void
@@ -44,16 +40,6 @@ export function WifiPageView(props: WifiPageViewProps) {
   }
   return (
     <div class="wifi-page">
-      <NavBar
-        currentPath="/"
-        mounted={props.mounted}
-        oidcEnabled={props.oidcEnabled}
-        isAuthenticated={props.isAuthenticated}
-        displayName={props.displayName}
-        onLogin={props.onLogin}
-        onLogout={props.onLogout}
-      />
-
       <Link class="wifi-page__adjust-link" onClick={props.onAdjustParameters}>
         <FaSolidCircleArrowLeft />
         <span>Adjust parameters</span>

@@ -1,7 +1,7 @@
 import { useStore } from "@nanostores/solid"
 import { Option } from "effect"
 import { createEffect, createSignal, onMount } from "solid-js"
-import { $displayName, $isAuthenticated, clearAuth, login, oidcEnabled } from "../../lib/auth/index.js"
+import { $isAuthenticated } from "../../lib/auth/index.js"
 import {
   $dnsParams,
   $dnsTab,
@@ -10,6 +10,7 @@ import {
   type DnsTab,
   downloadDnsProfile,
   profileFriendlyName,
+  reinitDnsFromURL,
 } from "../../lib/dns/index.js"
 import { runEffect } from "../../lib/wifi/index.js"
 import { showErrorToast, showSuccessToast } from "../Toast/index.js"
@@ -18,10 +19,8 @@ import "./DnsPage.css"
 
 export function DnsPage() {
   const isAuthenticated = useStore($isAuthenticated)
-  const displayName = useStore($displayName)
   const params = useStore($dnsParams)
   const tab = useStore($dnsTab)
-  const [mounted, setMounted] = createSignal(false)
   const [copyingLink, setCopyingLink] = createSignal(false)
 
   const effectiveBlockAds = () => {
@@ -32,7 +31,7 @@ export function DnsPage() {
   const effectiveTailscale = () => Option.getOrElse(params().tailscale, () => false)
   const effectiveKeepLogs = () => Option.getOrElse(params().keepLogs, () => false)
 
-  onMount(() => setMounted(true))
+  onMount(() => reinitDnsFromURL())
 
   createEffect(() => {
     const profile = deriveProfile({
@@ -42,12 +41,6 @@ export function DnsPage() {
     })
     document.title = `Homelab | DNS | ${profileFriendlyName(profile)}`
   })
-
-  function handleLogin() {
-    runEffect(login()).catch((err) => {
-      showErrorToast(err instanceof Error ? err.message : "Login failed")
-    })
-  }
 
   function handleDownload() {
     runEffect(downloadDnsProfile()).catch((err) => {
@@ -84,10 +77,7 @@ export function DnsPage() {
 
   return (
     <DnsPageView
-      mounted={mounted()}
-      oidcEnabled={oidcEnabled}
       isAuthenticated={isAuthenticated()}
-      displayName={displayName()}
       blockAds={effectiveBlockAds()}
       tailscale={effectiveTailscale()}
       keepLogs={effectiveKeepLogs()}
@@ -99,8 +89,6 @@ export function DnsPage() {
       onKeepLogsChange={handleKeepLogsChange}
       onDownload={handleDownload}
       onCopyDownloadLink={handleCopyDownloadLink}
-      onLogin={handleLogin}
-      onLogout={clearAuth}
     />
   )
 }

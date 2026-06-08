@@ -4,6 +4,7 @@ import { onMount } from "solid-js"
 import { consumeReturnUrl, handleOIDCCallback, setAuth } from "../lib/auth/index.js"
 import { AstroConfigProvider } from "../lib/config-provider.js"
 import { SessionStorageServiceLive } from "../lib/storage/index.js"
+import { FullPageSpinner } from "./FullPageSpinner/index.js"
 import { showErrorToast } from "./Toast/index.js"
 
 const RuntimeLayer = Layer.mergeAll(FetchHttpClient.layer, SessionStorageServiceLive)
@@ -30,5 +31,5 @@ export function OAuthCallback() {
     })
   })
 
-  return null
+  return <FullPageSpinner />
 }

@@ -35,6 +35,12 @@ export const $dnsTab = atom<DnsTab>(initTabFromURL())
 
 export const $dnsParams = map<DnsParams>(initFromURL())
 
+export function reinitDnsFromURL() {
+  const p = initFromURL()
+  $dnsParams.set(p)
+  $dnsTab.set(initTabFromURL())
+}
+
 export function deriveProfile(params: { blockAds: boolean; tailscale: boolean; keepLogs: boolean }): DnsProfile {
   if (params.tailscale && params.keepLogs) return "monitoring_tailscale"
   if (params.tailscale) return "private_tailscale"

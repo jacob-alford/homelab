@@ -1,7 +1,7 @@
 import { useStore } from "@nanostores/solid"
 import { Option } from "effect"
 import { createEffect, createSignal, onMount, Show } from "solid-js"
-import { $displayName, $isAuthenticated, $username, clearAuth, login, oidcEnabled } from "../../lib/auth/index.js"
+import { $displayName, $isAuthenticated, $username, oidcEnabled } from "../../lib/auth/index.js"
 import { upgradeIfReachable } from "../../lib/upgrade/index.js"
 import {
   $wifiParams,
@@ -9,6 +9,7 @@ import {
   downloadAppleProfile,
   downloadCombinedCert,
   fetchClaimCheckAndCopyLink,
+  reinitWifiFromURL,
   runEffect,
   type WifiTab,
 } from "../../lib/wifi/index.js"
@@ -44,6 +45,7 @@ export function WifiPage() {
 
   onMount(() => {
     setMounted(true)
+    reinitWifiFromURL()
     runEffect(upgradeIfReachable(() => showSuccessToast("Redirecting to internal servers..."))).catch(() => {})
   })
 
@@ -51,16 +53,6 @@ export function WifiPage() {
     const u = Option.getOrUndefined(effectiveUsername())
     document.title = u ? `Homelab | Wi-Fi | ${u}` : "Homelab | Wi-Fi"
   })
-
-  function handleLogin() {
-    runEffect(login()).catch((err) => {
-      showErrorToast(err instanceof Error ? err.message : "Login failed")
-    })
-  }
-
-  function handleLogout() {
-    clearAuth()
-  }
 
   function validateFields(): boolean {
     if (Option.isNone(params().password)) {
@@ -144,7 +136,6 @@ export function WifiPage() {
           encryption={required.encryption}
           oidcEnabled={oidcEnabled}
           isAuthenticated={isAuthenticated()}
-          displayName={displayName()}
           copyingLink={copyingLink()}
           canDownload={canDownload()}
           effectiveUsername={effectiveUsername()}
@@ -154,8 +145,6 @@ export function WifiPage() {
           onTabChange={handleTabChange}
           onUsernameChange={(v) => $wifiParams.setKey("username", v ? Option.some(v) : Option.none())}
           onPasswordChange={(v) => $wifiParams.setKey("password", v ? Option.some(v) : Option.none())}
-          onLogin={handleLogin}
-          onLogout={handleLogout}
           onDownloadAppleProfile={handleDownload}
           onDownloadCombinedCert={handleDownloadCombinedCert}
           onCopyDownloadLink={handleCopyDownloadLink}

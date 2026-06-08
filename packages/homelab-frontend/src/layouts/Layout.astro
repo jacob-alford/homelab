@@ -1,9 +1,11 @@
 ---
+import { ClientRouter } from "astro:transitions"
+import NavBarIsland from "../components/NavBar/NavBarIsland.astro"
 import "../styles/global.css"
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" transition:animate="none">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -24,9 +26,25 @@ import "../styles/global.css"
     <meta name="apple-mobile-web-app-title" content="Homelab" />
     <link rel="manifest" href="/site.webmanifest?v=20260608" />
     <title>Homelab</title>
+    <ClientRouter />
+    <script>
+    const pageOrder = ["/", "/dns"]
+    document.addEventListener("astro:before-preparation", (e) => {
+      const from = pageOrder.indexOf(window.location.pathname)
+      const to = pageOrder.indexOf(
+        new URL(e.to, window.location.origin).pathname,
+      )
+      if (from !== -1 && to !== -1 && to < from) {
+        e.direction = "back"
+      }
+    })
+    </script>
   </head>
   <body>
-    <slot />
+    <NavBarIsland />
+    <main transition:animate="slide">
+      <slot />
+    </main>
   </body>
 </html>
 

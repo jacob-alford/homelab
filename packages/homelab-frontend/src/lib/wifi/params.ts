@@ -39,6 +39,12 @@ export const $wifiTab = atom<WifiTab>(initTabFromURL())
 
 export const $wifiParams = map<WifiParams>(initFromURL())
 
+export function reinitWifiFromURL() {
+  const p = initFromURL()
+  $wifiParams.set(p)
+  $wifiTab.set(initTabFromURL())
+}
+
 function syncURL() {
   if (typeof window === "undefined") return
 
