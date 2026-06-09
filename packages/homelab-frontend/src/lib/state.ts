@@ -91,7 +91,7 @@ export function useAppParams() {
   return {
     params,
     queryString,
-    setTab: (t: Tab) => (console.log({ t }), update({ tab: t })),
+    setTab: (t: Tab) => update({ tab: t }),
     setSSID: (v: Option.Option<string>) => update({ ssid: v }),
     setEncryption: (v: Option.Option<"WPA2" | "WPA3">) => update({ encryption: v }),
     setPassword: (v: Option.Option<string>) => update({ password: v }),
