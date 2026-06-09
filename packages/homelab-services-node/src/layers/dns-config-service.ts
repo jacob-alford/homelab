@@ -64,10 +64,12 @@ class DnsConfigServiceImpl implements Services.DnsConfigService.DnsConfigService
       OnDemandRules: [
         {
           Action: "EvaluateConnection" as const,
-          ActionParameters: {
-            DomainAction: "NeverConnect" as const,
-            Domains: NEVER_CONNECT_DOMAINS,
-          },
+          ActionParameters: [
+            {
+              DomainAction: "NeverConnect" as const,
+              Domains: NEVER_CONNECT_DOMAINS,
+            },
+          ],
           ...ssidMatch,
         },
         {

@@ -65,7 +65,7 @@ export const OnDemandRulesEvaluateConnection = OnDemandRulesBase.pipe(
   Schema.extend(
     Schema.Struct({
       Action: Schema.Literal("EvaluateConnection"),
-      ActionParameters: Optional(OnDemandRulesActionParameters),
+      ActionParameters: Optional(Schema.Array(OnDemandRulesActionParameters)),
     }),
   ),
 )
