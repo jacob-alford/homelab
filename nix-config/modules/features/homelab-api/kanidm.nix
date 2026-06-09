@@ -42,12 +42,14 @@ in
               "Config_Wifi"
               "Config_ACME"
               "Config_Certs"
+              "Config_DNS"
               "Status_Health"
               "OAuth_ClaimCheck"
             ];
             "homelab.access" = [
               "Config_Wifi"
               "Config_Certs"
+              "Config_DNS"
               "OAuth_ClaimCheck"
             ];
           };
