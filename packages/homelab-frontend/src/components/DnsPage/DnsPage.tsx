@@ -1,6 +1,6 @@
 import { useStore } from "@nanostores/solid"
 import { Option } from "effect"
-import { createEffect, createSignal } from "solid-js"
+import { createEffect, createSignal, onMount } from "solid-js"
 import * as Lib from "../../lib/index.js"
 import { showErrorToast, showSuccessToast } from "../Toast/index.js"
 import { DnsPageView } from "./DnsPageView.js"
@@ -10,6 +10,7 @@ export function DnsPage() {
   const isAuthenticated = useStore(Lib.Auth.State.$isAuthenticated)
   const auth = useStore(Lib.Auth.State.$auth)
   const dns = Lib.Dns.State.useDnsParams()
+  const [mounted, setMounted] = createSignal(false)
   const [copyingLink, setCopyingLink] = createSignal(false)
 
   const dnsParams = dns.params
@@ -26,6 +27,8 @@ export function DnsPage() {
     const qs = dns.queryString()
     return qs ? `${Lib.Env.appPath("/")}?${qs}` : Lib.Env.appPath("/")
   }
+
+  onMount(() => setMounted(true))
 
   createEffect(() => {
     const profile = Lib.Dns.State.deriveProfile({
@@ -67,6 +70,7 @@ export function DnsPage() {
   }
 
   function handleTabChange(t: Lib.State.Tab) {
+    if (!mounted()) return
     dns.setTab(t)
   }
 

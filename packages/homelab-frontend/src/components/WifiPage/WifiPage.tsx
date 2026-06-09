@@ -123,6 +123,7 @@ export function WifiPage() {
   }
 
   function handleTabChange(t: Lib.State.Tab) {
+    if (!mounted()) return
     wifi.setTab(t)
   }
 

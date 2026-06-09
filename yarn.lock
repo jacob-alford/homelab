@@ -2025,7 +2025,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kobalte/core@npm:^0.13.11":
+"@kobalte/core@npm:0.13.11":
   version: 0.13.11
   resolution: "@kobalte/core@npm:0.13.11"
   dependencies:
@@ -2040,6 +2040,24 @@ __metadata:
   peerDependencies:
     solid-js: ^1.8.15
   checksum: 10c0/0adeee986cf84075d247492896711beb4b8d541f193a8bf38e8d431a9f1fd1a5f5e5a779a6429e1972a75f826d678e6765d45f589276e3cc729cd377fac1709c
+  languageName: node
+  linkType: hard
+
+"@kobalte/core@patch:@kobalte/core@npm%3A0.13.11#~/.yarn/patches/@kobalte-core-npm-0.13.11-288fc5fdf4.patch":
+  version: 0.13.11
+  resolution: "@kobalte/core@patch:@kobalte/core@npm%3A0.13.11#~/.yarn/patches/@kobalte-core-npm-0.13.11-288fc5fdf4.patch::version=0.13.11&hash=2b2a7f"
+  dependencies:
+    "@floating-ui/dom": "npm:^1.5.1"
+    "@internationalized/date": "npm:^3.4.0"
+    "@internationalized/number": "npm:^3.2.1"
+    "@kobalte/utils": "npm:^0.9.1"
+    "@solid-primitives/props": "npm:^3.1.8"
+    "@solid-primitives/resize-observer": "npm:^2.0.26"
+    solid-presence: "npm:^0.1.8"
+    solid-prevent-scroll: "npm:^0.1.4"
+  peerDependencies:
+    solid-js: ^1.8.15
+  checksum: 10c0/280efee31f7ddd0cbd8b40722f50ead5f53cdb70047d5033e4f52e53b69ae9708434ddb529d50674333d097ae3bd040ff4207382d87926236a6a942b4811ba11
   languageName: node
   linkType: hard
 
@@ -6588,7 +6606,7 @@ __metadata:
   dependencies:
     "@astrojs/solid-js": "npm:^6.0.1"
     "@effect/platform": "npm:^0.94.x"
-    "@kobalte/core": "npm:^0.13.11"
+    "@kobalte/core": "patch:@kobalte/core@npm%3A0.13.11#~/.yarn/patches/@kobalte-core-npm-0.13.11-288fc5fdf4.patch"
     "@nanostores/solid": "npm:^1.1.1"
     astro: "npm:^6.4.2"
     class-variance-authority: "npm:^0.7.1"

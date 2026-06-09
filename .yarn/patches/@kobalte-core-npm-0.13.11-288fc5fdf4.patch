@@ -1,0 +1,26 @@
+diff --git a/dist/chunk/4XGMYOCT.js b/dist/chunk/4XGMYOCT.js
+index 91b8b266c385a1795286b0bc49253c67389d7dff..952bfb2b76a8664063f8cd86d43e8c01e1ecacaf 100644
+--- a/dist/chunk/4XGMYOCT.js
++++ b/dist/chunk/4XGMYOCT.js
+@@ -290,7 +290,7 @@ function TabsRoot(props) {
+   let lastSelectedKey = listState.selectedKey();
+   createEffect(on([() => listState.selectionManager(), () => listState.collection(), () => listState.selectedKey()], ([selectionManager, collection, currentSelectedKey]) => {
+     let selectedKey = currentSelectedKey;
+-    if (selectionManager.isEmpty() || selectedKey == null || !collection.getItem(selectedKey)) {
++    if (collection.size > 0 && (selectionManager.isEmpty() || selectedKey == null || !collection.getItem(selectedKey))) {
+       selectedKey = collection.getFirstKey();
+       let selectedItem = selectedKey != null ? collection.getItem(selectedKey) : void 0;
+       while (selectedItem?.disabled && selectedItem.key !== collection.getLastKey()) {
+diff --git a/dist/chunk/ZABX5HRE.jsx b/dist/chunk/ZABX5HRE.jsx
+index 0d295ad548605fd85c324b1ff74aae123341b0a3..22f85b06fb11e280ce06b21d071612244004f69a 100644
+--- a/dist/chunk/ZABX5HRE.jsx
++++ b/dist/chunk/ZABX5HRE.jsx
+@@ -368,7 +368,7 @@ function TabsRoot(props) {
+       ],
+       ([selectionManager, collection, currentSelectedKey]) => {
+         let selectedKey = currentSelectedKey;
+-        if (selectionManager.isEmpty() || selectedKey == null || !collection.getItem(selectedKey)) {
++        if (collection.size > 0 && (selectionManager.isEmpty() || selectedKey == null || !collection.getItem(selectedKey))) {
+           selectedKey = collection.getFirstKey();
+           let selectedItem = selectedKey != null ? collection.getItem(selectedKey) : void 0;
+           while (selectedItem?.disabled && selectedItem.key !== collection.getLastKey()) {

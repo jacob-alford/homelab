@@ -1,13 +1,42 @@
 # Effect Services & Code Patterns
 
-## Vendored Effect Repository
+## Vendored Repositories
 
-The Effect monorepo is vendored at `./repos/effect/` as read-only reference material.
+Upstream monorepos are vendored at `./repos/` as read-only reference material via git subtrees.
+
+| Directory           | Source                                       | Purpose                      |
+| ------------------- | -------------------------------------------- | ---------------------------- |
+| `repos/effect/`     | https://github.com/Effect-TS/effect.git      | Effect runtime & platform    |
+| `repos/kobalte/`    | https://github.com/kobaltedev/kobalte.git    | SolidJS UI component library |
+| `repos/astro/`      | https://github.com/withastro/astro.git       | Astro framework              |
+| `repos/nanostores/` | https://github.com/nanostores/nanostores.git | Nanostores state management  |
 
 - Prefer examples and patterns from the vendored source over generated guesses or web search results
-- Do NOT edit files under `./repos/effect/`
-- Do NOT import from `./repos/effect/` — application code imports from normal package dependencies (e.g. `effect`, `@effect/platform`)
-- Key reference packages: `repos/effect/packages/effect/`, `repos/effect/packages/platform/`, `repos/effect/packages/platform-node/`
+- Do NOT edit files under `./repos/`
+- Do NOT import from `./repos/` — application code imports from normal package dependencies (e.g. `effect`, `@effect/platform`, `@kobalte/core`, `nanostores`)
+- Key reference packages: `repos/effect/packages/effect/`, `repos/effect/packages/platform/`, `repos/effect/packages/platform-node/`, `repos/kobalte/packages/core/`, `repos/nanostores/`
+
+### Adding a New Vendored Subtree
+
+```sh
+git subtree add \
+  --prefix=repos/<name> \
+  <git-url> \
+  <branch> \
+  --squash
+```
+
+Example (Effect):
+
+```sh
+git subtree add \
+  --prefix=repos/effect \
+  https://github.com/Effect-TS/effect.git \
+  main \
+  --squash
+```
+
+Use `--squash` to avoid bringing in the full upstream commit history.
 
 ## Service Architecture
 
