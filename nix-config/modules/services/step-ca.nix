@@ -8,7 +8,12 @@ let
 in
 {
   flake.modules.nixos.step-ca =
-    { config, lib, pkgs, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
     {
       services.step-ca = {
         enable = true;
@@ -51,6 +56,7 @@ in
                 allow = {
                   dns = [ "*.${c.baseDomain}" ];
                   email = [ "@${c.baseDomain}" ];
+                  ip = c.x509PermittedIps;
                 };
                 deny = {
                   dns = [

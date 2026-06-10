@@ -37,6 +37,13 @@
       };
     };
 
+    x509PermittedIps = [
+      "100.69.89.38"
+      "fd7a:115c:a1e0::601:5927"
+      "100.104.220.114"
+      "fd7a:115c:a1e0::6f01:dc8c"
+    ];
+
     nvidia = {
       version = "595.80";
       sha256_64bit = "sha256-PVTIP+B/01c/8M66hXTAYTLg9T2Hy9u1gq43K7TF1Hg=";
