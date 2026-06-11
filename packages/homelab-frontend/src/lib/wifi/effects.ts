@@ -27,15 +27,15 @@ export const downloadAppleProfile = Effect.fn("downloadAppleProfile")(
     const apiBaseUrl = yield* API_BASE_URL
     const client = yield* HttpApiClient.make(Homelab.HomelabApi, { baseUrl: apiBaseUrl })
 
+    const payload: Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigParams = username
+      ? { username, password, disableMACRandomization, enterpriseClientType: "PEAP" as const }
+      : { password, disableMACRandomization, enterpriseClientType: "None" as const }
+
     const result = yield* client["mobile-config"].wifi({
       path: { ssid, encryption },
-      payload: {
-        username,
-        password,
-        disableMACRandomization,
-        ...username ? { enterpriseClientType: "PEAP" as const } : {},
-      },
-      ...token ? { headers: { authorization: `Bearer ${token}` } } : { headers: {} },
+      payload: payload as any,
+      urlParams: {},
+      headers: token ? { authorization: `Bearer ${token}` } : {},
     })
 
     yield* Effect.sync(() => {

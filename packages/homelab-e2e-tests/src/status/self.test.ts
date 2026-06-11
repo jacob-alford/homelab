@@ -1,5 +1,6 @@
 import { assert, describe, expect, it } from "@effect/vitest"
 import { Effect, HashSet, Option } from "effect"
+import type { Schemas } from "homelab-services"
 import { ApiErrors } from "homelab-services"
 import {
   BASE_URL,
@@ -30,7 +31,7 @@ describe("GET /status/self", () => {
             headers: {
               dpop: dpopProof,
               authorization: `${token_type} ${access_token}`,
-              "x-forwarded-for": "192.168.1.1",
+              "x-forwarded-for": "192.168.1.1" as Schemas.IpAddress.IpAddress,
             },
           }),
         )
@@ -63,7 +64,7 @@ describe("GET /status/self", () => {
         const client = yield* makeApiClient
         const result = yield* client.status.self({
           headers: {
-            "x-forwarded-for": "192.168.1.1",
+            "x-forwarded-for": "192.168.1.1" as Schemas.IpAddress.IpAddress,
           },
         })
         expect(result.principal).toBe("guest")
@@ -77,7 +78,7 @@ describe("GET /status/self", () => {
         const client = yield* makeApiClient
         const result = yield* client.status.self({
           headers: {
-            "x-forwarded-for": "100.64.0.1",
+            "x-forwarded-for": "100.64.0.1" as Schemas.IpAddress.IpAddress,
           },
         })
         expect(result.isTailscale).toBe(true)
@@ -97,7 +98,7 @@ describe("GET /status/self", () => {
           headers: {
             dpop: dpopProof,
             authorization: `${token_type} ${access_token}`,
-            "x-forwarded-for": "192.168.1.1",
+            "x-forwarded-for": "192.168.1.1" as Schemas.IpAddress.IpAddress,
           },
         })
         expect(typeof result.principal).toBe("string")

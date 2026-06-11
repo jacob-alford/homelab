@@ -8,10 +8,10 @@ export const handleWifiDownload = Effect.fn("handleWifiDownload")(
   function*(args: Homelab.MobileConfigEndpoints.WifiDownload.WifiMobileConfigDownloadHandlerArgs) {
     const identity = yield* Middleware.CurrentIdentity
 
-    const wifiArgs = {
+    const wifiArgs: Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigHandlerArgs = {
       ...args,
       payload: args.urlParams,
-    }
+    } as any
 
     yield* Services.AuthorizationService.canView(identity, "Config_Wifi", wifiArgs)
 

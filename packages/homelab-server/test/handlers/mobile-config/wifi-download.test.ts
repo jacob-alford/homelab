@@ -88,9 +88,10 @@ describe("generateWifiProfile (shared logic)", () => {
       const result = yield* generateWifiProfile({
         path: { ssid: "dialup-express", encryption: "WPA3" as const },
         payload: { password: "secret", disableMACRandomization: false },
+        urlParams: {},
         request: {} as any,
         headers: {},
-      })
+      } as Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigHandlerArgs)
 
       expect(result).toContain("<?xml")
       expect(result).toContain("dialup-express")

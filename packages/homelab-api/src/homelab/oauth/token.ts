@@ -1,6 +1,9 @@
 import { HttpApiEndpoint } from "@effect/platform"
 import type { Types } from "effect"
-import { ApiErrors, Middleware, Schemas } from "homelab-services"
+import { ApiErrors, Middleware, type ResourceURIs, Schemas } from "homelab-services"
+
+export const URI = "OAuth_Token" satisfies ResourceURIs.ResourceURIs
+export type URI = typeof URI
 
 export const TokenEndpoint = HttpApiEndpoint.post("token")`/token`
   .addSuccess(Schemas.Token.TokenResponse)
@@ -16,3 +19,9 @@ export type TokenEndpoint = typeof TokenEndpoint
 export type TokenEndpointHandlerArgs = Types.Simplify<
   HttpApiEndpoint.HttpApiEndpoint.Request<TokenEndpoint>
 >
+
+declare module "homelab-services/resource-uris" {
+  interface URIToParams {
+    [URI]: TokenEndpointHandlerArgs
+  }
+}

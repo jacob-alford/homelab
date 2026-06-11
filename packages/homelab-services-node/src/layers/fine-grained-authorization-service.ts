@@ -1,24 +1,34 @@
-import { Effect, Layer } from "effect"
-import { ApiErrors, ResourceURIs, Services } from "homelab-services"
-import type { Identity, Operation } from "homelab-services"
+import { Effect, Layer, Option } from "effect"
+import { ApiErrors, Config, type Identity, type Operation, ResourceURIs, Services } from "homelab-services"
+import { match, P } from "ts-pattern"
+import "homelab-api"
 
 export const FineGrainedAuthorizationServiceLive = Layer.effect(
   Services.FineGrainedAuthorizationService.FineGrainedAuthorizationService,
   Effect.gen(function*() {
-    yield* Effect.succeed(false)
-    return new FineGrainedAuthorizationServiceImpl()
+    const serialNumberResolver = yield* Config.SerialNumberConfig.SerialNumberConfig
+
+    return new FineGrainedAuthorizationServiceImpl(serialNumberResolver)
   }),
 )
 
 class FineGrainedAuthorizationServiceImpl
   implements Services.FineGrainedAuthorizationService.FineGrainedAuthorizationServiceDef
 {
+  constructor(
+    private readonly serialNumberResolver: typeof Config.SerialNumberConfig.SerialNumberConfig.Service,
+  ) {}
+
   refine<E, R>(
     operation: Operation,
     identity: Identity.Identity,
-    resource: ResourceURIs.ResourceURIs,
-    fgaParams: unknown,
-  ): (effect: Effect.Effect<true, E, R>) => Effect.Effect<true, E | ApiErrors.AuthorizationError, R> {
+    resource: ResourceURIs.DeclaredURIs,
+    fgaParams: ResourceURIs.AllParams,
+  ): (
+    effect: Effect.Effect<true, E, R>,
+  ) => Effect.Effect<true, E | ApiErrors.AuthorizationError | ApiErrors.InternalServerError, R> {
+    const serialNumberResolver = this.serialNumberResolver
+
     return Effect.andThen(
       ResourceURIs.match(
         resource,
@@ -27,20 +37,75 @@ class FineGrainedAuthorizationServiceImpl
         identity,
       )({
         "Config_Wifi": Effect.fn("fga.config.wifi")(function*(params, operation, identity) {
-          const wifiParams = params as { payload?: { username?: string } }
-          if (wifiParams.payload?.username === "guest") {
-            return true as const
-          }
+          return yield* match(params).with(
+            {
+              payload: {
+                enterpriseClientType: "PEAP",
+                username: "guest",
+              },
+            },
+            () => Effect.succeed(true as const),
+          ).with(
+            {
+              payload: {
+                enterpriseClientType: "PEAP",
+                username: P.select(),
+              },
+            },
+            (requestedUsername) => {
+              console.log({ requestedUsername, identity })
+              if (identity.principle !== requestedUsername) {
+                return Effect.fail(
+                  new ApiErrors.AuthorizationError({
+                    resource,
+                    operation,
+                    message: `User's principle identifer must match the requested username`,
+                  }),
+                )
+              }
 
-          if (wifiParams.payload?.username && identity.principle !== wifiParams.payload.username) {
-            return yield* new ApiErrors.AuthorizationError({
-              resource,
-              operation,
-              message: `User's principle identifer must match the requested username`,
-            })
-          }
+              return Effect.succeed(true as const)
+            },
+          ).with(
+            {
+              payload: {
+                enterpriseClientType: "EAP-TLS",
+              },
+              headers: {
+                "x-forwarded-for": P.select(),
+              },
+            },
+            (ipAddress) => {
+              if (!ipAddress) {
+                return Effect.fail(
+                  new ApiErrors.InternalServerError({
+                    message: "expected 'x-forwarded-for' to be set",
+                  }),
+                )
+              }
 
-          return true as const
+              const resolvedSerialNumber = serialNumberResolver.resolveIp(ipAddress)
+
+              return resolvedSerialNumber.pipe(
+                Option.match({
+                  onNone() {
+                    return Effect.fail(
+                      new ApiErrors.AuthorizationError({
+                        resource,
+                        operation,
+                        message: `IP address not recognized`,
+                      }),
+                    )
+                  },
+                  onSome() {
+                    return Effect.succeed(true as const)
+                  },
+                }),
+              )
+            },
+          ).otherwise(
+            () => Effect.succeed(true as const),
+          )
         }),
         "Config_Certs": () => Effect.succeed(true as const),
         "Config_DNS": () => Effect.succeed(true as const),

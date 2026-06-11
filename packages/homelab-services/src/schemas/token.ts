@@ -1,4 +1,5 @@
 import { Schema } from "effect"
+import { IpAddress } from "./IpAddress.js"
 import * as OAuthSchemas from "./OAuth.js"
 import { Optional } from "./optionals.js"
 
@@ -14,6 +15,7 @@ export const TokenResponse = Schema.Struct({
 export const TokenHeaders = Schema.Struct({
   authorization: Optional(AuthorizationHeader),
   dpop: Optional(OAuthSchemas.JWTString),
+  "x-forwarded-for": Optional(IpAddress),
 })
 
 export const AuthQueryParams = Schema.Struct({

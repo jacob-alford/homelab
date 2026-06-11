@@ -7,6 +7,9 @@
   "exports": {
     ".": {
       "import": "./src/index.ts"
+    },
+    "./resource-uris": {
+      "import": "./src/resource-uris.ts"
     }
   },
   "scripts": {

@@ -14,22 +14,38 @@ const wifiArgs = (overrides?: {
   username?: string
   disableMACRandomization?: boolean
   enterpriseClientType?: "PEAP" | "EAP-TLS"
-}): Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigHandlerArgs => ({
-  path: {
-    ssid: overrides?.ssid ?? "0x676179",
-    encryption: overrides?.encryption ?? "WPA3" as const,
-  },
-  payload: {
-    password: overrides?.password ?? "test-password",
-    disableMACRandomization: overrides?.disableMACRandomization ?? false,
-    ...(overrides?.username !== undefined ? { username: overrides.username } : {}),
-    ...(overrides?.enterpriseClientType !== undefined
-      ? { enterpriseClientType: overrides.enterpriseClientType }
-      : {}),
-  },
-  request: {} as any,
-  headers: {},
-})
+}): Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigHandlerArgs => {
+  const enterpriseClientType = overrides?.enterpriseClientType
+    ?? (overrides?.username !== undefined ? "PEAP" : undefined)
+
+  const payload = enterpriseClientType === "PEAP"
+    ? {
+      enterpriseClientType: "PEAP" as const,
+      username: overrides?.username ?? "test",
+      password: overrides?.password ?? "test-password",
+      disableMACRandomization: overrides?.disableMACRandomization ?? false,
+    }
+    : enterpriseClientType === "EAP-TLS"
+    ? {
+      enterpriseClientType: "EAP-TLS" as const,
+      disableMACRandomization: overrides?.disableMACRandomization ?? false,
+    }
+    : {
+      password: overrides?.password ?? "test-password",
+      disableMACRandomization: overrides?.disableMACRandomization ?? false,
+    }
+
+  return {
+    path: {
+      ssid: overrides?.ssid ?? "0x676179",
+      encryption: overrides?.encryption ?? "WPA3" as const,
+    },
+    payload,
+    urlParams: {},
+    request: {} as any,
+    headers: {},
+  } as Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigHandlerArgs
+}
 
 const authorizedIdentity = new Identity.OIDCIdentity(
   "user@example.com",
@@ -136,21 +152,6 @@ describe("handleWifi", () => {
         })))
 
         assert(result instanceof ApiErrors.NotImplemented)
-      }).pipe(
-        Effect.provide(Layer.provideMerge(
-          withIdentity(authorizedIdentity),
-          HandlerTestLayer,
-        )),
-      ))
-
-    it.effect("should return BadRequest for PEAP without username", () =>
-      Effect.gen(function*() {
-        const result = yield* Effect.flip(handleWifi(wifiArgs({
-          enterpriseClientType: "PEAP",
-        })))
-
-        assert(result instanceof ApiErrors.BadRequest)
-        expect(result.reason).toBe("eap-client-username-required")
       }).pipe(
         Effect.provide(Layer.provideMerge(
           withIdentity(authorizedIdentity),

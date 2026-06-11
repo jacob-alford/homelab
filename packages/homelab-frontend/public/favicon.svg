@@ -16,7 +16,8 @@
       </rdf:Description>
     </rdf:RDF>
   </metadata>
-  <style>#light-icon {
+  <style>
+  #light-icon {
     display: inline;
   }
   #dark-icon {
@@ -30,7 +31,8 @@
     #dark-icon {
       display: inline;
     }
-  }</style>
+  }
+  </style>
   <g id="light-icon">
     <svg
       xmlns="http://www.w3.org/2000/svg"

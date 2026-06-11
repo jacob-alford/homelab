@@ -1,5 +1,5 @@
-import { describe, expect, it } from "@effect/vitest"
-import { Effect } from "effect"
+import { assert, describe, expect, it } from "@effect/vitest"
+import { Effect, ParseResult } from "effect"
 import { ApiErrors } from "homelab-services"
 import {
   BASE_URL,
@@ -32,6 +32,7 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
         const result = yield* Effect.flip(
           client["mobile-config"].wifi({
             payload: {
+              enterpriseClientType: "None",
               disableMACRandomization: false,
               password: "1234",
             },
@@ -43,6 +44,7 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
               dpop: newDpopProof,
               authorization: `${token_type} ${access_token}`,
             },
+            urlParams: {},
           }),
         )
 
@@ -75,7 +77,6 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
           client["mobile-config"].wifi({
             payload: {
               disableMACRandomization: false,
-              password: "1234",
               enterpriseClientType: "EAP-TLS",
             },
             path: {
@@ -86,6 +87,7 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
               dpop: newDpopProof,
               authorization: `${token_type} ${access_token}`,
             },
+            urlParams: {},
           }),
         )
 
@@ -118,7 +120,7 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
               disableMACRandomization: false,
               password: "1234",
               enterpriseClientType: "PEAP",
-            },
+            } as any,
             path: {
               ssid: "abcd",
               encryption: "WPA2",
@@ -127,18 +129,14 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
               dpop: newDpopProof,
               authorization: `${token_type} ${access_token}`,
             },
+            urlParams: {},
           }),
         )
 
         assert(
-          result instanceof ApiErrors.BadRequest,
-          `expected instanceof ApiErrors.BadRequest but got ${JSON.stringify(result)}`,
+          result instanceof ParseResult.ParseError,
+          `expected instanceof ParseError but got ${JSON.stringify(result)}`,
         )
-
-        expect(result.message).toBe(
-          "Username is required when specifying a PEAP client-type",
-        )
-        expect((result as { reason?: string }).reason).toBe("eap-client-username-required")
       }).pipe(Effect.provide(E2ETestLayer)))
     it.live("rejects when username does not match Idenitity", () =>
       Effect.gen(function*() {
@@ -168,6 +166,7 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
             dpop: newDpopProof,
             authorization: `${token_type} ${access_token}`,
           },
+          urlParams: {},
         }))
 
         assert(
@@ -208,6 +207,7 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
             dpop: newDpopProof,
             authorization: `${token_type} ${access_token}`,
           },
+          urlParams: {},
         })
 
         expect(result).toBeDefined()
@@ -229,6 +229,7 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
             encryption: "WPA2",
           },
           headers: {},
+          urlParams: {},
         }))
 
         assert(
@@ -254,6 +255,7 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
             encryption: "WPA2",
           },
           headers: {},
+          urlParams: {},
         })
 
         expect(result).toBeDefined()

@@ -36,6 +36,7 @@ describe("GET /mobile-config/wifi/:ssid/:encryption/_download", () => {
               encryption: "WPA2",
             },
             urlParams: {
+              enterpriseClientType: "None",
               password: "1234",
               disableMACRandomization: false,
             },
@@ -66,6 +67,7 @@ describe("GET /mobile-config/wifi/:ssid/:encryption/_download", () => {
             encryption: "WPA2",
           },
           urlParams: {
+            enterpriseClientType: "PEAP",
             username: "foobar",
             password: "1234",
             disableMACRandomization: false,
@@ -103,6 +105,7 @@ describe("GET /mobile-config/wifi/:ssid/:encryption/_download", () => {
             encryption: "WPA2",
           },
           urlParams: {
+            enterpriseClientType: "None",
             password: "1234",
             disableMACRandomization: false,
           },
@@ -129,6 +132,7 @@ describe("GET /mobile-config/wifi/:ssid/:encryption/_download", () => {
             encryption: "WPA2",
           },
           urlParams: {
+            enterpriseClientType: "PEAP",
             username: "guest",
             password: "1234",
             disableMACRandomization: false,

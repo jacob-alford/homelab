@@ -1,8 +1,8 @@
-import { describe, expect, it } from "@effect/vitest"
+import { assert, describe, expect, it } from "@effect/vitest"
 import { Effect, HashSet, Layer } from "effect"
-import { Identity, Operation, type ResourceURIs, Schemas, Services } from "homelab-services"
+import { ApiErrors, Identity, Operation, type ResourceURIs, Schemas, Services } from "homelab-services"
 import { Layers } from "../src/index.js"
-import { makeTestEnvWithFlags, TestNonceService } from "../test-utils/index.js"
+import { makeTestEnvWithFlags, TestNonceService, TestSerialNumberConfig } from "../test-utils/index.js"
 
 const allOperations = Object.values(Operation)
 
@@ -57,7 +57,10 @@ describe("AuthorizationService", () => {
           const identity = createOIDCIdentity("user@example.com", [otherResource])
           const result = yield* Effect.flip(checkPermission(identity, resource, setupParams(resource)))
 
-          expect(result._tag).toBe("AuthorizationError")
+          assert(
+            result instanceof ApiErrors.AuthorizationError,
+            `Expected AuthorizationError, got ${result._tag ?? result}`,
+          )
 
           const expectedOperation = getExpectedFailureOperation(operation)
 
@@ -71,7 +74,10 @@ describe("AuthorizationService", () => {
           const identity = createMTLSIdentity("client.example.com", [otherResource])
           const result = yield* Effect.flip(checkPermission(identity, resource, setupParams(resource)))
 
-          expect(result._tag).toBe("AuthorizationError")
+          assert(
+            result instanceof ApiErrors.AuthorizationError,
+            `Expected AuthorizationError, got ${result._tag ?? result}`,
+          )
 
           const expectedOperation = getExpectedFailureOperation(operation)
 
@@ -85,7 +91,10 @@ describe("AuthorizationService", () => {
           const identity = createOIDCIdentity("user@example.com", [`${otherResource}.${operation}`])
           const result = yield* Effect.flip(checkPermission(identity, resource, setupParams(resource)))
 
-          expect(result._tag).toBe("AuthorizationError")
+          assert(
+            result instanceof ApiErrors.AuthorizationError,
+            `Expected AuthorizationError, got ${result._tag ?? result}`,
+          )
 
           const expectedOperation = getExpectedFailureOperation(operation)
 
@@ -105,7 +114,10 @@ describe("AuthorizationService", () => {
           ])
           const result = yield* Effect.flip(checkPermission(identity, resource, setupParams(resource)))
 
-          expect(result._tag).toBe("AuthorizationError")
+          assert(
+            result instanceof ApiErrors.AuthorizationError,
+            `Expected AuthorizationError, got ${result._tag ?? result}`,
+          )
           expect(result.operation).toBe(operation)
           expect(result.resource).toBe(resource)
           expect(result.message).toBe(`${identity} is not allowed to perform ${operation} on ${resource}`)
@@ -116,7 +128,10 @@ describe("AuthorizationService", () => {
           const identity = createOIDCIdentity("user@example.com", [resource])
           const result = yield* Effect.flip(checkPermission(identity, resource, setupParams(resource)))
 
-          expect(result._tag).toBe("AuthorizationError")
+          assert(
+            result instanceof ApiErrors.AuthorizationError,
+            `Expected AuthorizationError, got ${result._tag ?? result}`,
+          )
 
           const expectedOperation = getExpectedFailureOperation(operation, otherOperation)
 
@@ -130,7 +145,10 @@ describe("AuthorizationService", () => {
           const identity = createOIDCIdentity("user@example.com", [resource])
           const result = yield* Effect.flip(checkPermission(identity, resource, setupParams(resource)))
 
-          expect(result._tag).toBe("AuthorizationError")
+          assert(
+            result instanceof ApiErrors.AuthorizationError,
+            `Expected AuthorizationError, got ${result._tag ?? result}`,
+          )
 
           const expectedOperation = getExpectedFailureOperation(operation)
 
@@ -200,17 +218,26 @@ describe("AuthorizationService", () => {
 
         expect(viewResult).toBe(true)
 
-        expect(createResult._tag).toBe("AuthorizationError")
+        assert(
+          createResult instanceof ApiErrors.AuthorizationError,
+          `Expected AuthorizationError for create, got ${createResult._tag ?? createResult}`,
+        )
         expect(createResult.operation).toBe(Operation.create)
         expect(createResult.resource).toBe(resource)
         expect(createResult.message).toBe(`${identity} is not allowed to perform ${Operation.create} on ${resource}`)
 
-        expect(modifyResult._tag).toBe("AuthorizationError")
+        assert(
+          modifyResult instanceof ApiErrors.AuthorizationError,
+          `Expected AuthorizationError for modify, got ${modifyResult._tag ?? modifyResult}`,
+        )
         expect(modifyResult.operation).toBe(Operation.create)
         expect(modifyResult.resource).toBe(resource)
         expect(modifyResult.message).toBe(`${identity} is not allowed to perform ${Operation.create} on ${resource}`)
 
-        expect(deleteResult._tag).toBe("AuthorizationError")
+        assert(
+          deleteResult instanceof ApiErrors.AuthorizationError,
+          `Expected AuthorizationError for delete, got ${deleteResult._tag ?? deleteResult}`,
+        )
         expect(deleteResult.operation).toBe(Operation.create)
         expect(deleteResult.resource).toBe(resource)
         expect(deleteResult.message).toBe(`${identity} is not allowed to perform ${Operation.create} on ${resource}`)
@@ -225,7 +252,10 @@ describe("AuthorizationService", () => {
           Services.AuthorizationService.canView(identity, resource, setupParams(resource)),
         )
 
-        expect(result._tag).toBe("AuthorizationError")
+        assert(
+          result instanceof ApiErrors.AuthorizationError,
+          `Expected AuthorizationError, got ${result._tag ?? result}`,
+        )
         expect(result.operation).toBe(Operation.view)
         expect(result.resource).toBe(resource)
         expect(result.message).toBe(`${identity} is not allowed to perform ${Operation.view} on ${resource}`)
@@ -237,7 +267,7 @@ describe("AuthorizationService", () => {
       Effect.gen(function*() {
         const identity = createOIDCIdentity("john@example.com", ["Config_Wifi"])
         const params = setupParams("Config_Wifi", {
-          "Config_Wifi": { payload: { username: "john" } },
+          "Config_Wifi": { payload: { enterpriseClientType: "PEAP", username: "john" } },
         })
         const result = yield* Services.AuthorizationService.canCreate(identity, "Config_Wifi", params)
 
@@ -248,13 +278,16 @@ describe("AuthorizationService", () => {
       Effect.gen(function*() {
         const identity = createOIDCIdentity("john@example.com", ["Config_Wifi"])
         const params = setupParams("Config_Wifi", {
-          "Config_Wifi": { payload: { username: "alice" } },
+          "Config_Wifi": { payload: { enterpriseClientType: "PEAP", username: "alice" } },
         })
         const result = yield* Effect.flip(
           Services.AuthorizationService.canCreate(identity, "Config_Wifi", params),
         )
 
-        expect(result._tag).toBe("AuthorizationError")
+        assert(
+          result instanceof ApiErrors.AuthorizationError,
+          `Expected AuthorizationError, got ${result._tag ?? result}`,
+        )
         expect(result.operation).toBe(Operation.view)
         expect(result.resource).toBe("Config_Wifi")
         expect(result.message).toBe("User's principle identifer must match the requested username")
@@ -273,7 +306,7 @@ describe("AuthorizationService", () => {
       Effect.gen(function*() {
         const identity = createOIDCIdentity("sarah@example.com", ["Config_Wifi"])
         const params = setupParams("Config_Wifi", {
-          "Config_Wifi": { payload: { username: "guest" } },
+          "Config_Wifi": { payload: { enterpriseClientType: "PEAP", username: "guest" } },
         })
         const result = yield* Services.AuthorizationService.canCreate(identity, "Config_Wifi", params)
 
@@ -354,6 +387,7 @@ function TestLayer(flags: Array<Schemas.FeatureFlags.FeatureFlags>) {
   return Layers.AuthorizationService.AuthorizationServiceLive.pipe(
     Layer.provideMerge(Layers.FeatureFlagService.FeatureFlagServiceLive),
     Layer.provideMerge(Layers.FineGrainedAuthorizationService.FineGrainedAuthorizationServiceLive),
+    Layer.provideMerge(TestSerialNumberConfig),
     Layer.provideMerge(makeTestEnvWithFlags(HashSet.fromIterable(flags))),
     Layer.provideMerge(TestNonceService),
   )
@@ -376,7 +410,11 @@ function setupParams<Res extends ResourceURIs.ResourceURIs>(
   const defaults: Record<ResourceURIs.ResourceURIs, unknown> = {
     "Config_Wifi": {
       path: { ssid: "test-ssid", encryption: "WPA3", ...(overrides["Config_Wifi"] as any)?.path },
-      payload: { password: "test-password", ...(overrides["Config_Wifi"] as any)?.payload },
+      payload: {
+        password: "test-password",
+        disableMACRandomization: false,
+        ...(overrides["Config_Wifi"] as any)?.payload,
+      },
     },
     "Config_Certs": {},
     "Config_DNS": {},

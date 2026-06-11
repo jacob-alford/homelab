@@ -65,7 +65,9 @@ class AuthorizationServiceImpl implements Services.AuthorizationService.Authoriz
     operation: Operation,
     resource: ResourceURIs.ResourceURIs,
     params: unknown,
-  ): <E, R>(effect: Effect.Effect<true, E, R>) => Effect.Effect<true, E | ApiErrors.AuthorizationError, R> {
+  ): <E, R>(
+    effect: Effect.Effect<true, E, R>,
+  ) => Effect.Effect<true, E | ApiErrors.AuthorizationError | ApiErrors.InternalServerError, R> {
     return this.fgaService.refine(operation, identity, resource, params)
   }
 

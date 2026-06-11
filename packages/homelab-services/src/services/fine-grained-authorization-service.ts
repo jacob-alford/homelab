@@ -1,5 +1,5 @@
 import { Context, Effect, pipe } from "effect"
-import type { AuthorizationError } from "../errors/http-errors.js"
+import type { AuthorizationError, InternalServerError } from "../errors/http-errors.js"
 import type { Identity } from "../identity.js"
 import type { Operation } from "../operation.js"
 import type { ResourceURIs } from "../resource-uris.js"
@@ -17,7 +17,7 @@ export interface FineGrainedAuthorizationServiceDef {
     identity: Identity,
     resource: ResourceURIs,
     fgaParams: unknown,
-  ): (effect: Effect.Effect<true, E, R>) => Effect.Effect<true, E | AuthorizationError, R>
+  ): (effect: Effect.Effect<true, E, R>) => Effect.Effect<true, E | AuthorizationError | InternalServerError, R>
 }
 
 export class FineGrainedAuthorizationService extends Context.Tag(FineGrainedAuthorizationServiceId)<
@@ -34,7 +34,7 @@ export function refine<E, R>(
   fgaParams: unknown,
 ): (
   effect: Effect.Effect<true, E, R>,
-) => Effect.Effect<true, E | AuthorizationError, R | FineGrainedAuthorizationService> {
+) => Effect.Effect<true, E | AuthorizationError | InternalServerError, R | FineGrainedAuthorizationService> {
   return (effect) =>
     FineGrainedAuthorizationService.pipe(
       Effect.flatMap(

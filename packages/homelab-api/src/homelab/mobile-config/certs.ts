@@ -1,6 +1,9 @@
 import { HttpApiEndpoint, HttpApiError } from "@effect/platform"
 import type { Types } from "effect"
-import { ApiErrors, Schemas } from "homelab-services"
+import { ApiErrors, type ResourceURIs, Schemas } from "homelab-services"
+
+export const URI = "Config_Certs" satisfies ResourceURIs.ResourceURIs
+export type URI = typeof URI
 
 export const Certs = HttpApiEndpoint.get("certs")`/certs`
   .addSuccess(Schemas.XML.XMLSchema)
@@ -34,3 +37,9 @@ export type CertsEndpoint = typeof Certs
 export type CertsHandlerArgs = Types.Simplify<
   HttpApiEndpoint.HttpApiEndpoint.Request<CertsEndpoint>
 >
+
+declare module "homelab-services/resource-uris" {
+  interface URIToParams {
+    [URI]: CertsHandlerArgs
+  }
+}

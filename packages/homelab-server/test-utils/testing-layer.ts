@@ -5,6 +5,7 @@ import { Layers } from "homelab-services-node"
 import {
   IntegrationTestLayer as ApiIntegrationTestLayer,
   TestIssuerJwkResolver,
+  TestSerialNumberConfig,
 } from "homelab-services-node/test-utils"
 import * as path from "node:path"
 import { EnvLive } from "../src/env.js"
@@ -17,6 +18,7 @@ export {
   TestHMACService,
   TestIssuerJwkResolver,
   TestNonceService,
+  TestSerialNumberConfig,
 } from "homelab-services-node/test-utils"
 
 export { buildProof, DPoPProofBuilderService, getPublicJWK } from "homelab-services-node/test-utils"
@@ -53,6 +55,7 @@ export const TestAuthenticationService = Layers.AuthenticationService.Authentica
 export const TestAuthorizationService = Layers.AuthorizationService.AuthorizationServiceLive.pipe(
   Layer.provideMerge(Layers.FeatureFlagService.FeatureFlagServiceLive),
   Layer.provideMerge(Layers.FineGrainedAuthorizationService.FineGrainedAuthorizationServiceLive),
+  Layer.provideMerge(TestSerialNumberConfig),
   Layer.provide(TestEnvLive),
 )
 

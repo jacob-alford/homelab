@@ -114,6 +114,11 @@ export const TestApiKeyConfig = NodeConfig.ApiKeyConfigLive.pipe(
   Layer.provide(TestConfigProvider),
 )
 
+export const TestSerialNumberConfig = Layer.succeed(
+  ServicesConfig.SerialNumberConfig.SerialNumberConfig,
+  { resolveIp: () => Option.none() },
+)
+
 export const TestDPoPProofBuilderService = DPoPProofBuilderServiceLive
 
 export const IntegrationTestLayer = Layer.mergeAll(
@@ -122,6 +127,7 @@ export const IntegrationTestLayer = Layer.mergeAll(
   TestNonceService,
   TestDPoPTokenValidatorService,
   TestApiKeyConfig,
+  TestSerialNumberConfig,
   TestDPoPProofBuilderService,
   NodeFileSystem.layer,
 )

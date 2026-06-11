@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from "@effect/vitest"
 import { Effect, HashSet, Layer, Option } from "effect"
 import { type Homelab } from "homelab-api"
-import { ApiErrors, Identity, Middleware } from "homelab-services"
+import { ApiErrors, Identity, Middleware, type Schemas } from "homelab-services"
 import { handleSelf } from "../../../src/handlers/status/self.js"
 import { HandlerTestLayer } from "../../../test-utils/testing-layer.js"
 
@@ -12,7 +12,8 @@ const selfArgs = (overrides?: {
 }): Homelab.StatusEndpoints.Self.SelfEndpointHandlerArgs => ({
   request: {} as any,
   headers: {
-    ...overrides,
+    ...(overrides?.["x-forwarded-for"] != null
+      && { "x-forwarded-for": overrides["x-forwarded-for"] as Schemas.IpAddress.IpAddress }),
   },
 })
 
@@ -27,10 +28,6 @@ describe("handleSelf", () => {
   describe("authorization", () => {
     it.effect("rejects identity without Status_Self permission", () =>
       Effect.gen(function*() {
-        const unauthorized = new Identity.OIDCIdentity(
-          "user@example.com",
-          HashSet.empty(),
-        )
         const result = yield* Effect.flip(handleSelf(selfArgs({ "x-forwarded-for": "192.168.1.1" })))
         assert(
           result instanceof ApiErrors.AuthorizationError,

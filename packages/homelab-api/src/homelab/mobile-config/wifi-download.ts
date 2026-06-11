@@ -1,13 +1,17 @@
 import { HttpApiEndpoint, HttpApiError } from "@effect/platform"
-import type { Types } from "effect"
+import { Schema, type Types } from "effect"
 import { ApiErrors, Schemas } from "homelab-services"
 import { EncryptionParam, SSIDParam, WifiMobileConfigParams } from "./wifi.js"
+
+export const WifiMobileConfigDownloadParams = WifiMobileConfigParams.pipe(
+  Schema.extend(Schemas.Token.AuthQueryParams),
+)
 
 export const WifiMobileConfigDownload = HttpApiEndpoint.get(
   "wifi-download",
 )`/wifi/${SSIDParam}/${EncryptionParam}/_download`
   .setUrlParams(
-    WifiMobileConfigParams,
+    WifiMobileConfigDownloadParams,
   )
   .addSuccess(Schemas.XML.XMLSchema)
   .addError(

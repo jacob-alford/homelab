@@ -1,48 +1,51 @@
 import { Console, Effect, flow, Match } from "effect"
 import type { Homelab } from "homelab-api"
 import { ApiErrors, Middleware, Services } from "homelab-services"
+import { match } from "ts-pattern"
 
 export const generateWifiProfile = Effect.fn("generateWifiProfile")(
   function*(args: Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigHandlerArgs) {
-    const { encryption, ssid } = args.path
-    const { disableMACRandomization, enterpriseClientType, password, username } = args.payload
-
-    if (enterpriseClientType === "EAP-TLS") {
-      return yield* new ApiErrors.NotImplemented({
-        message: "EAP-TLS support not implemented",
-        internalMethod: "WifiProfileGeneratorService.wpa3EnterpriseEapTLSWifi",
-      })
-    }
-
-    if (!enterpriseClientType) {
-      const wifiProfile = yield* Services.WifiProfileGeneratorService.wpaPersonalWifi(
-        encryption,
-        ssid,
-        password,
-        disableMACRandomization,
+    const profile = yield* match(args)
+      .with(
+        {
+          payload: {
+            enterpriseClientType: "EAP-TLS",
+          },
+        },
+        () =>
+          Effect.fail(
+            new ApiErrors.NotImplemented({
+              message: "EAP-TLS support not implemented",
+              internalMethod: "WifiProfileGeneratorService.wpa3EnterpriseEapTLSWifi",
+            }),
+          ),
       )
-
-      return yield* Services.XmlPrintingService.printXml(
-        wifiProfile,
+      .with(
+        {
+          payload: {
+            enterpriseClientType: "PEAP",
+          },
+        },
+        ({ path: { ssid }, payload: { disableMACRandomization, password, username } }) =>
+          Services.WifiProfileGeneratorService.wpa3EnterprisePeapWifi(
+            ssid,
+            username,
+            password,
+            disableMACRandomization,
+          ),
       )
-    }
-
-    if (!username) {
-      return yield* new ApiErrors.BadRequest({
-        message: "Username is required when specifying a PEAP client-type",
-        reason: "eap-client-username-required",
-      })
-    }
-
-    const wifiProfile = yield* Services.WifiProfileGeneratorService.wpa3EnterprisePeapWifi(
-      ssid,
-      username,
-      password,
-      disableMACRandomization,
-    )
+      .otherwise(
+        ({ path: { encryption, ssid }, payload: { disableMACRandomization, password } }) =>
+          Services.WifiProfileGeneratorService.wpaPersonalWifi(
+            encryption,
+            ssid,
+            password,
+            disableMACRandomization,
+          ),
+      )
 
     return yield* Services.XmlPrintingService.printXml(
-      wifiProfile,
+      profile,
     )
   },
   Effect.tapError(Console.error),

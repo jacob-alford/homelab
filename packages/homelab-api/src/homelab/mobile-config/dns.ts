@@ -1,7 +1,10 @@
 import { HttpApiEndpoint, HttpApiError, HttpApiSchema } from "@effect/platform"
 import type { Types } from "effect"
 import { Schema } from "effect"
-import { ApiErrors, Schemas } from "homelab-services"
+import { ApiErrors, type ResourceURIs, Schemas } from "homelab-services"
+
+export const URI = "Config_DNS" satisfies ResourceURIs.ResourceURIs
+export type URI = typeof URI
 
 export const DnsProfileParam = HttpApiSchema.param("profile", Schemas.DnsProfile.DnsProfileSchema)
 
@@ -26,3 +29,9 @@ export type DnsEndpoint = typeof Dns
 export type DnsHandlerArgs = Types.Simplify<
   HttpApiEndpoint.HttpApiEndpoint.Request<DnsEndpoint>
 >
+
+declare module "homelab-services/resource-uris" {
+  interface URIToParams {
+    [URI]: DnsHandlerArgs
+  }
+}

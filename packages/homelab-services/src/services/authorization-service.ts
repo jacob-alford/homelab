@@ -1,5 +1,5 @@
 import { Context, Effect } from "effect"
-import type { AuthorizationError } from "../errors/http-errors.js"
+import type { AuthorizationError, InternalServerError } from "../errors/http-errors.js"
 import type { Identity } from "../identity.js"
 import type { Operation } from "../operation.js"
 import type { ResourceURIs } from "../resource-uris.js"
@@ -15,7 +15,7 @@ export type AuthorizationServiceDef = {
     identity: Identity,
     resource: ResourceURIs,
     params: unknown,
-  ) => Effect.Effect<true, AuthorizationError>
+  ) => Effect.Effect<true, AuthorizationError | InternalServerError>
 }
 
 export class AuthorizationService
@@ -26,7 +26,7 @@ export class AuthorizationService
 /** Checks whether the identity is authorized to view the given resource. */
 export function canView(
   ...params: Parameters<AuthorizationServiceDef["canView"]>
-): Effect.Effect<true, AuthorizationError, AuthorizationService> {
+): Effect.Effect<true, AuthorizationError | InternalServerError, AuthorizationService> {
   return AuthorizationService.pipe(
     Effect.flatMap(
       (_) => _.canView(...params),
@@ -37,7 +37,7 @@ export function canView(
 /** Checks whether the identity is authorized to modify the given resource. */
 export function canModify(
   ...params: Parameters<AuthorizationServiceDef["canModify"]>
-): Effect.Effect<true, AuthorizationError, AuthorizationService> {
+): Effect.Effect<true, AuthorizationError | InternalServerError, AuthorizationService> {
   return AuthorizationService.pipe(
     Effect.flatMap(
       (_) => _.canModify(...params),
@@ -48,7 +48,7 @@ export function canModify(
 /** Checks whether the identity is authorized to create the given resource. */
 export function canCreate(
   ...params: Parameters<AuthorizationServiceDef["canCreate"]>
-): Effect.Effect<true, AuthorizationError, AuthorizationService> {
+): Effect.Effect<true, AuthorizationError | InternalServerError, AuthorizationService> {
   return AuthorizationService.pipe(
     Effect.flatMap(
       (_) => _.canCreate(...params),
@@ -59,7 +59,7 @@ export function canCreate(
 /** Checks whether the identity is authorized to delete the given resource. */
 export function canDelete(
   ...params: Parameters<AuthorizationServiceDef["canDelete"]>
-): Effect.Effect<true, AuthorizationError, AuthorizationService> {
+): Effect.Effect<true, AuthorizationError | InternalServerError, AuthorizationService> {
   return AuthorizationService.pipe(
     Effect.flatMap(
       (_) => _.canDelete(...params),

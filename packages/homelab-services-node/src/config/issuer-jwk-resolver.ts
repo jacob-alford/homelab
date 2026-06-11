@@ -3,8 +3,6 @@ import { Data, Effect, flow, HashMap, Layer, Option, Schema, Tuple } from "effec
 import { Config, Schemas, StartupErrors, Utils } from "homelab-services"
 import type { JWTVerifyGetKey } from "jose"
 import { createLocalJWKSet, createRemoteJWKSet, customFetch, flattenedDecrypt, importJWK } from "jose"
-import { ApiKeyConfigLive } from "./api-key-config.js"
-import { RemoteOIDCWellKnownDetailsServiceLive } from "./oidc-config-remote.js"
 
 export const IssuerJwkResolverLive = Layer.effect(
   Config.IssuerJwkResolver.IssuerJwkResolver,
@@ -148,8 +146,3 @@ class IssuerJwkResolverImpl implements Config.IssuerJwkResolver.IssuerJwkResolve
     return HashMap.get(this.jwkMap, issuer)
   }
 }
-
-export const ConfigLive = Layer.mergeAll(
-  ApiKeyConfigLive,
-  IssuerJwkResolverLive.pipe(Layer.provide(RemoteOIDCWellKnownDetailsServiceLive)),
-)
