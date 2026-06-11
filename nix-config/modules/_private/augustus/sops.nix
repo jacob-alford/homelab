@@ -131,4 +131,25 @@
   sops.secrets.step_jwk_provisioner_password = {
     owner = "root";
   };
+
+  sops.secrets.ipad_serial_number = {
+    owner = "homelab-api";
+    group = "homelab-api";
+  };
+
+  sops.secrets.iphone_serial_number = {
+    owner = "homelab-api";
+    group = "homelab-api";
+  };
+
+  sops.templates."serial-numbers-file" = {
+    owner = "homelab-api";
+    group = "homelab-api";
+    content = builtins.toJSON {
+      "100.104.220.114" = config.sops.placeholder.ipad_serial_number;
+      "fd7a:115c:a1e0::6f01:dc8c" = config.sops.placeholder.ipad_serial_number;
+      "100.69.89.38" = config.sops.placeholder.iphone_serial_number;
+      "fd7a:115c:a1e0::601:5927" = config.sops.placeholder.iphone_serial_number;
+    };
+  };
 }

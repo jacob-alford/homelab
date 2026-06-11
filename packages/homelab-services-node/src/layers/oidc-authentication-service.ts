@@ -77,6 +77,7 @@ class OIDCAuthenticationServiceImpl implements Services.OIDCAuthenticationServic
         parsedJwt.email,
         parsedJwt[Constants.JWT_ROLES_KEY],
         parsedJwt.preferred_username?.split("@")[0],
+        parsedJwt.name,
       )
     }).pipe(
       Effect.catchTag(

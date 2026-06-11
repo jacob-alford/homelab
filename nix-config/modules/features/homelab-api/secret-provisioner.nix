@@ -120,10 +120,14 @@
                   type = lib.types.nonEmptyListOf (
                     lib.types.enum [
                       "Config_Wifi"
-                      "Config_ACME"
                       "Config_Certs"
+                      "Cert_Root"
+                      "Cert_Intermediate"
+                      "Cert_Combined"
                       "Status_Health"
+                      "Status_Self"
                       "OAuth_Token"
+                      "OAuth_ClaimCheck"
                     ]
                   );
                   description = "Permissions granted to this key.";

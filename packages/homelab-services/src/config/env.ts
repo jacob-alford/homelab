@@ -64,6 +64,9 @@ export interface EnvDef {
 
   /** Absolute filesystem path to the intermediate CA certificate in CRT (PEM) format. */
   readonly intermediateCertCrtPath: string
+
+  /** Filesystem path to the serial numbers JSON file. */
+  readonly serialNumbersFile: Option.Option<string>
 }
 
 export class Env extends Context.Tag("homelab-api/config/env/Env")<Env, EnvDef>() {}
@@ -121,3 +124,6 @@ export const rootCertCrtPath = Env.pipe(Effect.map((_) => _.rootCertCrtPath))
 
 /** {@inheritDoc EnvDef.intermediateCertCrtPath} */
 export const intermediateCertCrtPath = Env.pipe(Effect.map((_) => _.intermediateCertCrtPath))
+
+/** {@inheritDoc EnvDef.serialNumbersFile} */
+export const serialNumbersFile = Env.pipe(Effect.map((_) => _.serialNumbersFile))

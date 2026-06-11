@@ -208,6 +208,7 @@ export const HomelabIdentityJWT = IdJWT.pipe(
       [Constants.JWT_ROLES_KEY]: ScopeGroupSetSchema,
       email: Schema.String,
       preferred_username: Optional(Schema.String),
+      name: Optional(Schema.String),
     }),
   ),
 )

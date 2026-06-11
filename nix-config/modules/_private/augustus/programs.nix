@@ -60,15 +60,16 @@ in
     enable = true;
     originUrl = "https://homelab-api.plato-splunk.media";
     privateKeySecretPath = config.sops.secrets.homelab_api_jwk_password.path;
+    serialNumbersFile = config.sops.templates."serial-numbers-file".path;
     apiKeys = {
       jacob = {
         apiKeyFile = config.sops.secrets.homelab_api_key_jacob.path;
         email = "jacob@plato-splunk.media";
         permissions = [
           "Status_Health"
+          "Status_Self"
           "OAuth_Token"
           "Config_Certs"
-          "Config_ACME"
           "Config_Wifi"
         ];
       };

@@ -1,3 +1,4 @@
 export * from "./api-key-config.js"
 export * from "./issuer-jwk-resolver.js"
 export * from "./oidc-config-remote.js"
+export * from "./serial-number-config.js"

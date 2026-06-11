@@ -31,16 +31,6 @@ const AUTH_ENDPOINTS: ReadonlyArray<AuthEndpointConfig> = [
     method: "GET",
   },
   {
-    displayName: "PUT /mobile-config/acme/:clientIdentifier",
-    url: new URL(`${BASE_URL}/mobile-config/acme/test-client`),
-    method: "PUT",
-  },
-  {
-    displayName: "GET /mobile-config/acme/:clientIdentifier/_download",
-    url: new URL(`${BASE_URL}/mobile-config/acme/test-client/_download`),
-    method: "GET",
-  },
-  {
     displayName: "PUT /mobile-config/wifi/:ssid/:encryption",
     url: new URL(`${BASE_URL}/mobile-config/wifi/test-ssid/WPA3`),
     method: "PUT",

@@ -21,5 +21,6 @@ export const EnvLive = Layer.effect(
     intermediateCertDerPath: Config.string("INTERMEDIATE_CERT_DER"),
     rootCertCrtPath: Config.string("ROOT_CERT_CRT"),
     intermediateCertCrtPath: Config.string("INTERMEDIATE_CERT_CRT"),
+    serialNumbersFile: Config.option(Config.string("SERIAL_NUMBERS_FILE")),
   }),
 )

@@ -40,16 +40,17 @@ in
           valuesByGroup = {
             "homelab.admins" = [
               "Config_Wifi"
-              "Config_ACME"
               "Config_Certs"
               "Config_DNS"
               "Status_Health"
+              "Status_Self"
               "OAuth_ClaimCheck"
             ];
             "homelab.access" = [
               "Config_Wifi"
               "Config_Certs"
               "Config_DNS"
+              "Status_Self"
               "OAuth_ClaimCheck"
             ];
           };

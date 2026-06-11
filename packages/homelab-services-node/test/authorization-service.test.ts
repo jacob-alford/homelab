@@ -378,15 +378,13 @@ function setupParams<Res extends ResourceURIs.ResourceURIs>(
       path: { ssid: "test-ssid", encryption: "WPA3", ...(overrides["Config_Wifi"] as any)?.path },
       payload: { password: "test-password", ...(overrides["Config_Wifi"] as any)?.payload },
     },
-    "Config_ACME": {
-      path: { clientIdentifier: "test-client", ...(overrides["Config_ACME"] as any)?.path },
-    },
     "Config_Certs": {},
     "Config_DNS": {},
     "Cert_Root": {},
     "Cert_Intermediate": {},
     "Cert_Combined": {},
     "Status_Health": {},
+    "Status_Self": {},
     "OAuth_Token": {},
     "OAuth_ClaimCheck": {},
   }

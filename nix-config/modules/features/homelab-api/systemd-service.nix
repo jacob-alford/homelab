@@ -103,12 +103,12 @@ in
                   type = lib.types.nonEmptyListOf (
                     lib.types.enum [
                       "Config_Wifi"
-                      "Config_ACME"
                       "Config_Certs"
                       "Cert_Root"
                       "Cert_Intermediate"
                       "Cert_Combined"
                       "Status_Health"
+                      "Status_Self"
                       "OAuth_Token"
                       "OAuth_ClaimCheck"
                     ]
@@ -119,6 +119,12 @@ in
           );
           default = { };
           description = "The API keys for the local token issuer, keyed by name";
+        };
+
+        serialNumbersFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          description = "Path to a JSON file mapping IP addresses to device serial numbers";
+          default = null;
         };
       };
 
@@ -178,6 +184,7 @@ in
             ACME_HARDWARE_BOUND=true
             ACME_KEY_TYPE=ECSECPrimeRandom
             ACME_KEY_SIZE=384
+            ${if cfg.serialNumbersFile != null then "SERIAL_NUMBERS_FILE=${cfg.serialNumbersFile}" else ""}
           '';
         };
 

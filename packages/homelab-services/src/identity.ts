@@ -1,4 +1,4 @@
-import { HashSet } from "effect"
+import { HashSet, Option } from "effect"
 import type { ScopeOrGroup, ScopeOrGroupSet } from "./schemas/scope-groups.js"
 
 const IdentityTag = Symbol.for("homelab-api/identity")
@@ -16,6 +16,8 @@ export type Identity = GuestIdentity | OIDCIdentity | MTLSIdentity
 export abstract class IdentityBase {
   abstract readonly [IdentityTag]: IdentityType
   abstract readonly principle: string
+  abstract readonly fullname: Option.Option<string>
+  abstract readonly permissionSet: ScopeOrGroupSet
 
   constructor(
     readonly identifier: string,
@@ -33,9 +35,14 @@ export abstract class IdentityBase {
 export class GuestIdentity extends IdentityBase implements Permissions {
   readonly [IdentityTag] = IdentityType.Guest
   readonly principle = "guest"
+  readonly fullname = Option.none<string>()
 
   constructor() {
     super("guest")
+  }
+
+  get permissionSet(): ScopeOrGroupSet {
+    return this.permissions
   }
 
   hasPermission(identifier: ScopeOrGroup): boolean {
@@ -52,6 +59,7 @@ export class GuestIdentity extends IdentityBase implements Permissions {
     "Cert_Intermediate.view",
     "Cert_Combined.view",
     "Status_Health.view",
+    "Status_Self.view",
   ])
 }
 
@@ -62,6 +70,7 @@ export class OIDCIdentity extends IdentityBase implements Permissions {
     public readonly email: string,
     private readonly groups: ScopeOrGroupSet,
     private readonly username?: string,
+    private readonly _fullname?: string,
   ) {
     super(email)
   }
@@ -72,6 +81,14 @@ export class OIDCIdentity extends IdentityBase implements Permissions {
     return this.username ?? emailName
   }
 
+  get fullname(): Option.Option<string> {
+    return Option.fromNullable(this._fullname)
+  }
+
+  get permissionSet(): ScopeOrGroupSet {
+    return this.groups
+  }
+
   hasPermission(group: ScopeOrGroup) {
     return HashSet.has(this.groups, group)
   }
@@ -79,6 +96,7 @@ export class OIDCIdentity extends IdentityBase implements Permissions {
 
 export class MTLSIdentity extends IdentityBase implements Permissions {
   readonly [IdentityTag] = IdentityType.mTLS
+  readonly fullname = Option.none<string>()
 
   constructor(
     public readonly commonName: string,
@@ -89,6 +107,10 @@ export class MTLSIdentity extends IdentityBase implements Permissions {
 
   get principle() {
     return this.commonName
+  }
+
+  get permissionSet(): ScopeOrGroupSet {
+    return this.scopes
   }
 
   hasPermission(role: ScopeOrGroup): boolean {
