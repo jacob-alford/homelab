@@ -125,24 +125,24 @@ in
                 "homelab.admins"
               ];
             };
-            "G1447DK9FP" = {
-              displayName = "Rae's iPhone";
-              mailAddresses = [ "G1447DK9FP@a.plato-splunk.media" ];
-              groups = [
-                "radius.access"
-                "radius.access_home"
-                "radius.access_private"
-              ];
-            };
-            "D2TN90JVJV" = {
-              displayName = "Rae's iPad";
-              mailAddresses = [ "D2TN90JVJV@a.plato-splunk.media" ];
-              groups = [
-                "radius.access"
-                "radius.access_home"
-                "radius.access_private"
-              ];
-            };
+            # "G1447DK9FP" = {
+            #   displayName = "Rae's iPhone";
+            #   mailAddresses = [ "G1447DK9FP@a.plato-splunk.media" ];
+            #   groups = [
+            #     "radius.access"
+            #     "radius.access_home"
+            #     "radius.access_private"
+            #   ];
+            # };
+            # "D2TN90JVJV" = {
+            #   displayName = "Rae's iPad";
+            #   mailAddresses = [ "D2TN90JVJV@a.plato-splunk.media" ];
+            #   groups = [
+            #     "radius.access"
+            #     "radius.access_home"
+            #     "radius.access_private"
+            #   ];
+            # };
           };
         };
       };
