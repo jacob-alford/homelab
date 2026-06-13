@@ -2,8 +2,6 @@ import { Effect, Layer } from "effect"
 import type { Schemas } from "homelab-services"
 import { Config, Services } from "homelab-services"
 
-const SERIAL_NUMBER_MAGIC_STRING = "$SERIALNUMBER"
-
 export const AcmeConfigServiceLive = Layer.effect(
   Services.AcmeConfigService.AcmeConfigService,
   Effect.gen(function*() {
@@ -25,11 +23,11 @@ class AcmeConfigServiceImpl implements Services.AcmeConfigService.AcmeConfigServ
     private readonly keySize: number,
   ) {}
 
-  acmeConfig(): Effect.Effect<Schemas.ACME.AcmeConfig> {
+  acmeConfig(serialNumber: string): Effect.Effect<Schemas.ACME.AcmeConfig> {
     return Effect.succeed(
       {
         Attest: this.hardwareBound,
-        ClientIdentifier: SERIAL_NUMBER_MAGIC_STRING,
+        ClientIdentifier: serialNumber,
         DirectoryURL: this.acmeUrl,
         HardwareBound: this.hardwareBound,
         KeySize: this.keySize,
@@ -44,7 +42,7 @@ class AcmeConfigServiceImpl implements Services.AcmeConfigService.AcmeConfigServ
           [
             [
               "CN",
-              SERIAL_NUMBER_MAGIC_STRING,
+              serialNumber,
             ],
           ],
         ],
