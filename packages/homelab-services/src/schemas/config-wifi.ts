@@ -1,5 +1,6 @@
 import { Schema } from "effect"
 
+import { Optional } from "./optionals.js"
 import { GenericPayloadSchema } from "./payload-generic.js"
 
 export const TLSVersionSchema = Schema.TemplateLiteral(Schema.Number, Schema.Literal("."), Schema.Number)
@@ -9,15 +10,41 @@ export type WifiEncryptionType = typeof WifiEncryptionType.Type
 
 export const EnterpriseClientConfigurationType = Schema.Literal("PEAP", "EAP-TLS")
 
-export const PEAPClientConfigurationSchema = Schema.Struct({
-  AcceptEAPTypes: Schema.Array(Schema.Int.pipe(Schema.positive())),
+export const EnterpriseClientConfigurationBase = Schema.Struct({
   PayloadCertificateAnchorUUID: Schema.Array(Schema.UUID),
   TLSMaximumVersion: TLSVersionSchema,
   TLSMinimumVersion: TLSVersionSchema,
   TLSTrustedServerNames: Schema.Array(Schema.String),
-  UserName: Schema.String,
-  UserPassword: Schema.String,
 })
+
+export const PEAPClientConfigurationSchema = EnterpriseClientConfigurationBase.pipe(
+  Schema.extend(
+    Schema.Struct({
+      AcceptEAPTypes: Schema.Tuple(Schema.Literal(25)),
+      UserName: Schema.String,
+      UserPassword: Schema.String,
+    }),
+  ),
+)
+
+export type PEAPClientConfiguration = typeof PEAPClientConfigurationSchema.Type
+
+export const EAPTLSClientConfigurationSchema = EnterpriseClientConfigurationBase.pipe(
+  Schema.extend(
+    Schema.Struct({
+      AcceptEAPTypes: Schema.Tuple(Schema.Literal(13)),
+    }),
+  ),
+)
+
+export type EAPTLSClientConfiguration = typeof EAPTLSClientConfigurationSchema.Type
+
+export const EnterpriseClientConfiguration = Schema.Union(
+  PEAPClientConfigurationSchema,
+  EAPTLSClientConfigurationSchema,
+)
+
+export type EnterpriseClientConfiguration = typeof EnterpriseClientConfiguration.Type
 
 export const WifiConfigSchema = GenericPayloadSchema.pipe(
   Schema.extend(
@@ -25,13 +52,13 @@ export const WifiConfigSchema = GenericPayloadSchema.pipe(
       AutoJoin: Schema.Boolean,
       CaptiveBypass: Schema.Boolean,
       DisableAssociationMACRandomization: Schema.Boolean,
-      EAPClientConfiguration: PEAPClientConfigurationSchema.pipe(Schema.optionalWith({ exact: true })),
+      EAPClientConfiguration: Optional(EnterpriseClientConfiguration),
       EncryptionType: WifiEncryptionType,
       HIDDEN_NETWORK: Schema.Boolean,
       IsHotspot: Schema.Boolean,
       ProxyType: Schema.String,
       SSID_STR: Schema.String,
-      Password: Schema.String.pipe(Schema.optionalWith({ exact: true })),
+      Password: Optional(Schema.String),
     }),
   ),
 )

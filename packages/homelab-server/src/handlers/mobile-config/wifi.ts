@@ -1,23 +1,47 @@
-import { Console, Effect, flow, Match } from "effect"
+import { Console, Effect, flow, Match, Option, pipe } from "effect"
 import type { Homelab } from "homelab-api"
-import { ApiErrors, Middleware, Services } from "homelab-services"
-import { match } from "ts-pattern"
+import { ApiErrors, Config, Middleware, Operation, Services } from "homelab-services"
+import { match, P } from "ts-pattern"
 
 export const generateWifiProfile = Effect.fn("generateWifiProfile")(
   function*(args: Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigHandlerArgs) {
     const profile = yield* match(args)
       .with(
         {
+          path: {
+            ssid: P.select("ssid"),
+          },
           payload: {
             enterpriseClientType: "EAP-TLS",
+            disableMACRandomization: P.select("disableMACRandomization"),
           },
         },
-        () =>
-          Effect.fail(
-            new ApiErrors.NotImplemented({
-              message: "EAP-TLS support not implemented",
-              internalMethod: "WifiProfileGeneratorService.wpa3EnterpriseEapTLSWifi",
-            }),
+        ({ disableMACRandomization, ssid }) =>
+          pipe(
+            Option.fromNullable(args.headers["x-forwarded-for"]),
+            Effect.transposeMapOption(
+              Config.SerialNumberConfig.resolveIp,
+            ),
+            Effect.map(Option.flatten),
+            Effect.filterOrElse(
+              Option.isSome,
+              () =>
+                Effect.fail(
+                  new ApiErrors.AuthorizationError({
+                    resource: "Config_Wifi",
+                    operation: Operation.create,
+                    message: "Attempting to create EAP-TLS payload from an unrecognized IP address",
+                  }),
+                ),
+            ),
+            Effect.andThen(
+              ({ value: serialNumber }) =>
+                Services.WifiProfileGeneratorService.wpa3EnterpriseEAPTLSWifi(
+                  ssid,
+                  serialNumber,
+                  disableMACRandomization,
+                ),
+            ),
           ),
       )
       .with(

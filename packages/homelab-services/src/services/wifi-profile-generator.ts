@@ -16,6 +16,11 @@ export interface WifiProfileServiceDef {
   wpa3EnterprisePeapWifi(
     ...params: Parameters<typeof WifiConfigService.Service.wpa3EnterprisePeapWifi>
   ): Effect.Effect<Schemas.RootPayload.RootPayloadWire, WifiConfigGenerationError | ApiErrors.HttpApiEncodeError>
+
+  /** Generates a complete MDM root profile containing a WPA3-Enterprise EAP-TLS Wi-Fi configuration. */
+  wpa3EnterpriseEAPTLSWifi(
+    ...params: Parameters<typeof WifiConfigService.Service.wpa3EnterpriseEAPTLSWifi>
+  ): Effect.Effect<Schemas.RootPayload.RootPayloadWire, WifiConfigGenerationError | ApiErrors.HttpApiEncodeError>
 }
 
 export class WifiProfileService extends Context.Tag(WifiProfileServiceId)<WifiProfileService, WifiProfileServiceDef>() {
@@ -47,6 +52,21 @@ export function wpa3EnterprisePeapWifi(
   return WifiProfileService.pipe(
     Effect.andThen(
       (_) => _.wpa3EnterprisePeapWifi(...args),
+    ),
+  )
+}
+
+/** {@inheritDoc WifiProfileServiceDef.wpa3EnterpriseEAPTLSWifi} */
+export function wpa3EnterpriseEAPTLSWifi(
+  ...args: Parameters<WifiProfileServiceDef["wpa3EnterpriseEAPTLSWifi"]>
+): Effect.Effect<
+  Schemas.RootPayload.RootPayloadWire,
+  WifiConfigGenerationError | ApiErrors.HttpApiEncodeError,
+  WifiProfileService
+> {
+  return WifiProfileService.pipe(
+    Effect.andThen(
+      (_) => _.wpa3EnterpriseEAPTLSWifi(...args),
     ),
   )
 }

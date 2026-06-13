@@ -103,4 +103,50 @@ class WifiConfigServiceImpl implements Services.WifiConfigService.WifiConfigServ
       } satisfies Schemas.WifiConfig.WifiConfig,
     )
   }
+
+  wpa3EnterpriseEAPTLSWifi(
+    ssidString: string,
+    _serialNumber: string,
+    disableMACRandomization: boolean = false,
+  ): Effect.Effect<Schemas.WifiConfig.WifiConfig, Services.WifiConfigService.WifiConfigGenerationError> {
+    const payloadUuid = this.uuids.homelabPayloadWifiUuid(ssidString)
+
+    if (!payloadUuid) {
+      return Effect.fail(
+        new Services.WifiConfigService.WifiConfigGenerationError({
+          error: `SSID ${ssidString} not found`,
+          reason: "ssid-not-found",
+        }),
+      )
+    }
+
+    return Effect.succeed(
+      {
+        AutoJoin: true,
+        CaptiveBypass: false,
+        DisableAssociationMACRandomization: disableMACRandomization,
+        EAPClientConfiguration: {
+          AcceptEAPTypes: [13],
+          PayloadCertificateAnchorUUID: [
+            this.uuids.homelabPayloadRootCertUuid,
+            this.uuids.homelabPayloadIntermediateCertUuid,
+          ],
+          TLSMaximumVersion: "1.3",
+          TLSMinimumVersion: "1.2",
+          TLSTrustedServerNames: ["radius.plato-splunk.media"],
+        },
+        EncryptionType: "WPA3",
+        HIDDEN_NETWORK: false,
+        IsHotspot: false,
+        ProxyType: "None",
+        SSID_STR: ssidString,
+        PayloadDescription: "Configures Wi-Fi settings",
+        PayloadDisplayName: "Wi-Fi",
+        PayloadIdentifier: `com.apple.wifi.managed.${payloadUuid}`,
+        PayloadType: `com.apple.wifi.managed`,
+        PayloadUUID: payloadUuid,
+        PayloadVersion: 1,
+      } satisfies Schemas.WifiConfig.WifiConfig,
+    )
+  }
 }

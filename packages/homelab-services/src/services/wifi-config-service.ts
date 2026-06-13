@@ -19,6 +19,13 @@ export interface WifiConfigServiceDef {
     disableMACRandomization?: boolean,
   ): Effect.Effect<Schemas.WifiConfig.WifiConfig, WifiConfigGenerationError>
 
+  /** Generates an MDM Wi-Fi payload for WPA3-Enterprise EAP-TLS authentication. */
+  wpa3EnterpriseEAPTLSWifi(
+    ssidString: string,
+    serialNumber: string,
+    disableMACRandomization?: boolean,
+  ): Effect.Effect<Schemas.WifiConfig.WifiConfig, WifiConfigGenerationError>
+
   /** Generates an MDM Wi-Fi payload for WPA2/WPA3 personal authentication. */
   wpaPersonalWifi(
     wpaPersonalWifi: Schemas.WifiConfig.WifiEncryptionType,
