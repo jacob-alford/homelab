@@ -55,6 +55,7 @@ in
               x509 = {
                 allow = {
                   dns = [ "*.${c.baseDomain}" ];
+                  commonNames = c.x509PermittedCommonNames;
                   email = [ "@${c.baseDomain}" ];
                   ip = c.x509PermittedIps;
                 };
