@@ -144,21 +144,26 @@ describe("handleWifi", () => {
       ))
   })
 
-  describe("internal errors", () => {
-    it.effect("should return NotImplemented for EAP-TLS", () =>
+  describe("EAP-TLS", () => {
+    it.effect("should return AuthorizationError for unrecognized IP", () =>
       Effect.gen(function*() {
         const result = yield* Effect.flip(handleWifi(wifiArgs({
           enterpriseClientType: "EAP-TLS",
         })))
 
-        assert(result instanceof ApiErrors.NotImplemented)
+        assert(
+          result instanceof ApiErrors.AuthorizationError,
+          `Expected AuthorizationError, got ${result._tag ?? result}`,
+        )
       }).pipe(
         Effect.provide(Layer.provideMerge(
           withIdentity(authorizedIdentity),
           HandlerTestLayer,
         )),
       ))
+  })
 
+  describe("internal errors", () => {
     it.effect("should return NotFound for unknown SSID", () =>
       Effect.gen(function*() {
         const result = yield* Effect.flip(handleWifi(wifiArgs({ ssid: "unknown-ssid" })))

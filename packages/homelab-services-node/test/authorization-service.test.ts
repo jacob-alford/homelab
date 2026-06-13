@@ -312,6 +312,26 @@ describe("AuthorizationService", () => {
 
         expect(result).toBe(true)
       }).pipe(Effect.provide(TestLayer(["*"]))))
+
+    it.effect("should deny EAP-TLS when IP address is not recognized", () =>
+      Effect.gen(function*() {
+        const identity = createOIDCIdentity("user@example.com", ["Config_Wifi"])
+        const params = setupParams("Config_Wifi", {
+          "Config_Wifi": {
+            payload: { enterpriseClientType: "EAP-TLS" },
+            headers: { "x-forwarded-for": "10.0.0.99" },
+          },
+        })
+        const result = yield* Effect.flip(
+          Services.AuthorizationService.canCreate(identity, "Config_Wifi", params),
+        )
+
+        assert(
+          result instanceof ApiErrors.AuthorizationError,
+          `Expected AuthorizationError, got ${result._tag ?? result}`,
+        )
+        expect(result.message).toBe("IP address not recognized")
+      }).pipe(Effect.provide(TestLayer(["*"]))))
   })
 })
 
@@ -414,6 +434,9 @@ function setupParams<Res extends ResourceURIs.ResourceURIs>(
         password: "test-password",
         disableMACRandomization: false,
         ...(overrides["Config_Wifi"] as any)?.payload,
+      },
+      headers: {
+        ...(overrides["Config_Wifi"] as any)?.headers,
       },
     },
     "Config_Certs": {},

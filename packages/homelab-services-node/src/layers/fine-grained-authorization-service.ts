@@ -53,7 +53,6 @@ class FineGrainedAuthorizationServiceImpl
               },
             },
             (requestedUsername) => {
-              console.log({ requestedUsername, identity })
               if (identity.principle !== requestedUsername) {
                 return Effect.fail(
                   new ApiErrors.AuthorizationError({

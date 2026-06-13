@@ -60,7 +60,7 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
   })
 
   describe("error cases", () => {
-    it.live("rejects EAP-TLS enterprise client type as not implemented", () =>
+    it.live("rejects EAP-TLS enterprise client type from unrecognized IP", () =>
       Effect.gen(function*() {
         const client = yield* makeApiClient
 
@@ -86,19 +86,18 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
             headers: {
               dpop: newDpopProof,
               authorization: `${token_type} ${access_token}`,
+              "x-forwarded-for": "10.0.0.99" as any,
             },
             urlParams: {},
           }),
         )
 
         assert(
-          result instanceof ApiErrors.NotImplemented,
-          `expected instanceof ApiErrors.NotImplemented but got ${JSON.stringify(result)}`,
+          result instanceof ApiErrors.AuthorizationError,
+          `expected instanceof ApiErrors.AuthorizationError but got ${JSON.stringify(result)}`,
         )
 
-        expect(result.message).toBe(
-          "EAP-TLS support not implemented",
-        )
+        expect(result.message).toBe("IP address not recognized")
       }).pipe(Effect.provide(E2ETestLayer)))
 
     it.live("rejects PEAP enterprise type when username is missing", () =>
@@ -259,6 +258,41 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
         })
 
         expect(result).toBeDefined()
+      }).pipe(Effect.provide(E2ETestLayer)))
+
+    it.live("returns an EAP-TLS wifi mobileconfig profile with ACME payload for recognized IP", () =>
+      Effect.gen(function*() {
+        const client = yield* makeApiClient
+
+        const { access_token, nonce, token_type } = yield* getToken(TEST_API_KEY)
+
+        const newDpopProof = yield* createToken({
+          htu: wifiUrl("0x676179", "WPA3"),
+          htm: "PUT",
+          nonce,
+          accessToken: access_token,
+        })
+
+        const result = yield* client["mobile-config"].wifi({
+          payload: {
+            disableMACRandomization: false,
+            enterpriseClientType: "EAP-TLS",
+          },
+          path: {
+            ssid: "0x676179",
+            encryption: "WPA3",
+          },
+          headers: {
+            dpop: newDpopProof,
+            authorization: `${token_type} ${access_token}`,
+            "x-forwarded-for": "192.168.1.10" as any,
+          },
+          urlParams: {},
+        })
+
+        expect(result).toContain("<?xml")
+        expect(result).toContain("plist")
+        expect(result).toContain("ACME")
       }).pipe(Effect.provide(E2ETestLayer)))
   })
 })

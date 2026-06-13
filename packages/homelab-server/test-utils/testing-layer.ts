@@ -90,6 +90,7 @@ const TestWifiProfileGeneratorService = Layers.WifiProfileGeneratorService.WifiP
   Layer.provide(TestCertificateService),
   Layer.provide(TestRootPayloadService),
   Layer.provide(TestWifiConfigService),
+  Layer.provide(TestAcmeConfigService),
 )
 
 const TestAcmeProfileGeneratorService = Layers.AcmeProfileGeneratorService.AcmeProfileServiceLive.pipe(

@@ -20,6 +20,7 @@ const downloadArgs = (overrides?: {
   urlParams: {
     password: overrides?.password ?? "test-password",
     disableMACRandomization: false,
+    enterpriseClientType: "None" as const,
   },
   request: {} as any,
   headers: {},
