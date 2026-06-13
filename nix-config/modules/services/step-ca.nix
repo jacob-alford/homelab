@@ -54,7 +54,7 @@ in
             policy = {
               x509 = {
                 allow = {
-                  dns = [ "*.${c.baseDomain}" ];
+                  dns = [ "*.${c.baseDomain}" ] ++ c.x509PermittedCommonNames;
                   commonNames = c.x509PermittedCommonNames;
                   email = [ "@${c.baseDomain}" ];
                   ip = c.x509PermittedIps;
