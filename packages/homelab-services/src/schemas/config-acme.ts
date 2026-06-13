@@ -5,7 +5,7 @@ export const AcmeConfigSchema = GenericPayloadSchema.pipe(
   Schema.extend(
     Schema.Struct({
       Attest: Schema.Boolean,
-      ClientIdentifer: Schema.String,
+      ClientIdentifier: Schema.String,
       DirectoryURL: Schema.URL,
       HardwareBound: Schema.Boolean,
       KeySize: Schema.Int.pipe(Schema.positive()),

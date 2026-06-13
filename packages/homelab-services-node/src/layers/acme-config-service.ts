@@ -27,7 +27,7 @@ class AcmeConfigServiceImpl implements Services.AcmeConfigService.AcmeConfigServ
     return Effect.succeed(
       {
         Attest: this.hardwareBound,
-        ClientIdentifer: clientIdentifier,
+        ClientIdentifier: clientIdentifier,
         DirectoryURL: this.acmeUrl,
         HardwareBound: this.hardwareBound,
         KeySize: this.keySize,
