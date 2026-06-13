@@ -10,6 +10,7 @@ export const AcmeConfigSchema = GenericPayloadSchema.pipe(
       HardwareBound: Schema.Boolean,
       KeySize: Schema.Int.pipe(Schema.positive()),
       KeyType: Schema.String,
+      Subject: Schema.NonEmptyArray(Schema.NonEmptyArray(Schema.Tuple(Schema.String, Schema.String))),
     }),
   ),
 )
