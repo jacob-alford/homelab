@@ -79,3 +79,15 @@
 .toast__progress-fill--success {
   background-color: var(--status-success, #28a745);
 }
+
+.toast--info {
+  border-color: var(--status-info, #17a2b8);
+}
+
+.toast__title--info {
+  color: var(--status-info, #17a2b8);
+}
+
+.toast__progress-fill--info {
+  background-color: var(--status-info, #17a2b8);
+}

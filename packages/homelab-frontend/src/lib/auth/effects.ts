@@ -1,6 +1,8 @@
-import { HttpClient, HttpClientRequest, HttpClientResponse } from "@effect/platform"
+import { HttpApiClient, HttpClient, HttpClientRequest, HttpClientResponse } from "@effect/platform"
 import { Effect } from "effect"
+import { Homelab } from "homelab-api"
 import { Schemas } from "homelab-services"
+import { API_BASE_URL } from "../env.js"
 import * as Storage from "../storage/index.js"
 import { PKCE_STATE_KEY, PKCE_VERIFIER_KEY, RETURN_URL_KEY } from "./constants.js"
 import { OIDC_CLIENT_ID, OIDC_REDIRECT_PATH, OIDC_WELL_KNOWN_URL } from "./env.js"
@@ -95,4 +97,12 @@ export const consumeReturnUrl = Effect.fn("consumeReturnUrl")(function*() {
   const url = yield* storage.get(RETURN_URL_KEY).pipe(Effect.map((_) => _._tag === "Some" ? _.value : "/"))
   yield* storage.remove(RETURN_URL_KEY)
   return url
+})
+
+export const fetchSelf = Effect.fn("fetchSelf")(function*(token: string) {
+  const apiBaseUrl = yield* API_BASE_URL
+  const client = yield* HttpApiClient.make(Homelab.HomelabApi, { baseUrl: apiBaseUrl })
+  return yield* client.status.self({
+    headers: { authorization: `Bearer ${token}` },
+  })
 })

@@ -27,6 +27,19 @@ export function showSuccessToast(message: string) {
   ))
 }
 
+export function showInfoToast(message: string) {
+  toaster.show((props) => (
+    <Toast toastId={props.toastId} class="toast toast--info">
+      <Toast.Title class="toast__title toast__title--info">Info</Toast.Title>
+      <Toast.Description class="toast__description">{message}</Toast.Description>
+      <Toast.CloseButton class="toast__close-btn">✕</Toast.CloseButton>
+      <Toast.ProgressTrack class="toast__progress-track">
+        <Toast.ProgressFill class="toast__progress-fill toast__progress-fill--info" />
+      </Toast.ProgressTrack>
+    </Toast>
+  ))
+}
+
 export function ToastRegion() {
   return (
     <Toast.Region>

@@ -9,6 +9,7 @@ import "./DnsPage.css"
 export function DnsPage() {
   const isAuthenticated = useStore(Lib.Auth.State.$isAuthenticated)
   const auth = useStore(Lib.Auth.State.$auth)
+  const isTailscale = useStore(Lib.Auth.State.$isTailscale)
   const dns = Lib.Dns.State.useDnsParams()
   const [mounted, setMounted] = createSignal(false)
   const [copyingLink, setCopyingLink] = createSignal(false)
@@ -17,10 +18,14 @@ export function DnsPage() {
 
   const effectiveBlockAds = () => {
     const p = dnsParams()
-    const ts = Option.getOrElse(p.tailscale, () => false)
+    const ts = effectiveTailscale()
     return ts ? true : Option.getOrElse(p.blockAds, () => true)
   }
-  const effectiveTailscale = () => Option.getOrElse(dnsParams().tailscale, () => false)
+  const effectiveTailscale = () => {
+    const explicit = Option.getOrUndefined(dnsParams().tailscale)
+    if (explicit !== undefined) return explicit
+    return isTailscale()
+  }
   const effectiveKeepLogs = () => Option.getOrElse(dnsParams().keepLogs, () => false)
 
   const wifiHref = () => {

@@ -2,21 +2,28 @@ import { Button } from "@kobalte/core/button"
 import { Select } from "@kobalte/core/select"
 import { TextField } from "@kobalte/core/text-field"
 import { Option } from "effect"
+import { Show } from "solid-js"
+import type { EnterpriseClientType } from "./WifiPageView.js"
 
 export interface WifiSetupViewProps {
   ssid: Option.Option<string>
   encryption: Option.Option<"WPA2" | "WPA3">
   password: Option.Option<string>
   username: Option.Option<string>
+  isAuthenticated: boolean
+  isTailscale: boolean
+  enterpriseClientType: EnterpriseClientType
   canConfirm: boolean
   onSsidChange: (value: string) => void
   onEncryptionChange: (value: "WPA2" | "WPA3") => void
   onPasswordChange: (value: string) => void
   onUsernameChange: (value: string) => void
+  onEnterpriseClientTypeChange: (value: EnterpriseClientType) => void
   onConfirm: () => void
 }
 
 const ENCRYPTION_OPTIONS: Array<"WPA2" | "WPA3"> = ["WPA3", "WPA2"]
+const AUTH_METHOD_OPTIONS: Array<EnterpriseClientType> = ["PEAP", "EAP-TLS"]
 
 export function WifiSetupView(props: WifiSetupViewProps) {
   return (
@@ -75,6 +82,32 @@ export function WifiSetupView(props: WifiSetupViewProps) {
             <TextField.Label class="wifi-page__override-label">Username</TextField.Label>
             <TextField.Input class="wifi-page__override-input" placeholder="Optional" />
           </TextField>
+
+          <Show when={props.isAuthenticated && props.isTailscale}>
+            <Select<EnterpriseClientType>
+              class="wifi-page__override-field"
+              options={AUTH_METHOD_OPTIONS}
+              value={props.enterpriseClientType}
+              onChange={(v) => {
+                if (v) props.onEnterpriseClientTypeChange(v)
+              }}
+              itemComponent={(itemProps) => (
+                <Select.Item item={itemProps.item} class="wifi-page__select-item">
+                  <Select.ItemLabel>{itemProps.item.rawValue}</Select.ItemLabel>
+                </Select.Item>
+              )}
+            >
+              <Select.Label class="wifi-page__override-label">Authentication Method</Select.Label>
+              <Select.Trigger class="wifi-page__select-trigger">
+                <Select.Value<EnterpriseClientType>>
+                  {(state) => state.selectedOption()}
+                </Select.Value>
+              </Select.Trigger>
+              <Select.Content class="wifi-page__select-content">
+                <Select.Listbox class="wifi-page__select-listbox" />
+              </Select.Content>
+            </Select>
+          </Show>
         </div>
 
         <Button

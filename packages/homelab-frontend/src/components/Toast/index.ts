@@ -1,1 +1,1 @@
-export { showErrorToast, showSuccessToast, ToastRegion } from "./Toast.js"
+export { showErrorToast, showInfoToast, showSuccessToast, ToastRegion } from "./Toast.js"

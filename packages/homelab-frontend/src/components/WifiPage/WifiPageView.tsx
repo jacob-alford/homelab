@@ -9,14 +9,18 @@ import { AndroidTab } from "./AndroidTab.js"
 import { AppleTab } from "./AppleTab.js"
 import "./WifiPage.css"
 
+export type EnterpriseClientType = "PEAP" | "EAP-TLS"
+
 export interface WifiPageViewProps {
   mounted: boolean
   ssid: string
   encryption: "WPA2" | "WPA3"
   oidcEnabled: boolean
   isAuthenticated: boolean
+  isTailscale: boolean
   copyingLink: boolean
   canDownload: boolean
+  enterpriseClientType: EnterpriseClientType
   effectiveUsername: Option.Option<string>
   username: Option.Option<string>
   password: Option.Option<string>
@@ -57,6 +61,7 @@ export function WifiPageView(props: WifiPageViewProps) {
             isAuthenticated={props.isAuthenticated}
             canDownload={props.canDownload}
             copyingLink={props.copyingLink}
+            enterpriseClientType={props.isAuthenticated && props.isTailscale ? props.enterpriseClientType : "PEAP"}
             username={props.username}
             password={props.password}
             onUsernameChange={props.onUsernameChange}

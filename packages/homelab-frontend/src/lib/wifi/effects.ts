@@ -12,24 +12,30 @@ export const downloadAppleProfile = Effect.fn("downloadAppleProfile")(
     username: Option.Option<string>
     disableMACRandomization: Option.Option<boolean>
     token: Option.Option<string>
+    enterpriseClientType: "PEAP" | "EAP-TLS" | "None"
   }) {
     const ssid = yield* fromOption(args.ssid, () => new MissingParamError({ param: "SSID" }))
-    const password = yield* fromOption(args.password, () => new MissingParamError({ param: "Password" }))
     const encryption = Option.getOrElse(args.encryption, () => "WPA3" as const)
     const disableMACRandomization = Option.getOrElse(args.disableMACRandomization, () => false)
-    const username = Option.getOrUndefined(args.username)
     const token = Option.getOrUndefined(args.token)
-
-    if (username && username !== "guest" && !token) {
-      return yield* Effect.fail(new MissingParamError({ param: "Authentication token" }))
-    }
 
     const apiBaseUrl = yield* API_BASE_URL
     const client = yield* HttpApiClient.make(Homelab.HomelabApi, { baseUrl: apiBaseUrl })
 
-    const payload: Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigParams = username
-      ? { username, password, disableMACRandomization, enterpriseClientType: "PEAP" as const }
-      : { password, disableMACRandomization, enterpriseClientType: "None" as const }
+    let payload: Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigParams
+    if (args.enterpriseClientType === "EAP-TLS") {
+      payload = { enterpriseClientType: "EAP-TLS", disableMACRandomization }
+    } else if (args.enterpriseClientType === "PEAP") {
+      const password = yield* fromOption(args.password, () => new MissingParamError({ param: "Password" }))
+      const username = yield* fromOption(args.username, () => new MissingParamError({ param: "Username" }))
+      if (username !== "guest" && !token) {
+        return yield* Effect.fail(new MissingParamError({ param: "Authentication token" }))
+      }
+      payload = { username, password, disableMACRandomization, enterpriseClientType: "PEAP" as const }
+    } else {
+      const password = yield* fromOption(args.password, () => new MissingParamError({ param: "Password" }))
+      payload = { password, disableMACRandomization, enterpriseClientType: "None" as const }
+    }
 
     const result = yield* client["mobile-config"].wifi({
       path: { ssid, encryption },
@@ -59,12 +65,11 @@ export const fetchClaimCheckAndCopyLink = Effect.fn("fetchClaimCheckAndCopyLink"
     username: Option.Option<string>
     disableMACRandomization: Option.Option<boolean>
     token: Option.Option<string>
+    enterpriseClientType: "PEAP" | "EAP-TLS" | "None"
   }) {
     const token = yield* fromOption(args.token, () => new MissingParamError({ param: "Authentication token" }))
     const ssid = yield* fromOption(args.ssid, () => new MissingParamError({ param: "SSID" }))
-    const password = yield* fromOption(args.password, () => new MissingParamError({ param: "Password" }))
     const encryption = Option.getOrElse(args.encryption, () => "WPA3" as const)
-    const username = Option.getOrUndefined(args.username)
     const disableMACRandomization = Option.getOrElse(args.disableMACRandomization, () => false)
 
     const apiBaseUrl = yield* API_BASE_URL
@@ -74,11 +79,21 @@ export const fetchClaimCheckAndCopyLink = Effect.fn("fetchClaimCheckAndCopyLink"
       headers: { authorization: `Bearer ${token}` },
     })
 
-    const linkParams = new URLSearchParams({ claim_check, password })
+    const linkParams = new URLSearchParams({ claim_check })
 
-    if (username) {
-      linkParams.set("username", username)
-      linkParams.set("enterpriseClientType", "PEAP")
+    if (args.enterpriseClientType === "EAP-TLS") {
+      linkParams.set("enterpriseClientType", "EAP-TLS")
+    } else if (args.enterpriseClientType === "PEAP") {
+      const password = yield* fromOption(args.password, () => new MissingParamError({ param: "Password" }))
+      const username = Option.getOrUndefined(args.username)
+      linkParams.set("password", password)
+      if (username) {
+        linkParams.set("username", username)
+        linkParams.set("enterpriseClientType", "PEAP")
+      }
+    } else {
+      const password = yield* fromOption(args.password, () => new MissingParamError({ param: "Password" }))
+      linkParams.set("password", password)
     }
 
     if (disableMACRandomization) {

@@ -7,17 +7,20 @@ export type AuthState = {
   token: Option.Option<TokenResponse>
   username: Option.Option<string>
   displayName: Option.Option<string>
+  isTailscale: boolean
 }
 
 export const $auth = map<AuthState>({
   token: Option.none(),
   username: Option.none(),
   displayName: Option.none(),
+  isTailscale: false,
 })
 
 export const $isAuthenticated = computed($auth, (s) => Option.isSome(s.token))
 export const $displayName = computed($auth, (s) => s.displayName)
 export const $username = computed($auth, (s) => s.username)
+export const $isTailscale = computed($auth, (s) => s.isTailscale)
 
 function decodeIdTokenPayload(idToken: string): Record<string, unknown> | null {
   try {
@@ -47,11 +50,21 @@ function extractUserFields(
 
 export function setAuth(token: TokenResponse): void {
   const { displayName, username } = extractUserFields(token)
-  $auth.set({ token: Option.some(token), username, displayName })
+  $auth.set({ token: Option.some(token), username, displayName, isTailscale: false })
+}
+
+export function updateSelfInfo(
+  info: { principal: string; fullname: Option.Option<string>; isTailscale: boolean },
+): void {
+  const atIndex = info.principal.indexOf("@")
+  const user = atIndex > 0 ? info.principal.slice(0, atIndex) : info.principal
+  $auth.setKey("username", user ? Option.some(user) : Option.none())
+  $auth.setKey("displayName", info.fullname)
+  $auth.setKey("isTailscale", info.isTailscale)
 }
 
 export function clearAuth(): void {
-  $auth.set({ token: Option.none(), username: Option.none(), displayName: Option.none() })
+  $auth.set({ token: Option.none(), username: Option.none(), displayName: Option.none(), isTailscale: false })
 }
 
 task(async () => {

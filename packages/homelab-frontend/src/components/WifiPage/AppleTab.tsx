@@ -14,6 +14,7 @@ export interface AppleTabProps {
   isAuthenticated: boolean
   canDownload: boolean
   copyingLink: boolean
+  enterpriseClientType: "PEAP" | "EAP-TLS" | "None"
   username: Option.Option<string>
   password: Option.Option<string>
   onUsernameChange: (value: string) => void
@@ -28,15 +29,18 @@ export function AppleTab(props: AppleTabProps) {
       <p class="wifi-page__description">
         Click download below to download an Apple profile to connect to the <strong>{props.ssid}</strong>{" "}
         wifi network ({props.encryption}).
-        <Show when={props.oidcEnabled && props.isAuthenticated}>
+        <Show when={props.oidcEnabled && props.isAuthenticated && props.enterpriseClientType !== "EAP-TLS"}>
           {" "}Click{" "}
           <Link href={`${IDM_URL}/ui/radius`} target="_blank" rel="noopener noreferrer">
             here
           </Link>{" "}
           to view your Radius password.
         </Show>
+        <Show when={props.enterpriseClientType === "EAP-TLS"}>
+          {" "}This profile uses certificate-based authentication (EAP-TLS). No username or password is needed.
+        </Show>
       </p>
-      <Show when={props.oidcEnabled && props.isAuthenticated}>
+      <Show when={props.oidcEnabled && props.isAuthenticated && props.enterpriseClientType === "PEAP"}>
         <div class="wifi-page__overrides">
           <TextField
             class="wifi-page__override-field"
