@@ -14,8 +14,11 @@ in
     }:
     let
       caCert = config.environment.etc."ssl/certs/ca-certificates.crt".source;
-      radiusCaBundle = pkgs.runCommand "radius-ca-bundle" {} ''
-        cat ${inputs.self + "/certs/alford-root.crt"} ${inputs.self + "/certs/intermediate_ca_2.crt"} > $out
+      radiusCaDir = pkgs.runCommand "radius-ca-dir" {} ''
+        mkdir -p $out
+        cp ${inputs.self + "/certs/alford-root.crt"} $out/root.pem
+        cp ${inputs.self + "/certs/intermediate_ca_2.crt"} $out/intermediate.pem
+        ${pkgs.openssl}/bin/openssl rehash $out
       '';
       inherit (config.security.acme.certs."${svc.domain}") directory;
     in
@@ -37,7 +40,7 @@ in
         volumes = [
           "${caCert}:/etc/pki/ca-trust/source/anchors"
           "${caCert}:/data/ca.pem"
-          "${radiusCaBundle}:/data/radius-ca.pem:ro"
+          "${radiusCaDir}:/data/radius-ca:ro"
           "${directory}/fullchain.pem:/data/cert.pem"
           "${directory}/key.pem:/data/key.pem"
           "${config.sops.templates."radius_config".path}:/data/radius.toml:Z"
@@ -86,7 +89,7 @@ in
 
           radius_cert_path = "/data/cert.pem"
           radius_key_path = "/data/key.pem"
-          radius_ca_path = "/data/radius-ca.pem"
+          radius_ca_dir = "/data/radius-ca"
         '';
       };
     };

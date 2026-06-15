@@ -183,7 +183,7 @@ in
             ACME_DIRECTORY_PATH=/acme/eap/directory
             ACME_HARDWARE_BOUND=true
             ACME_KEY_TYPE=ECSECPrimeRandom
-            ACME_KEY_SIZE=384
+            ACME_KEY_SIZE=256
             ${if cfg.serialNumbersFile != null then "SERIAL_NUMBERS_FILE=${cfg.serialNumbersFile}" else ""}
           '';
         };
