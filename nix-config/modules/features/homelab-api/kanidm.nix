@@ -19,7 +19,7 @@ in
           "${svc.frontendUrl}/oauth/callback"
           "http://localhost:4321/oauth/callback"
         ];
-        originLanding = "${svc.url}";
+        originLanding = "${svc.frontendUrl}";
         displayName = "Homelab";
 
         scopeMaps = {
