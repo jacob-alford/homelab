@@ -180,7 +180,7 @@ in
             KANIDM_OPENID_PROVIDER_URL=${svc.oidcEndpoint}
 
             CA_URL=${c.ca.url}
-            ACME_DIRECTORY_PATH=/acme/acme/directory
+            ACME_DIRECTORY_PATH=/acme/eap/directory
             ACME_HARDWARE_BOUND=true
             ACME_KEY_TYPE=ECSECPrimeRandom
             ACME_KEY_SIZE=384
@@ -194,12 +194,14 @@ in
           wantedBy = [ "multi-user.target" ];
           after = [
             "homelab-secret-provisioner.service"
-          ] ++ lib.optionals cfg.requiresKanidm [
+          ]
+          ++ lib.optionals cfg.requiresKanidm [
             "kanidm.service"
           ];
           requires = [
             "homelab-secret-provisioner.service"
-          ] ++ lib.optionals cfg.requiresKanidm [
+          ]
+          ++ lib.optionals cfg.requiresKanidm [
             "kanidm.service"
           ];
 

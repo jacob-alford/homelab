@@ -53,6 +53,7 @@ in
             "radius.access_home" = { };
             "radius.access_guest" = { };
             "radius.access_private" = { };
+            "radius.access_admin" = { };
 
             "openwebui.admins" = { };
             "openwebui.access" = { };
@@ -125,24 +126,50 @@ in
                 "homelab.admins"
               ];
             };
-            # "G1447DK9FP" = {
-            #   displayName = "Rae's iPhone";
-            #   mailAddresses = [ "G1447DK9FP@a.plato-splunk.media" ];
-            #   groups = [
-            #     "radius.access"
-            #     "radius.access_home"
-            #     "radius.access_private"
-            #   ];
-            # };
-            # "D2TN90JVJV" = {
-            #   displayName = "Rae's iPad";
-            #   mailAddresses = [ "D2TN90JVJV@a.plato-splunk.media" ];
-            #   groups = [
-            #     "radius.access"
-            #     "radius.access_home"
-            #     "radius.access_private"
-            #   ];
-            # };
+            rae = {
+              displayName = "Rae Hill";
+              mailAddresses = [ "rae@plato-splunk.media" ];
+              groups = [
+                "radius.access"
+                "radius.access_home"
+
+                "openwebui.admins"
+                "openwebui.access"
+
+                "nextcloud.admins"
+                "nextcloud.access"
+
+                "jellyfin.admins"
+                "jellyfin.access"
+
+                "home-assistant.access"
+                "home-assistant.admins"
+
+                "planka.access"
+                "planka.project_owner"
+                "planka.admins"
+
+                "step-ca.access"
+
+                "homelab.admins"
+              ];
+            };
+            "g1447dk9fp" = {
+              displayName = "Rae's iPhone";
+              mailAddresses = [ "G1447DK9FP@a.plato-splunk.media" ];
+              groups = [
+                "radius.access"
+                "radius.access_admin"
+              ];
+            };
+            "d2tn90jvjv" = {
+              displayName = "Rae's iPad";
+              mailAddresses = [ "D2TN90JVJV@a.plato-splunk.media" ];
+              groups = [
+                "radius.access"
+                "radius.access_admin"
+              ];
+            };
           };
         };
       };

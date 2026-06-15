@@ -6,7 +6,12 @@ let
 in
 {
   flake.modules.nixos.radius =
-    { config, lib, pkgs, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
     let
       caCert = config.environment.etc."ssl/certs/ca-certificates.crt".source;
       inherit (config.security.acme.certs."${svc.domain}") directory;
@@ -66,7 +71,8 @@ in
           radius_groups = [
             { spn = "radius.access_guest@${c.idm.domain}", vlan = 45 },
             { spn = "radius.access_home@${c.idm.domain}", vlan = 55 },
-            { spn = "radius.access_private@${c.idm.domain}", vlan = 100 }
+            { spn = "radius.access_private@${c.idm.domain}", vlan = 100 },
+            { spn = "radius.access_admin@${c.idm.domain}", vlan = 150 }
           ]
 
           radius_clients = [

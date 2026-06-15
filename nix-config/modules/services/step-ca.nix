@@ -102,6 +102,7 @@ in
               };
             };
             provisioners = [
+              # ----------- TODO: remove -----------
               {
                 type = "ACME";
                 name = "acme";
@@ -119,6 +120,49 @@ in
                 };
                 options = {
                   x509 = { };
+                };
+              }
+              # ------------------------------------
+              {
+                type = "ACME";
+                name = "http";
+                forceCN = true;
+                challenges = [
+                  "http-01"
+                ];
+              }
+              {
+                type = "ACME";
+                name = "eap";
+                forceCN = true;
+                challenges = [
+                  "device-attest-01"
+                ];
+                attestationFormats = [
+                  "apple"
+                  "step"
+                ];
+                options = {
+                  x509 = {
+                    template = ''
+                      {
+                        "subject": {
+                          "commonName": {{ toJson .Insecure.CR.Subject.CommonName }}
+                        },
+                        "sans": [
+                          {
+                            "type": "directoryName",
+                            "value": {
+                              "commonName": {{ toJson .Insecure.CR.Subject.CommonName | lower }}
+                            }
+                          },
+                          {{ toJson .SANs }}
+                        ],
+                        "keyUsage": ["digitalSignature"],
+                        "extKeyUsage": ["clientAuth"]
+                      }
+                    '';
+                  };
                 };
               }
               {
