@@ -149,7 +149,7 @@ in
                         "subject": {
                           "commonName": {{ toJson .Insecure.CR.Subject.CommonName }}
                         },
-                        "sans": {{ toJson (append .SANs (dict "type" "directoryName" "value" (printf "CN=%s" (.Insecure.CR.Subject.CommonName | lower)))) }},
+                        "sans": {{ toJson (append .SANs (dict "type" "dn" "value" (toJson (dict "commonName" (.Insecure.CR.Subject.CommonName | lower))))) }},
                         "keyUsage": ["digitalSignature"],
                         "extKeyUsage": ["clientAuth"]
                       }
