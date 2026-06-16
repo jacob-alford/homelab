@@ -135,6 +135,10 @@ in
                 type = "ACME";
                 name = "eap";
                 forceCN = true;
+                claims = {
+                  "maxTLSCertDuration" = "729h";
+                  "defaultTLSCertDuration" = "480h";
+                };
                 challenges = [
                   "device-attest-01"
                 ];
