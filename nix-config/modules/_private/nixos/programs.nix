@@ -1,4 +1,9 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 {
   programs.dconf.enable = true;
 
@@ -15,6 +20,11 @@
   programs._1password-gui = {
     enable = true;
     polkitPolicyOwners = [ "jacob" ];
+  };
+
+  # No home-manager module :(
+  programs.zoom-us = {
+    enable = true;
   };
 
   environment.etc = {
