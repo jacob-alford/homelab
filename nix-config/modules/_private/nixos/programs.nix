@@ -2,6 +2,7 @@
   lib,
   config,
   pkgs,
+  pkgs-unstable,
   ...
 }:
 {
@@ -25,6 +26,7 @@
   # No home-manager module :(
   programs.zoom-us = {
     enable = true;
+    package = pkgs-unstable.zoom-us;
   };
 
   environment.etc = {
