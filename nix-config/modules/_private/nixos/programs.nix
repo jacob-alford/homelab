@@ -59,6 +59,7 @@
     quickemu
     adwaita-icon-theme
     gnomeExtensions.appindicator
+    gnomeExtensions.uxplay-control
     openssl
     cifs-utils
     restic

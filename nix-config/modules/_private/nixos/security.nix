@@ -1,4 +1,10 @@
-{ inputs, lib, config, pkgs, ... }:
+{
+  inputs,
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 {
   security.sudo.execWheelOnly = true;
 
@@ -8,9 +14,20 @@
 
   networking.firewall = {
     enable = true;
+
     allowedTCPPorts = [
       10300
       10200
+      49545
+      58042
+      56503
+    ];
+
+    allowedUDPPorts = [
+      5353
+      49545
+      58042
+      56503
     ];
 
     interfaces = {

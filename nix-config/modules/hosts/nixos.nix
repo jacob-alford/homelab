@@ -24,6 +24,7 @@ in
       nixos.virtualization
       nixos.cifs
       nixos.restic
+      nixos.uxplay
 
       ./../_private/nixos/hardware.nix
       ./../_private/nixos/filesystems.nix
