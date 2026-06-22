@@ -60,6 +60,7 @@
     adwaita-icon-theme
     gnomeExtensions.appindicator
     gnomeExtensions.uxplay-control
+    uxplay
     openssl
     cifs-utils
     restic
