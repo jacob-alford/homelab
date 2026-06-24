@@ -5,7 +5,13 @@ let
 in
 {
   flake.modules.nixos.home-assistant =
-    { config, lib, pkgs, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      pkgs-unstable,
+      ...
+    }:
     {
       services.kanidm.provision.systems.oauth2."${svc.clientId}" = {
         originUrl = "${svc.url}/auth/oidc/callback";
@@ -35,7 +41,9 @@ in
       services.home-assistant = {
         enable = true;
 
-        customComponents = with pkgs.home-assistant-custom-components; [
+        package = pkgs-unstable.home-assistant;
+
+        customComponents = with pkgs-unstable.home-assistant-custom-components; [
           auth_oidc
         ];
 
