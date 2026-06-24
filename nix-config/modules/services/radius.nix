@@ -14,7 +14,7 @@ in
     }:
     let
       caCert = config.environment.etc."ssl/certs/ca-certificates.crt".source;
-      radiusCaDir = pkgs.runCommand "radius-ca-dir" {} ''
+      radiusCaDir = pkgs.runCommand "radius-ca-dir" { } ''
         mkdir -p $out
         cp ${inputs.self + "/certs/alford-root.crt"} $out/root.pem
         cp ${inputs.self + "/certs/intermediate_ca_2.crt"} $out/intermediate.pem

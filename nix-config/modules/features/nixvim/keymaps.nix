@@ -46,21 +46,32 @@ let
 
   pasteFromClipboard = {
     key = "<C-S-v>";
-    mode = [ "n" "v" ];
+    mode = [
+      "n"
+      "v"
+    ];
     action = ''"+p'';
     options.desc = "Paste from clipboard";
   };
 
   saveAndQuit = {
     key = "<C-q>";
-    mode = [ "n" "i" "v" ];
+    mode = [
+      "n"
+      "i"
+      "v"
+    ];
     action = "<Esc>:wq<CR>";
     options.desc = "Save and quit";
   };
 
   closeTab = {
     key = "<C-w>";
-    mode = [ "n" "i" "v" ];
+    mode = [
+      "n"
+      "i"
+      "v"
+    ];
     action = "<CMD>BufferClose<CR>";
     options.desc = "Close current tab";
     options.silent = true;
@@ -112,6 +123,16 @@ let
     action = "<cmd>lua require('smart-splits').resize_right()<CR>";
   };
 
+  pasteIntoNewlineBelow = {
+    key = "<C-n>";
+    mode = [
+      "n"
+      "i"
+      "v"
+    ];
+    action = "<Esc>yyp";
+  };
+
   module =
     { ... }:
     {
@@ -157,6 +178,7 @@ let
           resizeDown
           resizeUp
           resizeRight
+          pasteIntoNewlineBelow
         ];
       };
     };
