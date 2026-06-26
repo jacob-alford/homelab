@@ -79,6 +79,7 @@ in
             { spn = "radius.access_guest@${c.idm.domain}", vlan = 45 },
             { spn = "radius.access_home@${c.idm.domain}", vlan = 55 },
             { spn = "radius.access_private@${c.idm.domain}", vlan = 100 },
+            { spn = "radius.access_servers@${c.idm.domain}", vlan = 100 },
             { spn = "radius.access_admin@${c.idm.domain}", vlan = 150 }
           ]
 

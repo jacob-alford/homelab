@@ -54,6 +54,7 @@ in
             "radius.access_guest" = { };
             "radius.access_private" = { };
             "radius.access_admin" = { };
+            "radius.access_servers" = { };
 
             "openwebui.admins" = { };
             "openwebui.access" = { };
@@ -168,6 +169,14 @@ in
               groups = [
                 "radius.access"
                 "radius.access_admin"
+              ];
+            };
+            "c0wr4xr52g" = {
+              displayName = "mini";
+              mailAddresses = [ "C0WR4XR52G@a.plato-splunk.media" ];
+              groups = [
+                "radius.access"
+                "radius.access_servers"
               ];
             };
           };
