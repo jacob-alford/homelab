@@ -88,6 +88,7 @@ in
             { name = "udmp", ipaddr = "10.10.0.1", secret = "${config.sops.placeholder.unifi_radius_secret}" }
             { name = "uswa", ipaddr = "10.10.0.214", secret = "${config.sops.placeholder.unifi_radius_secret}" }
             { name = "uspm", ipaddr = "10.10.0.114", secret = "${config.sops.placeholder.unifi_radius_secret}" }
+            { name = "uswf", ipaddr = "10.10.0.233", secret = "${config.sops.placeholder.unifi_radius_secret}" }
           ]
 
           radius_cert_path = "/data/cert.pem"
