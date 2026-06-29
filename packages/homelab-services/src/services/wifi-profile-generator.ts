@@ -14,12 +14,12 @@ export interface WifiProfileServiceDef {
 
   /** Generates a complete MDM root profile containing a WPA3-Enterprise PEAP Wi-Fi configuration. */
   wpa3EnterprisePeapWifi(
-    ...params: Parameters<typeof WifiConfigService.Service.wpa3EnterprisePeapWifi>
+    ...args: Parameters<typeof WifiConfigService.Service.wpa3EnterprisePeapWifi>
   ): Effect.Effect<Schemas.RootPayload.RootPayloadWire, WifiConfigGenerationError | ApiErrors.HttpApiEncodeError>
 
   /** Generates a complete MDM root profile containing a WPA3-Enterprise EAP-TLS Wi-Fi configuration. */
   wpa3EnterpriseEAPTLSWifi(
-    ...params: Parameters<typeof WifiConfigService.Service.wpa3EnterpriseEAPTLSWifi>
+    ...args: Parameters<typeof WifiConfigService.Service.wpa3EnterpriseEAPTLSWifi>
   ): Effect.Effect<Schemas.RootPayload.RootPayloadWire, WifiConfigGenerationError | ApiErrors.HttpApiEncodeError>
 }
 

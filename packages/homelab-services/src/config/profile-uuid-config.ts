@@ -35,6 +35,9 @@ export interface ProfileUuidConfigDef {
    * This will be useful when debugging network issues.
    */
   readonly homelabConfigDnsUuid: UUID
+
+  /** Payload UUID for the 802.1X Global Ethernet MDM entry. */
+  readonly homelabPayloadEthernetUuid: UUID
 }
 
 export class ProfileUuidConfig extends Context.Tag(ProfileUuidConfigId)<

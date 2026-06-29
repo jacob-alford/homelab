@@ -24,14 +24,20 @@ export const downloadAppleProfile = Effect.fn("downloadAppleProfile")(
 
     let payload: Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigParams
     if (args.enterpriseClientType === "EAP-TLS") {
-      payload = { enterpriseClientType: "EAP-TLS", disableMACRandomization }
+      payload = { enterpriseClientType: "EAP-TLS", disableMACRandomization, includeEthernetProfile: false }
     } else if (args.enterpriseClientType === "PEAP") {
       const password = yield* fromOption(args.password, () => new MissingParamError({ param: "Password" }))
       const username = yield* fromOption(args.username, () => new MissingParamError({ param: "Username" }))
       if (username !== "guest" && !token) {
         return yield* Effect.fail(new MissingParamError({ param: "Authentication token" }))
       }
-      payload = { username, password, disableMACRandomization, enterpriseClientType: "PEAP" as const }
+      payload = {
+        username,
+        password,
+        disableMACRandomization,
+        enterpriseClientType: "PEAP" as const,
+        includeEthernetProfile: false,
+      }
     } else {
       const password = yield* fromOption(args.password, () => new MissingParamError({ param: "Password" }))
       payload = { password, disableMACRandomization, enterpriseClientType: "None" as const }

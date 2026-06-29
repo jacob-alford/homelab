@@ -6,6 +6,8 @@ import { CertProfileServiceLive } from "../layers/cert-profile-generator.js"
 import { CertificateServiceLive } from "../layers/certificate-service.js"
 import { DnsConfigServiceLive } from "../layers/dns-config-service.js"
 import { DnsProfileServiceLive } from "../layers/dns-profile-generator.js"
+import { EapClientConfigServiceLive } from "../layers/eap-client-config-service.js"
+import { EthernetConfigServiceLive } from "../layers/ethernet-config-service.js"
 import { RootPayloadServiceLive } from "../layers/root-payload-service.js"
 import { WifiConfigServiceLive } from "../layers/wifi-config-service.js"
 import { WifiProfileServiceLive } from "../layers/wifi-profile-generator.js"
@@ -17,6 +19,8 @@ const ServiceDeps = RootPayloadServiceLive.pipe(
   Layer.provideMerge(CertConfigServiceLive),
   Layer.provideMerge(CertificateServiceLive),
   Layer.provideMerge(DnsConfigServiceLive),
+  Layer.provideMerge(EapClientConfigServiceLive),
+  Layer.provideMerge(EthernetConfigServiceLive),
 )
 
 export const Aggregate = Layer.merge(

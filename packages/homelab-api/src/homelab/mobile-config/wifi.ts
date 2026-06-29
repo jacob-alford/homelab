@@ -19,7 +19,18 @@ export const WifiMobileConfigParamsBase = Schema.Struct({
   ),
 })
 
-export const WifiMobileConfigParamsEnterprisePEAP = WifiMobileConfigParamsBase.pipe(
+export const WifiMobileConfigParamsEnterpriseBase = WifiMobileConfigParamsBase.pipe(
+  Schema.extend(
+    Schema.Struct({
+      includeEthernetProfile: Schemas.Optionals.OptionalWithDefault(
+        Schema.BooleanFromString,
+        () => false,
+      ),
+    }),
+  ),
+)
+
+export const WifiMobileConfigParamsEnterprisePEAP = WifiMobileConfigParamsEnterpriseBase.pipe(
   Schema.extend(
     Schema.Struct({
       username: Schema.String,
@@ -29,7 +40,7 @@ export const WifiMobileConfigParamsEnterprisePEAP = WifiMobileConfigParamsBase.p
   ),
 )
 
-export const WifiMobileConfigParamsEnterpriseEAPTLS = WifiMobileConfigParamsBase.pipe(
+export const WifiMobileConfigParamsEnterpriseEAPTLS = WifiMobileConfigParamsEnterpriseBase.pipe(
   Schema.extend(
     Schema.Struct({
       enterpriseClientType: Schema.Literal("EAP-TLS"),

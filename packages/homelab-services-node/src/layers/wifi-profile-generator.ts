@@ -1,4 +1,4 @@
-import { Effect, Layer, pipe, Schema } from "effect"
+import { Array as Arr, Effect, Layer, pipe, Schema } from "effect"
 import { ApiErrors, Schemas, Services } from "homelab-services"
 
 export const WifiProfileServiceLive = Layer.effect(
@@ -10,6 +10,8 @@ export const WifiProfileServiceLive = Layer.effect(
       yield* Services.RootPayloadService.RootPayloadService,
       yield* Services.WifiConfigService.WifiConfigService,
       yield* Services.AcmeConfigService.AcmeConfigService,
+      yield* Services.EapClientConfigService.EapClientConfigService,
+      yield* Services.EthernetConfigService.EthernetConfigService,
     )
   }),
 )
@@ -21,6 +23,8 @@ class WifiProfileServiceImpl implements Services.WifiProfileGeneratorService.Wif
     private readonly rootPayloadService: typeof Services.RootPayloadService.RootPayloadService.Service,
     private readonly wifiConfigService: typeof Services.WifiConfigService.WifiConfigService.Service,
     private readonly acmeConfigService: typeof Services.AcmeConfigService.AcmeConfigService.Service,
+    private readonly eapClientConfigService: typeof Services.EapClientConfigService.EapClientConfigService.Service,
+    private readonly ethernetConfigService: typeof Services.EthernetConfigService.EthernetConfigService.Service,
   ) {}
 
   wpaPersonalWifi(
@@ -73,30 +77,37 @@ class WifiProfileServiceImpl implements Services.WifiProfileGeneratorService.Wif
     Schemas.RootPayload.RootPayloadWire,
     Services.WifiConfigService.WifiConfigGenerationError | ApiErrors.HttpApiEncodeError
   > {
-    const certConfigService = this.certConfigService
-    const certs = this.certs
-    const rootPayloadService = this.rootPayloadService
-    const wifiConfigService = this.wifiConfigService
+    const [, username, password, , includeEthernetProfile] = wifiParams
 
-    return Effect.gen(function*() {
-      const rootCertPayload = yield* certConfigService.rootCert(
+    return Effect.gen(this, function*() {
+      const rootCertPayload = yield* this.certConfigService.rootCert(
         "roots.crt",
-        certs.rootCert,
+        this.certs.rootCert,
       )
 
-      const intermediatePayload = yield* certConfigService.intermediateCert(
+      const intermediatePayload = yield* this.certConfigService.intermediateCert(
         "intermediates.crt",
-        certs.intermediateCert,
+        this.certs.intermediateCert,
       )
 
-      const wifiPayload = yield* wifiConfigService.wpa3EnterprisePeapWifi(...wifiParams)
+      const wifiPayload = yield* this.wifiConfigService.wpa3EnterprisePeapWifi(...wifiParams)
+
+      const ethernetPayloads = includeEthernetProfile
+        ? yield* Effect.map(
+          this.eapClientConfigService.peapConfig(username, password),
+          (eapConfig) => this.ethernetConfigService.ethernetConfig(eapConfig),
+        ).pipe(Effect.flatten, Effect.map(Arr.of))
+        : []
+
+      const payloads = Arr.appendAll(
+        [rootCertPayload, intermediatePayload, wifiPayload],
+        ethernetPayloads,
+      )
 
       return yield* pipe(
-        rootPayloadService.rootPayload(
+        this.rootPayloadService.rootPayload(
           "Wifi",
-          rootCertPayload,
-          intermediatePayload,
-          wifiPayload,
+          ...payloads,
         ),
         Effect.andThen(
           Schema.encode(
@@ -117,8 +128,9 @@ class WifiProfileServiceImpl implements Services.WifiProfileGeneratorService.Wif
     Schemas.RootPayload.RootPayloadWire,
     Services.WifiConfigService.WifiConfigGenerationError | ApiErrors.HttpApiEncodeError
   > {
+    const [, serialNumber, , includeEthernetProfile] = wifiParams
+
     return Effect.gen(this, function*() {
-      const [, serialNumber] = wifiParams
       const rootCertPayload = yield* this.certConfigService.rootCert(
         "roots.crt",
         this.certs.rootCert,
@@ -135,13 +147,22 @@ class WifiProfileServiceImpl implements Services.WifiProfileGeneratorService.Wif
 
       const wifiPayload = yield* this.wifiConfigService.wpa3EnterpriseEAPTLSWifi(...wifiParams)
 
+      const ethernetPayloads = includeEthernetProfile
+        ? yield* Effect.map(
+          this.eapClientConfigService.eapTlsConfig(),
+          (eapConfig) => this.ethernetConfigService.ethernetConfig(eapConfig),
+        ).pipe(Effect.flatten, Effect.map(Arr.of))
+        : []
+
+      const payloads = Arr.appendAll(
+        [rootCertPayload, intermediatePayload, wifiPayload, acmePayload],
+        ethernetPayloads,
+      )
+
       return yield* pipe(
         this.rootPayloadService.rootPayload(
           "Wifi",
-          rootCertPayload,
-          intermediatePayload,
-          wifiPayload,
-          acmePayload,
+          ...payloads,
         ),
         Effect.andThen(
           Schema.encode(

@@ -14,9 +14,10 @@ export const generateWifiProfile = Effect.fn("generateWifiProfile")(
           payload: {
             enterpriseClientType: "EAP-TLS",
             disableMACRandomization: P.select("disableMACRandomization"),
+            includeEthernetProfile: P.select("includeEthernetProfile"),
           },
         },
-        ({ disableMACRandomization, ssid }) =>
+        ({ disableMACRandomization, includeEthernetProfile, ssid }) =>
           pipe(
             Option.fromNullable(args.headers["x-forwarded-for"]),
             Effect.transposeMapOption(
@@ -40,6 +41,7 @@ export const generateWifiProfile = Effect.fn("generateWifiProfile")(
                   ssid,
                   serialNumber,
                   disableMACRandomization,
+                  includeEthernetProfile,
                 ),
             ),
           ),
@@ -50,12 +52,13 @@ export const generateWifiProfile = Effect.fn("generateWifiProfile")(
             enterpriseClientType: "PEAP",
           },
         },
-        ({ path: { ssid }, payload: { disableMACRandomization, password, username } }) =>
+        ({ path: { ssid }, payload: { disableMACRandomization, includeEthernetProfile, password, username } }) =>
           Services.WifiProfileGeneratorService.wpa3EnterprisePeapWifi(
             ssid,
             username,
             password,
             disableMACRandomization,
+            includeEthernetProfile,
           ),
       )
       .otherwise(

@@ -78,6 +78,7 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
             payload: {
               disableMACRandomization: false,
               enterpriseClientType: "EAP-TLS",
+              includeEthernetProfile: false,
             },
             path: {
               ssid: "abcd",
@@ -155,6 +156,7 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
             disableMACRandomization: false,
             password: "1234",
             enterpriseClientType: "PEAP",
+            includeEthernetProfile: false,
             username: "bob",
           },
           path: {
@@ -196,6 +198,7 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
             disableMACRandomization: false,
             password: "1234",
             enterpriseClientType: "PEAP",
+            includeEthernetProfile: false,
             username: "test",
           },
           path: {
@@ -221,6 +224,7 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
             disableMACRandomization: false,
             password: "1234",
             enterpriseClientType: "PEAP",
+            includeEthernetProfile: false,
             username: "test",
           },
           path: {
@@ -247,6 +251,7 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
             disableMACRandomization: false,
             password: "1234",
             enterpriseClientType: "PEAP",
+            includeEthernetProfile: false,
             username: "guest",
           },
           path: {
@@ -277,6 +282,7 @@ describe("PUT /mobile-config/wifi/:ssid/:encryption", () => {
           payload: {
             disableMACRandomization: false,
             enterpriseClientType: "EAP-TLS",
+            includeEthernetProfile: false,
           },
           path: {
             ssid: "0x676179",

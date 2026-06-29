@@ -81,8 +81,17 @@ const TestRootPayloadService = Layers.RootPayloadService.RootPayloadServiceLive.
   Layer.provide(ProfileUuidConfigLive),
 )
 
+const TestEapClientConfigService = Layers.EapClientConfigService.EapClientConfigServiceLive.pipe(
+  Layer.provide(ProfileUuidConfigLive),
+)
+
+const TestEthernetConfigService = Layers.EthernetConfigService.EthernetConfigServiceLive.pipe(
+  Layer.provide(ProfileUuidConfigLive),
+)
+
 const TestWifiConfigService = Layers.WifiConfigService.WifiConfigServiceLive.pipe(
   Layer.provide(ProfileUuidConfigLive),
+  Layer.provide(TestEapClientConfigService),
 )
 
 const TestWifiProfileGeneratorService = Layers.WifiProfileGeneratorService.WifiProfileServiceLive.pipe(
@@ -91,6 +100,8 @@ const TestWifiProfileGeneratorService = Layers.WifiProfileGeneratorService.WifiP
   Layer.provide(TestRootPayloadService),
   Layer.provide(TestWifiConfigService),
   Layer.provide(TestAcmeConfigService),
+  Layer.provide(TestEapClientConfigService),
+  Layer.provide(TestEthernetConfigService),
 )
 
 const TestAcmeProfileGeneratorService = Layers.AcmeProfileGeneratorService.AcmeProfileServiceLive.pipe(

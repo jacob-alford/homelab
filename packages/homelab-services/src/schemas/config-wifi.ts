@@ -64,3 +64,16 @@ export const WifiConfigSchema = GenericPayloadSchema.pipe(
 )
 
 export type WifiConfig = typeof WifiConfigSchema.Type
+
+export const EthernetConfigSchema = GenericPayloadSchema.pipe(
+  Schema.extend(
+    Schema.Struct({
+      AutoJoin: Schema.Boolean,
+      SetupModes: Schema.Array(Schema.String),
+      AuthenticationMethod: Schema.String,
+      EAPClientConfiguration: EnterpriseClientConfiguration,
+    }),
+  ),
+)
+
+export type EthernetConfig = typeof EthernetConfigSchema.Type

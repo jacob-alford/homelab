@@ -14,6 +14,7 @@ const wifiArgs = (overrides?: {
   username?: string
   disableMACRandomization?: boolean
   enterpriseClientType?: "PEAP" | "EAP-TLS"
+  includeEthernetProfile?: boolean
 }): Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigHandlerArgs => {
   const enterpriseClientType = overrides?.enterpriseClientType
     ?? (overrides?.username !== undefined ? "PEAP" : undefined)
@@ -24,11 +25,13 @@ const wifiArgs = (overrides?: {
       username: overrides?.username ?? "test",
       password: overrides?.password ?? "test-password",
       disableMACRandomization: overrides?.disableMACRandomization ?? false,
+      includeEthernetProfile: overrides?.includeEthernetProfile ?? false,
     }
     : enterpriseClientType === "EAP-TLS"
     ? {
       enterpriseClientType: "EAP-TLS" as const,
       disableMACRandomization: overrides?.disableMACRandomization ?? false,
+      includeEthernetProfile: overrides?.includeEthernetProfile ?? false,
     }
     : {
       password: overrides?.password ?? "test-password",
@@ -170,6 +173,41 @@ describe("handleWifi", () => {
 
         assert(result instanceof ApiErrors.NotFound)
         expect(result.reason).toBe("ssid-not-found")
+      }).pipe(
+        Effect.provide(Layer.provideMerge(
+          withIdentity(authorizedIdentity),
+          HandlerTestLayer,
+        )),
+      ))
+  })
+
+  describe("ethernet profile", () => {
+    it.effect("should include ethernet payload when includeEthernetProfile is true for PEAP", () =>
+      Effect.gen(function*() {
+        const result = yield* handleWifi(wifiArgs({
+          enterpriseClientType: "PEAP",
+          username: "user",
+          includeEthernetProfile: true,
+        }))
+
+        expect(result).toContain("com.apple.globalethernet.managed")
+        expect(result).toContain("1674d657-58d2-4f31-83c4-abe0530f0fef")
+      }).pipe(
+        Effect.provide(Layer.provideMerge(
+          withIdentity(authorizedIdentity),
+          HandlerTestLayer,
+        )),
+      ))
+
+    it.effect("should not include ethernet payload when includeEthernetProfile is false for PEAP", () =>
+      Effect.gen(function*() {
+        const result = yield* handleWifi(wifiArgs({
+          enterpriseClientType: "PEAP",
+          username: "user",
+          includeEthernetProfile: false,
+        }))
+
+        expect(result).not.toContain("com.apple.firstactiveethernet.managed")
       }).pipe(
         Effect.provide(Layer.provideMerge(
           withIdentity(authorizedIdentity),

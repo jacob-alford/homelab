@@ -22,5 +22,6 @@ export const ProfileUuidConfigLive = Layer.succeed(
     homelabConfigCertsUuid: "f033f4fe-6e41-46c8-8fe0-51447e2f3935" as Services.UuidService.UUID,
     homelabConfigWifiUuid: "d8ac9793-ebfd-458c-b4bc-30446dbad95e" as Services.UuidService.UUID,
     homelabConfigDnsUuid: "49bb172d-701b-4f0e-a56d-087970ece21f" as Services.UuidService.UUID,
+    homelabPayloadEthernetUuid: "1674d657-58d2-4f31-83c4-abe0530f0fef" as Services.UuidService.UUID,
   },
 )
