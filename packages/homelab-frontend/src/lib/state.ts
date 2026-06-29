@@ -11,6 +11,7 @@ export type AppParams = {
   password: Option.Option<string>
   username: Option.Option<string>
   disableMACRandomization: Option.Option<boolean>
+  includeEthernetProfile: Option.Option<boolean>
   blockAds: Option.Option<boolean>
   tailscale: Option.Option<boolean>
   keepLogs: Option.Option<boolean>
@@ -25,6 +26,7 @@ function readURL(): Omit<AppParams, "tab"> {
   const params = new URLSearchParams(window.location.search)
   const enc = params.get("encryption")
   const dmr = params.get("disableMACRandomization")
+  const includeEthernetProfile = params.get("includeEthernetProfile")
   const blockAds = params.get("blockAds")
   const tailscale = params.get("tailscale")
   const keepLogs = params.get("keepLogs")
@@ -35,6 +37,9 @@ function readURL(): Omit<AppParams, "tab"> {
     password: Option.fromNullable(params.get("password") || null),
     username: Option.fromNullable(params.get("username") || null),
     disableMACRandomization: Option.fromNullable(dmr === "true" ? true : dmr === "false" ? false : null),
+    includeEthernetProfile: Option.fromNullable(
+      includeEthernetProfile === "true" ? true : includeEthernetProfile === "false" ? false : null,
+    ),
     blockAds: Option.fromNullable(blockAds === "true" ? true : blockAds === "false" ? false : null),
     tailscale: Option.fromNullable(tailscale === "true" ? true : tailscale === "false" ? false : null),
     keepLogs: Option.fromNullable(keepLogs === "true" ? true : keepLogs === "false" ? false : null),
@@ -48,6 +53,7 @@ function syncURL(p: Omit<AppParams, "tab">) {
     password: p.password,
     username: p.username,
     disableMACRandomization: Option.map(p.disableMACRandomization, String),
+    includeEthernetProfile: Option.map(p.includeEthernetProfile, String),
     blockAds: Option.map(p.blockAds, String),
     tailscale: Option.map(p.tailscale, String),
     keepLogs: Option.map(p.keepLogs, String),
@@ -65,6 +71,7 @@ function buildQueryString(p: Omit<AppParams, "tab">): string {
     password: p.password,
     username: p.username,
     disableMACRandomization: Option.map(p.disableMACRandomization, String),
+    includeEthernetProfile: Option.map(p.includeEthernetProfile, String),
     blockAds: Option.map(p.blockAds, String),
     tailscale: Option.map(p.tailscale, String),
     keepLogs: Option.map(p.keepLogs, String),
@@ -97,6 +104,7 @@ export function useAppParams() {
     setPassword: (v: Option.Option<string>) => update({ password: v }),
     setUsername: (v: Option.Option<string>) => update({ username: v }),
     setDisableMACRandomization: (v: Option.Option<boolean>) => update({ disableMACRandomization: v }),
+    setIncludeEthernetProfile: (v: Option.Option<boolean>) => update({ includeEthernetProfile: v }),
     setBlockAds: (v: Option.Option<boolean>) => update({ blockAds: v }),
     setTailscale: (v: Option.Option<boolean>) => update({ tailscale: v }),
     setKeepLogs: (v: Option.Option<boolean>) => update({ keepLogs: v }),

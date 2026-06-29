@@ -7,6 +7,7 @@ export type WifiParams = {
   password: Option.Option<string>
   username: Option.Option<string>
   disableMACRandomization: Option.Option<boolean>
+  includeEthernetProfile: Option.Option<boolean>
 }
 
 export function useWifiParams() {
@@ -20,6 +21,7 @@ export function useWifiParams() {
       password: p.password,
       username: p.username,
       disableMACRandomization: p.disableMACRandomization,
+      includeEthernetProfile: p.includeEthernetProfile,
     }
   }
 
@@ -33,6 +35,7 @@ export function useWifiParams() {
     setPassword: app.setPassword,
     setUsername: app.setUsername,
     setDisableMACRandomization: app.setDisableMACRandomization,
+    setIncludeEthernetProfile: app.setIncludeEthernetProfile,
   }
 }
 

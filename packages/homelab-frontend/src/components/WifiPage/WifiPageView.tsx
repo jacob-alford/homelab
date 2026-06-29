@@ -21,6 +21,8 @@ export interface WifiPageViewProps {
   copyingLink: boolean
   canDownload: boolean
   enterpriseClientType: EnterpriseClientType
+  includeEthernetProfile: boolean
+  showEthernetSwitch: boolean
   effectiveUsername: Option.Option<string>
   username: Option.Option<string>
   password: Option.Option<string>
@@ -29,6 +31,7 @@ export interface WifiPageViewProps {
   onTabChange: (tab: Lib.State.Tab) => void
   onUsernameChange: (value: string) => void
   onPasswordChange: (value: string) => void
+  onIncludeEthernetProfileChange: (value: boolean) => void
   onDownloadAppleProfile: () => void
   onDownloadCombinedCert: () => void
   onCopyDownloadLink: () => void
@@ -62,10 +65,13 @@ export function WifiPageView(props: WifiPageViewProps) {
             canDownload={props.canDownload}
             copyingLink={props.copyingLink}
             enterpriseClientType={props.isAuthenticated && props.isTailscale ? props.enterpriseClientType : "PEAP"}
+            includeEthernetProfile={props.includeEthernetProfile}
+            showEthernetSwitch={props.showEthernetSwitch}
             username={props.username}
             password={props.password}
             onUsernameChange={props.onUsernameChange}
             onPasswordChange={props.onPasswordChange}
+            onIncludeEthernetProfileChange={props.onIncludeEthernetProfileChange}
             onDownloadAppleProfile={props.onDownloadAppleProfile}
             onCopyDownloadLink={props.onCopyDownloadLink}
           />

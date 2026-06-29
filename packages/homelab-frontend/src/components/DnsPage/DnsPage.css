@@ -70,63 +70,6 @@
   gap: var(--space-xs);
 }
 
-.dns-page__switch {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.dns-page__switch-input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.dns-page__switch-control {
-  display: inline-flex;
-  align-items: center;
-  width: 2.5rem;
-  height: 1.4rem;
-  border-radius: 9999px;
-  background-color: var(--surface-raised);
-  border: 1px solid var(--border-default);
-  padding: 2px;
-  cursor: pointer;
-  transition: background-color var(--transition-fast);
-}
-
-.dns-page__switch-control[data-checked] {
-  background-color: var(--interactive-primary);
-  border-color: var(--interactive-primary);
-}
-
-.dns-page__switch-control[data-disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.dns-page__switch-thumb {
-  width: 1rem;
-  height: 1rem;
-  border-radius: 50%;
-  background-color: var(--text-tertiary);
-  transition:
-    transform var(--transition-fast),
-    background-color var(--transition-fast);
-}
-
-.dns-page__switch-thumb[data-checked] {
-  transform: translateX(1.1rem);
-  background-color: white;
-}
-
-.dns-page__switch-label {
-  font-weight: var(--font-weight-medium);
-  color: var(--text-primary);
-  cursor: pointer;
-}
-
 .dns-page__switch-subtext {
   font-size: 0.8rem;
   color: var(--text-tertiary);

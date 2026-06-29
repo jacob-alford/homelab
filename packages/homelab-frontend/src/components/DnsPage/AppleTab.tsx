@@ -1,7 +1,7 @@
 import { Button } from "@kobalte/core/button"
-import { Switch } from "@kobalte/core/switch"
 import { BiSolidCopy } from "solid-icons/bi"
 import { Show } from "solid-js"
+import { LabeledSwitch } from "../LabeledSwitch/index.js"
 
 export interface AppleTabProps {
   isAuthenticated: boolean
@@ -26,18 +26,12 @@ export function AppleTab(props: AppleTabProps) {
 
       <div class="dns-page__switches">
         <div class="dns-page__switch-group">
-          <Switch
-            class="dns-page__switch"
+          <LabeledSwitch
+            label="Block Trackers and Ads"
             checked={props.blockAds}
             onChange={props.onBlockAdsChange}
             disabled={props.tailscale}
-          >
-            <Switch.Input class="dns-page__switch-input" />
-            <Switch.Control class="dns-page__switch-control">
-              <Switch.Thumb class="dns-page__switch-thumb" />
-            </Switch.Control>
-            <Switch.Label class="dns-page__switch-label">Block Trackers and Ads</Switch.Label>
-          </Switch>
+          />
           <Show when={props.tailscale}>
             <span class="dns-page__switch-subtext">always enabled over tailscale</span>
           </Show>
@@ -45,31 +39,19 @@ export function AppleTab(props: AppleTabProps) {
 
         <Show when={props.isAuthenticated}>
           <div class="dns-page__switch-group">
-            <Switch
-              class="dns-page__switch"
+            <LabeledSwitch
+              label="Tailscale"
               checked={props.tailscale}
               onChange={props.onTailscaleChange}
-            >
-              <Switch.Input class="dns-page__switch-input" />
-              <Switch.Control class="dns-page__switch-control">
-                <Switch.Thumb class="dns-page__switch-thumb" />
-              </Switch.Control>
-              <Switch.Label class="dns-page__switch-label">Tailscale</Switch.Label>
-            </Switch>
+            />
           </div>
 
           <div class="dns-page__switch-group">
-            <Switch
-              class="dns-page__switch"
+            <LabeledSwitch
+              label="Keep Logs"
               checked={props.keepLogs}
               onChange={props.onKeepLogsChange}
-            >
-              <Switch.Input class="dns-page__switch-input" />
-              <Switch.Control class="dns-page__switch-control">
-                <Switch.Thumb class="dns-page__switch-thumb" />
-              </Switch.Control>
-              <Switch.Label class="dns-page__switch-label">Keep Logs</Switch.Label>
-            </Switch>
+            />
           </div>
         </Show>
       </div>

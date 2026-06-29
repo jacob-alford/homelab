@@ -11,12 +11,14 @@ export const downloadAppleProfile = Effect.fn("downloadAppleProfile")(
     password: Option.Option<string>
     username: Option.Option<string>
     disableMACRandomization: Option.Option<boolean>
+    includeEthernetProfile: Option.Option<boolean>
     token: Option.Option<string>
     enterpriseClientType: "PEAP" | "EAP-TLS" | "None"
   }) {
     const ssid = yield* fromOption(args.ssid, () => new MissingParamError({ param: "SSID" }))
     const encryption = Option.getOrElse(args.encryption, () => "WPA3" as const)
     const disableMACRandomization = Option.getOrElse(args.disableMACRandomization, () => false)
+    const includeEthernetProfile = Option.getOrElse(args.includeEthernetProfile, () => false)
     const token = Option.getOrUndefined(args.token)
 
     const apiBaseUrl = yield* API_BASE_URL
@@ -24,7 +26,7 @@ export const downloadAppleProfile = Effect.fn("downloadAppleProfile")(
 
     let payload: Homelab.MobileConfigEndpoints.Wifi.WifiMobileConfigParams
     if (args.enterpriseClientType === "EAP-TLS") {
-      payload = { enterpriseClientType: "EAP-TLS", disableMACRandomization, includeEthernetProfile: false }
+      payload = { enterpriseClientType: "EAP-TLS", disableMACRandomization, includeEthernetProfile }
     } else if (args.enterpriseClientType === "PEAP") {
       const password = yield* fromOption(args.password, () => new MissingParamError({ param: "Password" }))
       const username = yield* fromOption(args.username, () => new MissingParamError({ param: "Username" }))
@@ -36,7 +38,7 @@ export const downloadAppleProfile = Effect.fn("downloadAppleProfile")(
         password,
         disableMACRandomization,
         enterpriseClientType: "PEAP" as const,
-        includeEthernetProfile: false,
+        includeEthernetProfile,
       }
     } else {
       const password = yield* fromOption(args.password, () => new MissingParamError({ param: "Password" }))
@@ -70,6 +72,7 @@ export const fetchClaimCheckAndCopyLink = Effect.fn("fetchClaimCheckAndCopyLink"
     password: Option.Option<string>
     username: Option.Option<string>
     disableMACRandomization: Option.Option<boolean>
+    includeEthernetProfile: Option.Option<boolean>
     token: Option.Option<string>
     enterpriseClientType: "PEAP" | "EAP-TLS" | "None"
   }) {
@@ -77,6 +80,7 @@ export const fetchClaimCheckAndCopyLink = Effect.fn("fetchClaimCheckAndCopyLink"
     const ssid = yield* fromOption(args.ssid, () => new MissingParamError({ param: "SSID" }))
     const encryption = Option.getOrElse(args.encryption, () => "WPA3" as const)
     const disableMACRandomization = Option.getOrElse(args.disableMACRandomization, () => false)
+    const includeEthernetProfile = Option.getOrElse(args.includeEthernetProfile, () => false)
 
     const apiBaseUrl = yield* API_BASE_URL
     const client = yield* HttpApiClient.make(Homelab.HomelabApi, { baseUrl: apiBaseUrl })
@@ -104,6 +108,10 @@ export const fetchClaimCheckAndCopyLink = Effect.fn("fetchClaimCheckAndCopyLink"
 
     if (disableMACRandomization) {
       linkParams.set("disableMACRandomization", "true")
+    }
+
+    if (includeEthernetProfile) {
+      linkParams.set("includeEthernetProfile", "true")
     }
 
     const link = `${apiBaseUrl}/mobile-config/wifi/${

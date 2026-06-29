@@ -31,6 +31,12 @@ export function WifiPage() {
 
   const canDownload = () => enterpriseClientType() === "EAP-TLS" || Option.isSome(wifiParams().password)
 
+  const showEthernetSwitch = () =>
+    isAuthenticated()
+    && (enterpriseClientType() === "PEAP" || enterpriseClientType() === "EAP-TLS")
+
+  const includeEthernetProfile = () => Option.getOrElse(wifiParams().includeEthernetProfile, () => false)
+
   const canConfirmSetup = () =>
     Option.isSome(wifiParams().ssid)
     && Option.isSome(wifiParams().encryption)
@@ -97,6 +103,7 @@ export function WifiPage() {
       password: p.password,
       username: effectiveUsername(),
       disableMACRandomization: p.disableMACRandomization,
+      includeEthernetProfile: p.includeEthernetProfile,
       token: token(),
       enterpriseClientType: effectiveEnterpriseClientType(),
     })).catch((err) => {
@@ -114,6 +121,7 @@ export function WifiPage() {
       password: p.password,
       username: effectiveUsername(),
       disableMACRandomization: p.disableMACRandomization,
+      includeEthernetProfile: p.includeEthernetProfile,
       token: token(),
       enterpriseClientType: effectiveEnterpriseClientType(),
     }))
@@ -150,6 +158,10 @@ export function WifiPage() {
     navigator.clipboard.writeText("radius.plato-splunk.media")
   }
 
+  function handleIncludeEthernetProfileChange(value: boolean) {
+    wifi.setIncludeEthernetProfile(Option.some(value))
+  }
+
   function handleTabChange(t: Lib.State.Tab) {
     if (!mounted()) return
     wifi.setTab(t)
@@ -157,8 +169,7 @@ export function WifiPage() {
 
   return (
     <Show
-      when={confirmed() && Option.getOrUndefined(requiredParams())}
-      keyed
+      when={confirmed() && Option.isSome(requiredParams())}
       fallback={
         <WifiSetupView
           ssid={wifiParams().ssid}
@@ -178,34 +189,35 @@ export function WifiPage() {
         />
       }
     >
-      {(required) => (
-        <WifiPageView
-          mounted={mounted()}
-          ssid={required.ssid}
-          encryption={required.encryption}
-          oidcEnabled={Lib.Auth.Env.oidcEnabled}
-          isAuthenticated={isAuthenticated()}
-          isTailscale={isTailscale()}
-          copyingLink={copyingLink()}
-          canDownload={canDownload()}
-          enterpriseClientType={enterpriseClientType()}
-          effectiveUsername={effectiveUsername()}
-          username={wifiParams().username}
-          password={wifiParams().password}
-          tab={wifi.tab()}
-          dnsHref={dnsHref()}
-          onTabChange={handleTabChange}
-          onUsernameChange={(v) => wifi.setUsername(v ? Option.some(v) : Option.none())}
-          onPasswordChange={(v) => wifi.setPassword(v ? Option.some(v) : Option.none())}
-          onDownloadAppleProfile={handleDownload}
-          onDownloadCombinedCert={handleDownloadCombinedCert}
-          onCopyDownloadLink={handleCopyDownloadLink}
-          onCopyUsername={handleCopyUsername}
-          onCopyPassword={handleCopyPassword}
-          onCopyDomain={handleCopyDomain}
-          onAdjustParameters={() => setConfirmed(false)}
-        />
-      )}
+      <WifiPageView
+        mounted={mounted()}
+        ssid={Option.getOrElse(wifiParams().ssid, () => "")}
+        encryption={Option.getOrElse(wifiParams().encryption, () => "WPA3")}
+        oidcEnabled={Lib.Auth.Env.oidcEnabled}
+        isAuthenticated={isAuthenticated()}
+        isTailscale={isTailscale()}
+        copyingLink={copyingLink()}
+        canDownload={canDownload()}
+        enterpriseClientType={enterpriseClientType()}
+        includeEthernetProfile={includeEthernetProfile()}
+        showEthernetSwitch={showEthernetSwitch()}
+        effectiveUsername={effectiveUsername()}
+        username={wifiParams().username}
+        password={wifiParams().password}
+        tab={wifi.tab()}
+        dnsHref={dnsHref()}
+        onTabChange={handleTabChange}
+        onUsernameChange={(v) => wifi.setUsername(v ? Option.some(v) : Option.none())}
+        onPasswordChange={(v) => wifi.setPassword(v ? Option.some(v) : Option.none())}
+        onIncludeEthernetProfileChange={handleIncludeEthernetProfileChange}
+        onDownloadAppleProfile={handleDownload}
+        onDownloadCombinedCert={handleDownloadCombinedCert}
+        onCopyDownloadLink={handleCopyDownloadLink}
+        onCopyUsername={handleCopyUsername}
+        onCopyPassword={handleCopyPassword}
+        onCopyDomain={handleCopyDomain}
+        onAdjustParameters={() => setConfirmed(false)}
+      />
     </Show>
   )
 }

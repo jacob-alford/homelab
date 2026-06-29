@@ -4,6 +4,7 @@ import { TextField } from "@kobalte/core/text-field"
 import { Option } from "effect"
 import { BiSolidCopy } from "solid-icons/bi"
 import { Show } from "solid-js"
+import { LabeledSwitch } from "../LabeledSwitch/index.js"
 
 const IDM_URL = import.meta.env.PUBLIC_IDM_URL
 
@@ -15,10 +16,13 @@ export interface AppleTabProps {
   canDownload: boolean
   copyingLink: boolean
   enterpriseClientType: "PEAP" | "EAP-TLS" | "None"
+  includeEthernetProfile: boolean
+  showEthernetSwitch: boolean
   username: Option.Option<string>
   password: Option.Option<string>
   onUsernameChange: (value: string) => void
   onPasswordChange: (value: string) => void
+  onIncludeEthernetProfileChange: (value: boolean) => void
   onDownloadAppleProfile: () => void
   onCopyDownloadLink: () => void
 }
@@ -58,6 +62,15 @@ export function AppleTab(props: AppleTabProps) {
             <TextField.Label class="wifi-page__override-label">Password</TextField.Label>
             <TextField.Input class="wifi-page__override-input" />
           </TextField>
+        </div>
+      </Show>
+      <Show when={props.showEthernetSwitch}>
+        <div class="wifi-page__switches">
+          <LabeledSwitch
+            label="Include ethernet profile"
+            checked={props.includeEthernetProfile}
+            onChange={props.onIncludeEthernetProfileChange}
+          />
         </div>
       </Show>
       <div class="wifi-page__actions">

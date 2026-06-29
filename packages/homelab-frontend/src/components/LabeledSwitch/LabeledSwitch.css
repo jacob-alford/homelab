@@ -1,0 +1,58 @@
+.labeled-switch {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.labeled-switch__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.labeled-switch__control {
+  display: inline-flex;
+  align-items: center;
+  width: 2.5rem;
+  height: 1.4rem;
+  border-radius: 9999px;
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border-default);
+  padding: 2px;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.labeled-switch__control[data-checked] {
+  background-color: var(--interactive-primary);
+  border-color: var(--interactive-primary);
+}
+
+.labeled-switch__control[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.labeled-switch__thumb {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background-color: var(--text-tertiary);
+  transition:
+    transform var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.labeled-switch__thumb[data-checked] {
+  transform: translateX(1.1rem);
+  background-color: white;
+}
+
+.labeled-switch__label {
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  cursor: pointer;
+}

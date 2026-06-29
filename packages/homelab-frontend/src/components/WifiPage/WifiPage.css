@@ -387,3 +387,7 @@
   color: var(--interactive-primary);
   text-decoration: underline;
 }
+
+.wifi-page__switches {
+  margin-bottom: var(--space-lg);
+}
