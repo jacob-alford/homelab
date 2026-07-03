@@ -152,4 +152,13 @@
       "fd7a:115c:a1e0::601:5927" = config.sops.placeholder.iphone_serial_number;
     };
   };
+
+  sops.secrets.apprise_secret_key = {
+    owner = "apprise";
+    group = "apprise";
+  };
+
+  sops.secrets.apprise_restic_backup_passphrase = {
+    owner = "restic";
+  };
 }
