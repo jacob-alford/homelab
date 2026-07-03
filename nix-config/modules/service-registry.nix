@@ -92,6 +92,15 @@ in
         stateDir = "/var/lib/apprise";
       };
 
+      habitsync = {
+        subdomain = "habitsync";
+        domain = mkDomain "habitsync";
+        url = mkUrl "habitsync";
+        clientId = "habitsync";
+        port = 6842;
+        stateDir = "/var/lib/habitsync";
+      };
+
       it-tools = {
         subdomain = "dev-tools";
         domain = mkDomain "dev-tools";

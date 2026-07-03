@@ -161,4 +161,19 @@
   sops.secrets.apprise_restic_backup_passphrase = {
     owner = "restic";
   };
+
+  sops.secrets.habitsync_db_pass = {
+    owner = "habitsync";
+    group = "habitsync-db-pass";
+    mode = "0440";
+  };
+
+  sops.secrets.habitsync_jwt_secret = {
+    owner = "habitsync";
+    group = "habitsync";
+  };
+
+  sops.secrets.habitsync_restic_backup_passphrase = {
+    owner = "restic";
+  };
 }

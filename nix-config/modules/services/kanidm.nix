@@ -76,6 +76,8 @@ in
 
             "homelab.admins" = { };
             "homelab.access" = { };
+
+            "habitsync.access" = { };
           };
 
           persons = {
