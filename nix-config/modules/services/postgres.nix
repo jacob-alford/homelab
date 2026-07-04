@@ -176,6 +176,7 @@ in
           after = [ "postgresql.service" ];
           wantedBy = [ "multi-user.target" ];
           requires = [ "postgresql.service" ];
+          partOf = [ "postgresql.service" ];
 
           serviceConfig = {
             Type = "oneshot";
