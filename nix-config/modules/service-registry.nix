@@ -26,6 +26,7 @@ in
       acmeDirectory = "https://${mkDomain "ca"}/acme/acme/directory";
       rootCert = certsDir + "/alford-root.crt";
       rootCertDer = certsDir + "/alford-root.der";
+      rootTrustStore = certsDir + "/alford-root-truststore.p12";
       intermediateCert = certsDir + "/intermediate_ca_2.crt";
       intermediateCertDer = certsDir + "/intermediate_ca_2.der";
       sshUserCaCert = certsDir + "/ssh_user_ca_key.pub";

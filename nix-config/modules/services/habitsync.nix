@@ -13,6 +13,7 @@ let
   containerJwtSecretFile = "/run/secrets/habitsync-jwt-secret";
   containerEnvFile = "/run/secrets/habitsync-env";
   containerRootCert = "/etc/ssl/certs/ca.pem";
+  containerTrustStore = "/etc/ssl/certs/truststore.p12";
 in
 {
   flake.modules.nixos.habitsync =
@@ -94,6 +95,7 @@ in
         volumes = [
           "${dataDir}:/data"
           "${c.ca.rootCert}:${containerRootCert}:ro"
+          "${c.ca.rootTrustStore}:${containerTrustStore}:ro"
         ];
 
         environmentFiles = [ config.sops.templates."habitsync-env".path ];
@@ -110,6 +112,7 @@ in
           PGID = toString config.users.groups.habitsync.gid;
           PAGE_CHALLENGES_VISIBLE = "true";
           TRACKER_FIRSTDAYOFWEEK = "MONDAY";
+          JAVA_TOOL_OPTIONS = "-Djavax.net.ssl.trustStore=${containerTrustStore} -Djavax.net.ssl.trustStorePassword=changeit -Djavax.net.ssl.trustStoreType=PKCS12";
         };
       };
 
