@@ -11,6 +11,8 @@ let
 
   containerDbPasswordFile = "/run/secrets/habitsync-db-password";
   containerJwtSecretFile = "/run/secrets/habitsync-jwt-secret";
+  containerEnvFile = "/run/secrets/habitsync-env";
+  containerRootCert = "/etc/ssl/certs/ca.pem";
 in
 {
   flake.modules.nixos.habitsync =
@@ -73,30 +75,37 @@ in
         "d ${dataDir} 0750 habitsync habitsync -"
       ];
 
+      # SOPS template for container secrets
+      sops.templates."habitsync-env" = {
+        owner = "habitsync";
+        group = "habitsync";
+        content = ''
+          SPRING_DATASOURCE_PASSWORD=${config.sops.placeholder.habitsync_db_pass}
+          JWT_SECRET=${config.sops.placeholder.habitsync_jwt_secret}
+        '';
+      };
+
       # Container definition
       virtualisation.oci-containers.containers.habitsync = {
         image = "ghcr.io/jofoerster/habitsync:latest";
 
-        user = "${toString config.users.users.habitsync.uid}:${toString config.users.groups.habitsync.gid}";
-
-        ports = [ "127.0.0.1:${builtins.toString svc.port}:6842" ];
+        networks = [ "host" ];
 
         volumes = [
           "${dataDir}:/data"
-          "${config.sops.secrets.habitsync_db_pass.path}:${containerDbPasswordFile}:ro"
-          "${config.sops.secrets.habitsync_jwt_secret.path}:${containerJwtSecretFile}:ro"
+          "${c.ca.rootCert}:${containerRootCert}:ro"
         ];
+
+        environmentFiles = [ config.sops.templates."habitsync-env".path ];
 
         environment = {
           BASE_URL = svc.url;
-          SPRING_DATASOURCE_URL = "jdbc:postgresql://${c.postgres.domain}:${builtins.toString c.postgres.port}/${habitsyncDbName}?ssl=true&sslmode=verify-full";
+          SPRING_DATASOURCE_URL = "jdbc:postgresql://${c.postgres.domain}:${builtins.toString c.postgres.port}/${habitsyncDbName}?ssl=true&sslmode=verify-full&sslrootcert=${containerRootCert}";
           SPRING_DATASOURCE_USERNAME = habitsyncUserName;
-          SPRING_DATASOURCE_PASSWORD_FILE = containerDbPasswordFile;
           SPRING_DATASOURCE_DRIVER_CLASS_NAME = "org.postgresql.Driver";
-          APP_SECURITY_ISSUERS__URL = "https://${c.idm.domain}/oauth2/openid/${svc.clientId}";
-          APP_SECURITY_ISSUERS__CLIENT-ID = svc.clientId;
-          APP_SECURITY_ISSUERS__NEEDS-CONFIRMATION = "false";
-          JWT_SECRET_FILE = containerJwtSecretFile;
+          APP_SECURITY_ISSUERS_KANIDM_URL = "https://${c.idm.domain}/oauth2/openid/${svc.clientId}";
+          APP_SECURITY_ISSUERS_KANIDM_CLIENT-ID = svc.clientId;
+          APP_SECURITY_ISSUERS_KANIDM_NEEDS-CONFIRMATION = "false";
           PUID = toString config.users.users.habitsync.uid;
           PGID = toString config.users.groups.habitsync.gid;
           PAGE_CHALLENGES_VISIBLE = "true";
