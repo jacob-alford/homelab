@@ -98,6 +98,7 @@ in
                 "planka.access"
                 "planka.project_owner"
                 "homelab.access"
+                "habitsync.access"
               ];
             };
             jacob = {
@@ -155,6 +156,8 @@ in
                 "step-ca.access"
 
                 "homelab.admins"
+
+                "habitsync.access"
               ];
             };
             "g1447dk9fp" = {
