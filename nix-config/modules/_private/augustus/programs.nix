@@ -21,6 +21,11 @@ in
     "127.0.0.1" = [ "postgres-augustus.plato-splunk.media" ];
   };
 
+  services.iperf3 = {
+    openFirewall = true;
+    enable = true;
+  };
+
   services.peesequel = {
     enable = true;
     package = pkgs.postgresql_17_jit;
