@@ -12,7 +12,12 @@ let
 in
 {
   flake.modules.nixos.apprise =
-    { config, lib, pkgs, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
     {
       users.groups.apprise = {
         gid = 51571;
@@ -84,7 +89,10 @@ in
         repository = "/mnt/backups/apprise";
         initialize = true;
         passwordFile = config.sops.secrets.apprise_restic_backup_passphrase.path;
-        paths = [ configDir attachDir ];
+        paths = [
+          configDir
+          attachDir
+        ];
         timerConfig = {
           OnCalendar = "Mon..Sun *-*-* 23:30:00";
           Persistent = true;
