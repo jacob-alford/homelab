@@ -9,7 +9,6 @@ let
   pluginDir = "${appriseDir}/plugin";
 
   containerSecretKeyFile = "/run/secrets/apprise-secret-key";
-  containerAppriseConfigFile = "/run/secrets/apprise-config.yml";
 in
 {
   flake.modules.nixos.apprise =
@@ -72,7 +71,7 @@ in
           "${attachDir}:/attach"
           "${pluginDir}:/plugin"
           "${config.sops.secrets.apprise_secret_key.path}:${containerSecretKeyFile}:ro"
-          "${config.sops.templates."apprise-config.yml".path}:${containerAppriseConfigFile}:ro"
+          "${config.sops.templates."apprise-config.yml".path}:/config/systemd-failure.yml:ro"
         ];
 
         environment = {

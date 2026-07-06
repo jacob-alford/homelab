@@ -96,7 +96,7 @@ in
 
               if [ "$SERVICE_RESULT" != "success" ]; then
                 ${lib.getExe pkgs.curl} -sf -X POST \
-                  "${cfg.appriseApiUrl}/notify/" \
+                  "${cfg.appriseApiUrl}/notify/${cfg.target}" \
                   -H "Content-Type: application/json" \
                   -d "$(${lib.getExe pkgs.jq} -n \
                     --arg body "$body" \
