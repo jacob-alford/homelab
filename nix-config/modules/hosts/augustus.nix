@@ -36,6 +36,10 @@ in
       nixos.apprise
       nixos.habitsync
       nixos.failure-notifs
+      nixos.prometheus
+      nixos.loki
+      nixos.alloy
+      nixos.grafana
       nixos.homelab-api
       nixos.homelab-kanidm
       nixos.homelab-ui

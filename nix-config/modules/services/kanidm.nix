@@ -78,6 +78,9 @@ in
             "homelab.access" = { };
 
             "habitsync.access" = { };
+
+            "grafana.access" = { };
+            "grafana.admins" = { };
           };
 
           persons = {
@@ -128,6 +131,9 @@ in
                 "step-ca.access"
 
                 "homelab.admins"
+
+                "grafana.access"
+                "grafana.admins"
               ];
             };
             rae = {
@@ -158,6 +164,9 @@ in
                 "homelab.admins"
 
                 "habitsync.access"
+
+                "grafana.access"
+                "grafana.admins"
               ];
             };
             "g1447dk9fp" = {

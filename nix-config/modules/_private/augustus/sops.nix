@@ -186,4 +186,12 @@
   sops.secrets.habitsync_restic_backup_passphrase = {
     owner = "restic";
   };
+
+  sops.secrets.grafana_client_secret = {
+    owner = "kanidm";
+  };
+
+  sops.secrets.grafana_secret = {
+    owner = "grafana";
+  };
 }

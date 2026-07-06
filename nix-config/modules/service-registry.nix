@@ -136,6 +136,32 @@ in
         port = 443;
       };
 
+      prometheus = {
+        subdomain = "prometheus";
+        domain = mkDomain "prometheus";
+        url = mkUrl "prometheus";
+        port = 9090;
+        stateDir = "/var/lib/prometheus2";
+      };
+
+      loki = {
+        port = 3100;
+        stateDir = "/var/lib/loki";
+      };
+
+      alloy = {
+        port = 12345;
+      };
+
+      grafana = {
+        subdomain = "grafana";
+        domain = mkDomain "grafana";
+        url = mkUrl "grafana";
+        clientId = "grafana";
+        port = 3000;
+        stateDir = "/var/lib/grafana";
+      };
+
       minecraft = {
         port = 25565;
         backupRepository = "/mnt/backups/minecraft-backup";
