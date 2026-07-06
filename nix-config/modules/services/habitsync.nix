@@ -138,5 +138,10 @@ in
           exec /run/wrappers/bin/restic "$@"
         '';
       };
+
+      services.failure-notifs.attachServices = [
+        "podman-habitsync"
+        "restic-backups-habitsync"
+      ];
     };
 }

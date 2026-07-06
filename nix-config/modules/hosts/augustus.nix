@@ -35,6 +35,7 @@ in
       nixos.it-tools
       nixos.apprise
       nixos.habitsync
+      nixos.failure-notifs
       nixos.homelab-api
       nixos.homelab-kanidm
       nixos.homelab-ui

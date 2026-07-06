@@ -9,6 +9,7 @@ let
   pluginDir = "${appriseDir}/plugin";
 
   containerSecretKeyFile = "/run/secrets/apprise-secret-key";
+  containerAppriseConfigFile = "/run/secrets/apprise-config.yml";
 in
 {
   flake.modules.nixos.apprise =
@@ -37,6 +38,21 @@ in
         "d ${pluginDir} 0750 apprise apprise -"
       ];
 
+      sops.templates."apprise-config.yml" = {
+        owner = "apprise";
+        group = "apprise";
+        content = ''
+          version: 1
+
+          groups:
+            - systemd-failure: critical
+
+          urls:
+            - pover://${config.sops.placeholder.pushover_user_key}@${config.sops.placeholder.pushover_token}:
+                tag: critical
+        '';
+      };
+
       virtualisation.oci-containers.containers.apprise = {
         image = "caronc/apprise:latest";
 
@@ -56,6 +72,7 @@ in
           "${attachDir}:/attach"
           "${pluginDir}:/plugin"
           "${config.sops.secrets.apprise_secret_key.path}:${containerSecretKeyFile}:ro"
+          "${config.sops.templates."apprise-config.yml".path}:${containerAppriseConfigFile}:ro"
         ];
 
         environment = {
@@ -63,6 +80,8 @@ in
           APPRISE_WORKER_COUNT = "1";
           APPRISE_ADMIN = "yes";
           APPRISE_CONFIG_LOCK = "no";
+          APPRISE_CONFIG_DIR = "/config";
+          APPRISE_ATTACH_DIR = "/attach";
           ALLOWED_HOSTS = "apprise.plato-splunk.media localhost 127.0.0.1";
           LOG_LEVEL = "INFO";
           DEBUG = "no";
@@ -101,5 +120,10 @@ in
           exec /run/wrappers/bin/restic "$@"
         '';
       };
+
+      services.failure-notifs.attachServices = [
+        "podman-apprise"
+        "restic-backups-apprise"
+      ];
     };
 }

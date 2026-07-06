@@ -162,6 +162,16 @@
     owner = "restic";
   };
 
+  sops.secrets.pushover_user_key = {
+    owner = "apprise";
+    group = "apprise";
+  };
+
+  sops.secrets.pushover_token = {
+    owner = "apprise";
+    group = "apprise";
+  };
+
   sops.secrets.habitsync_db_pass = {
     owner = "habitsync";
     group = "habitsync-db-pass";

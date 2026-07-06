@@ -43,5 +43,10 @@
           exec /run/wrappers/bin/restic "$@"
         '';
       };
+
+      services.failure-notifs.attachServices = [
+        "minecraft-server-vanilla"
+        "restic-backups-minecraft"
+      ];
     };
 }

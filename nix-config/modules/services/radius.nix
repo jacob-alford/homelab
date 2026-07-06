@@ -96,5 +96,9 @@ in
           radius_ca_dir = "/data/radius-ca"
         '';
       };
+
+      services.failure-notifs.attachServices = [
+        "podman-radiusd"
+      ];
     };
 }

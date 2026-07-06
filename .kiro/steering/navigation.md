@@ -56,10 +56,10 @@ nix-config/
 
 ## Hosts
 
-| Name        | Role                                                               |
-| ----------- | ------------------------------------------------------------------ |
-| augustus    | Primary server; runs homelab-api, homelab-ui, IDM (Kanidm)         |
-| nixos       | Primary workstation                                                |
-| praeconinus | Public-facing server; hosts a restricted version of homelab-api/ui |
-| cicero      | Exclusively hosts the certificate authority (step-ca)              |
-| mini        | Mac Mini (nix-darwin); currently only hosts Jellyfin               |
+| Name        | Role                                                                              |
+| ----------- | --------------------------------------------------------------------------------- |
+| augustus    | Primary server; runs homelab-api, homelab-ui, IDM (Kanidm), failure notifications |
+| nixos       | Primary workstation                                                               |
+| praeconinus | Public-facing server; hosts a restricted version of homelab-api/ui                |
+| cicero      | Exclusively hosts the certificate authority (step-ca)                             |
+| mini        | Mac Mini (nix-darwin); currently only hosts Jellyfin                              |

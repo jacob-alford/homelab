@@ -65,5 +65,17 @@
 
   nixpkgs.config.allowUnfree = true;
 
+  # Failure notification service
+  services.failure-notifs = {
+    enable = true;
+    # Services not owned by a specific module, or shared across hosts
+    attachServices = [
+      "caddy"
+      "homelab-api"
+      "homelab-secret-provisioner"
+      "tailscaled"
+    ];
+  };
+
   system.stateVersion = "25.05";
 }

@@ -228,6 +228,13 @@ in
           group = "postgres-certs";
           postRun = "${pkgs.systemd}/bin/systemctl start postgresql-update-certs.service";
         };
+
+        services.failure-notifs.attachServices = [
+          "postgresql"
+          "postgresql-provision-passwords"
+          "postgresql-update-certs"
+          "restic-backups-postgres"
+        ];
       };
     };
 }

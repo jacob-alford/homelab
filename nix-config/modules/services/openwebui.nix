@@ -94,5 +94,10 @@ in
           exec /run/wrappers/bin/restic "$@"
         '';
       };
+
+      services.failure-notifs.attachServices = [
+        "open-webui"
+        "restic-backups-openwebui"
+      ];
     };
 }

@@ -242,5 +242,10 @@ in
           exec /run/wrappers/bin/restic "$@"
         '';
       };
+
+      services.failure-notifs.attachServices = [
+        "kanidm"
+        "restic-backups-kanidm"
+      ];
     };
 }

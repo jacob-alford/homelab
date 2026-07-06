@@ -105,5 +105,9 @@ in
           reverse_proxy localhost:${builtins.toString svc.port}
         '';
       };
+
+      services.failure-notifs.attachServices = [
+        "home-assistant"
+      ];
     };
 }
