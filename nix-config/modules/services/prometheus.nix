@@ -72,11 +72,19 @@ in
           enable = true;
           port = 9187;
           listenAddress = "127.0.0.1";
-          dataSourceName = "user=prometheus_exporter host=/run/postgresql dbname=prometheus_exporter sslmode=disable";
+          dataSourceName = "postgresql:///prometheus_exporter?host=/run/postgresql&sslmode=disable";
+          user = "prometheus_exporter";
         };
       };
 
       # PostgreSQL monitoring user (read-only via pg_monitor)
+      users.users.prometheus_exporter = {
+        isSystemUser = true;
+        group = "prometheus_exporter";
+      };
+
+      users.groups.prometheus_exporter = { };
+
       services.postgresql.ensureUsers = [
         {
           name = "prometheus_exporter";

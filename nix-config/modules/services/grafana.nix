@@ -95,6 +95,7 @@ in
               url = "http://127.0.0.1:${toString promSvc.port}";
               isDefault = true;
               access = "proxy";
+              orgId = 1;
             }
             {
               name = "Loki";
@@ -102,6 +103,7 @@ in
               uid = "loki";
               url = "http://127.0.0.1:${toString lokiSvc.port}";
               access = "proxy";
+              orgId = 1;
             }
           ];
 
@@ -122,13 +124,150 @@ in
             }
           ];
 
-          alerting.policies.settings.policies = [
+          alerting.rules.settings.groups = [
             {
               orgId = 1;
-              receiver = "Apprise";
-              group_wait = "30s";
-              group_interval = "5m";
-              repeat_interval = "4h";
+              name = "System Alerts";
+              folder = "Infrastructure";
+              interval = "1m";
+              rules = [
+                {
+                  uid = "high-cpu-usage";
+                  title = "High CPU Usage";
+                  condition = "C";
+                  data = [
+                    {
+                      refId = "A";
+                      datasourceUid = "prometheus";
+                      model = {
+                        expr = ''100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85'';
+                        intervalMs = 15000;
+                        maxDataPoints = 43200;
+                      };
+                      relativeTimeRange = { from = 300; to = 0; };
+                    }
+                    {
+                      refId = "C";
+                      datasourceUid = "__expr__";
+                      model = {
+                        type = "threshold";
+                        expression = "A";
+                        conditions = [
+                          {
+                            evaluator = { type = "gt"; params = [ 85 ]; };
+                          }
+                        ];
+                      };
+                      relativeTimeRange = { from = 0; to = 0; };
+                    }
+                  ];
+                  "for" = "5m";
+                  labels = { severity = "warning"; };
+                  annotations = { summary = "CPU usage has exceeded 85% for 5 minutes"; };
+                }
+                {
+                  uid = "high-memory-usage";
+                  title = "High Memory Usage";
+                  condition = "C";
+                  data = [
+                    {
+                      refId = "A";
+                      datasourceUid = "prometheus";
+                      model = {
+                        expr = ''(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100'';
+                        intervalMs = 15000;
+                        maxDataPoints = 43200;
+                      };
+                      relativeTimeRange = { from = 300; to = 0; };
+                    }
+                    {
+                      refId = "C";
+                      datasourceUid = "__expr__";
+                      model = {
+                        type = "threshold";
+                        expression = "A";
+                        conditions = [
+                          {
+                            evaluator = { type = "gt"; params = [ 90 ]; };
+                          }
+                        ];
+                      };
+                      relativeTimeRange = { from = 0; to = 0; };
+                    }
+                  ];
+                  "for" = "5m";
+                  labels = { severity = "warning"; };
+                  annotations = { summary = "Memory usage has exceeded 90% for 5 minutes"; };
+                }
+                {
+                  uid = "disk-space-low";
+                  title = "Disk Space Low";
+                  condition = "C";
+                  data = [
+                    {
+                      refId = "A";
+                      datasourceUid = "prometheus";
+                      model = {
+                        expr = ''(1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100'';
+                        intervalMs = 15000;
+                        maxDataPoints = 43200;
+                      };
+                      relativeTimeRange = { from = 300; to = 0; };
+                    }
+                    {
+                      refId = "C";
+                      datasourceUid = "__expr__";
+                      model = {
+                        type = "threshold";
+                        expression = "A";
+                        conditions = [
+                          {
+                            evaluator = { type = "gt"; params = [ 85 ]; };
+                          }
+                        ];
+                      };
+                      relativeTimeRange = { from = 0; to = 0; };
+                    }
+                  ];
+                  "for" = "5m";
+                  labels = { severity = "critical"; };
+                  annotations = { summary = "Root filesystem usage has exceeded 85% for 5 minutes"; };
+                }
+                {
+                  uid = "systemd-unit-failed";
+                  title = "Systemd Unit Failed";
+                  condition = "C";
+                  data = [
+                    {
+                      refId = "A";
+                      datasourceUid = "prometheus";
+                      model = {
+                        expr = ''node_systemd_unit_state{state="failed"} == 1'';
+                        intervalMs = 15000;
+                        maxDataPoints = 43200;
+                      };
+                      relativeTimeRange = { from = 60; to = 0; };
+                    }
+                    {
+                      refId = "C";
+                      datasourceUid = "__expr__";
+                      model = {
+                        type = "threshold";
+                        expression = "A";
+                        conditions = [
+                          {
+                            evaluator = { type = "gt"; params = [ 0 ]; };
+                          }
+                        ];
+                      };
+                      relativeTimeRange = { from = 0; to = 0; };
+                    }
+                  ];
+                  "for" = "1m";
+                  labels = { severity = "critical"; };
+                  annotations = { summary = "A systemd unit has entered failed state"; };
+                }
+              ];
             }
           ];
         };
