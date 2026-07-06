@@ -81,6 +81,7 @@ in
           APPRISE_CONFIG_LOCK = "no";
           APPRISE_CONFIG_DIR = "/config";
           APPRISE_ATTACH_DIR = "/attach";
+          APPRISE_INTERPRET_EMOJIS = "yes";
           ALLOWED_HOSTS = "apprise.plato-splunk.media localhost 127.0.0.1";
           LOG_LEVEL = "INFO";
           DEBUG = "no";

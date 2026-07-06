@@ -44,7 +44,7 @@ in
         emoji = lib.mkOption {
           type = lib.types.str;
           description = "The emoji to use at the beginning of the message";
-          default = ":alert:";
+          default = ":rotating_light:";
         };
 
         attachServices = lib.mkOption {
