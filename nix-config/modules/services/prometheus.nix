@@ -37,6 +37,25 @@ in
               { targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.node.port}" ]; }
             ];
           }
+          {
+            job_name = "caddy";
+            static_configs = [
+              { targets = [ "127.0.0.1:2019" ]; }
+            ];
+          }
+          {
+            job_name = "loki";
+            static_configs = [
+              { targets = [ "127.0.0.1:${toString c.services.loki.port}" ]; }
+            ];
+            metrics_path = "/metrics";
+          }
+          {
+            job_name = "postgres";
+            static_configs = [
+              { targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.postgres.port}" ]; }
+            ];
+          }
         ];
 
         exporters.node = {
@@ -47,6 +66,13 @@ in
             "systemd"
             "processes"
           ];
+        };
+
+        exporters.postgres = {
+          enable = true;
+          port = 9187;
+          listenAddress = "127.0.0.1";
+          dataSourceName = "user=prometheus_exporter host=/run/postgresql dbname=postgres sslmode=disable";
         };
 
         alertmanagers = [
@@ -73,8 +99,14 @@ in
                 name = "apprise";
                 webhook_configs = [
                   {
-                    url = "http://127.0.0.1:${toString c.services.apprise.port}/notify/systemd-failure";
+                    url = "http://127.0.0.1:${toString c.services.apprise.port}/notify/prometheus-alerts";
                     send_resolved = true;
+                    payload = {
+                      body = ''{{ range .Alerts }}{{ if eq .Status "resolved" }}✅{{ else }}🔥{{ end }} {{ .Labels.alertname }} [{{ .Labels.severity }}] - {{ .Annotations.summary }}
+{{ end }}'';
+                      type = ''{{ if eq .Status "resolved" }}success{{ else }}failure{{ end }}'';
+                      tag = "prometheus-alerts";
+                    };
                   }
                 ];
               }
@@ -121,6 +153,17 @@ in
             ];
           })
         ];
+      };
+
+      # PostgreSQL monitoring user (read-only, no superuser)
+      services.postgresql.ensureUsers = [
+        {
+          name = "prometheus_exporter";
+        }
+      ];
+
+      services.peesequel.grantRoles = {
+        prometheus_exporter = [ "pg_monitor" ];
       };
 
       # Caddy reverse proxy with mTLS (Prometheus has no OIDC)

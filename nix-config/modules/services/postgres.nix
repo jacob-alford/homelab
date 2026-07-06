@@ -112,6 +112,12 @@ in
           default = { };
           description = "Attribute set of username to password file path for provisioning user passwords";
         };
+
+        grantRoles = lib.mkOption {
+          type = lib.types.attrsOf (lib.types.listOf lib.types.str);
+          default = { };
+          description = "Attribute set of username to list of PostgreSQL roles to grant (e.g. { prometheus_exporter = [ \"pg_monitor\" ]; })";
+        };
       };
 
       config = lib.mkIf cfg.enable {
@@ -189,6 +195,28 @@ in
               ${config.services.postgresql.package}/bin/psql -v "ON_ERROR_STOP=1" -c "ALTER USER $(${pkgs.coreutils}/bin/printf '%s' ${lib.escapeShellArg user} | ${pkgs.gnused}/bin/sed 's/[^a-zA-Z0-9_-]//g') WITH PASSWORD \$\$$(${pkgs.coreutils}/bin/cat ${lib.escapeShellArg passwordFile})\$\$;"
             '')
             cfg.provisionPasswords);
+        };
+
+        systemd.services.postgresql-grant-roles = lib.mkIf (cfg.enable && cfg.grantRoles != { }) {
+          description = "Grant PostgreSQL roles to users";
+          after = [ "postgresql.service" ];
+          wantedBy = [ "multi-user.target" ];
+          requires = [ "postgresql.service" ];
+          partOf = [ "postgresql.service" ];
+
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            User = "postgres";
+          };
+
+          script = lib.concatStringsSep "\n" (lib.mapAttrsToList
+            (user: roles: lib.concatStringsSep "\n" (map
+              (role: ''
+                ${config.services.postgresql.package}/bin/psql -v "ON_ERROR_STOP=1" -c "GRANT ${role} TO ${user};"
+              '')
+              roles))
+            cfg.grantRoles);
         };
 
         systemd.services.postgresql-update-certs = lib.mkIf cfg.enable {

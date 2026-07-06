@@ -45,10 +45,14 @@ in
 
           groups:
             - systemd-failure: critical
+            - prometheus-alerts: warning
+            - grafana-alerts: warning
 
           urls:
             - pover://${config.sops.placeholder.pushover_user_key}@${config.sops.placeholder.pushover_token}:
                 tag: critical
+            - pover://${config.sops.placeholder.pushover_user_key}@${config.sops.placeholder.pushover_token}:
+                tag: warning
         '';
       };
 

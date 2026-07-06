@@ -108,8 +108,13 @@ in
                   uid = "apprise-webhook";
                   type = "webhook";
                   settings = {
-                    url = "http://127.0.0.1:${toString c.services.apprise.port}/notify/systemd-failure";
+                    url = "http://127.0.0.1:${toString c.services.apprise.port}/notify/grafana-alerts";
                     httpMethod = "POST";
+                    body = builtins.toJSON {
+                      body = "{{ template \"default.message\" . }}";
+                      type = "warning";
+                      tag = "grafana-alerts";
+                    };
                   };
                 }
               ];
