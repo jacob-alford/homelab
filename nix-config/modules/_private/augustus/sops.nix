@@ -191,6 +191,11 @@
     owner = "kanidm";
   };
 
+  sops.templates."grafana-client-secret" = {
+    content = config.sops.placeholder.grafana_client_secret;
+    owner = "grafana";
+  };
+
   sops.secrets.grafana_secret = {
     owner = "grafana";
   };

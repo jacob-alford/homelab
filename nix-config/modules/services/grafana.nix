@@ -52,7 +52,7 @@ in
             enabled = true;
             name = "Kanidm";
             client_id = svc.clientId;
-            client_secret = "$__file{${config.sops.secrets.grafana_client_secret.path}}";
+            client_secret = "$__file{${config.sops.templates."grafana-client-secret".path}}";
             scopes = "openid email profile";
             auth_url = "https://${c.idm.domain}/ui/oauth2";
             token_url = "https://${c.idm.domain}/oauth2/token";
