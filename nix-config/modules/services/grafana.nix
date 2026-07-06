@@ -118,6 +118,7 @@ in
                   settings = {
                     url = "http://127.0.0.1:${toString c.services.apprise.port}/notify/grafana-alerts";
                     httpMethod = "POST";
+                    custom_payload = ''{"body": "{{ .Status }}: {{ .CommonLabels.alertname }} - {{ .CommonAnnotations.summary }}", "type": "{{ if eq .Status "resolved" }}success{{ else }}failure{{ end }}", "tag": "grafana-alerts"}'';
                   };
                 }
               ];
@@ -140,18 +141,28 @@ in
                       refId = "A";
                       datasourceUid = "prometheus";
                       model = {
-                        expr = ''100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85'';
+                        expr = ''100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)'';
                         intervalMs = 15000;
                         maxDataPoints = 43200;
                       };
                       relativeTimeRange = { from = 300; to = 0; };
                     }
                     {
+                      refId = "B";
+                      datasourceUid = "__expr__";
+                      model = {
+                        type = "reduce";
+                        expression = "A";
+                        reducer = "last";
+                      };
+                      relativeTimeRange = { from = 0; to = 0; };
+                    }
+                    {
                       refId = "C";
                       datasourceUid = "__expr__";
                       model = {
                         type = "threshold";
-                        expression = "A";
+                        expression = "B";
                         conditions = [
                           {
                             evaluator = { type = "gt"; params = [ 85 ]; };
@@ -181,11 +192,21 @@ in
                       relativeTimeRange = { from = 300; to = 0; };
                     }
                     {
+                      refId = "B";
+                      datasourceUid = "__expr__";
+                      model = {
+                        type = "reduce";
+                        expression = "A";
+                        reducer = "last";
+                      };
+                      relativeTimeRange = { from = 0; to = 0; };
+                    }
+                    {
                       refId = "C";
                       datasourceUid = "__expr__";
                       model = {
                         type = "threshold";
-                        expression = "A";
+                        expression = "B";
                         conditions = [
                           {
                             evaluator = { type = "gt"; params = [ 90 ]; };
@@ -215,11 +236,21 @@ in
                       relativeTimeRange = { from = 300; to = 0; };
                     }
                     {
+                      refId = "B";
+                      datasourceUid = "__expr__";
+                      model = {
+                        type = "reduce";
+                        expression = "A";
+                        reducer = "last";
+                      };
+                      relativeTimeRange = { from = 0; to = 0; };
+                    }
+                    {
                       refId = "C";
                       datasourceUid = "__expr__";
                       model = {
                         type = "threshold";
-                        expression = "A";
+                        expression = "B";
                         conditions = [
                           {
                             evaluator = { type = "gt"; params = [ 85 ]; };
@@ -249,11 +280,21 @@ in
                       relativeTimeRange = { from = 60; to = 0; };
                     }
                     {
+                      refId = "B";
+                      datasourceUid = "__expr__";
+                      model = {
+                        type = "reduce";
+                        expression = "A";
+                        reducer = "last";
+                      };
+                      relativeTimeRange = { from = 0; to = 0; };
+                    }
+                    {
                       refId = "C";
                       datasourceUid = "__expr__";
                       model = {
                         type = "threshold";
-                        expression = "A";
+                        expression = "B";
                         conditions = [
                           {
                             evaluator = { type = "gt"; params = [ 0 ]; };
