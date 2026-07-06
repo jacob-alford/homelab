@@ -134,6 +134,12 @@ in
         };
       };
 
+      # Ensure Grafana starts after its datasource backends
+      systemd.services.grafana = {
+        after = [ "prometheus.service" "loki.service" ];
+        requires = [ "prometheus.service" "loki.service" ];
+      };
+
       # Caddy reverse proxy (OIDC handles auth)
       services.caddy.virtualHosts."${svc.url}" = {
         extraConfig = ''

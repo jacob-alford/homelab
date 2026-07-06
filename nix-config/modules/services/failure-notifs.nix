@@ -77,23 +77,21 @@ in
             script = ''
               set -eo pipefail
 
-              SERVICE_NAME=$MONITOR_UNIT
-              SERVICE_RESULT="''${MONITOR_SERVICE_RESULT:-"$SERVICE_RESULT"}"
-              EXIT_CODE="''${MONITOR_EXIT_CODE:-"$MONITOR_EXIT_STATUS"}"
+              SERVICE_NAME="''${MONITOR_UNIT:-}"
+              SERVICE_RESULT="''${MONITOR_SERVICE_RESULT:-"''${SERVICE_RESULT:-}"}"
+              EXIT_CODE="''${MONITOR_EXIT_CODE:-"''${MONITOR_EXIT_STATUS:-}"}"
 
               if [ -z "$SERVICE_NAME" ]; then
-                echo "SERVICE_NAME not set!"
-                exit 1
+                echo "SERVICE_NAME not set, not triggered via OnFailure. Exiting."
+                exit 0
               fi
 
               if [ -z "$SERVICE_RESULT" ]; then
-                echo "SERVICE_RESULT not set!"
-                exit 1
+                SERVICE_RESULT="unknown"
               fi
 
               if [ -z "$EXIT_CODE" ]; then
-                echo "EXIT_CODE not set!"
-                exit 1
+                EXIT_CODE="unknown"
               fi
 
               emoji="${cfg.emoji}"
