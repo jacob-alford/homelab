@@ -64,6 +64,11 @@ in
             ];
             wants = [ "network-online.target" ];
 
+            unitConfig = {
+              StartLimitIntervalSec = 60;
+              StartLimitBurst = 10;
+            };
+
             serviceConfig = {
               Type = "oneshot";
               User = "root";

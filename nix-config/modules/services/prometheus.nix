@@ -72,94 +72,19 @@ in
           enable = true;
           port = 9187;
           listenAddress = "127.0.0.1";
-          dataSourceName = "user=prometheus_exporter host=/run/postgresql dbname=postgres sslmode=disable";
+          dataSourceName = "user=prometheus_exporter host=/run/postgresql dbname=prometheus_exporter sslmode=disable";
         };
-
-        alertmanagers = [
-          {
-            static_configs = [
-              { targets = [ "127.0.0.1:9093" ]; }
-            ];
-          }
-        ];
-
-        alertmanager = {
-          enable = true;
-          port = 9093;
-          listenAddress = "127.0.0.1";
-          configuration = {
-            route = {
-              receiver = "apprise";
-              group_wait = "30s";
-              group_interval = "5m";
-              repeat_interval = "4h";
-            };
-            receivers = [
-              {
-                name = "apprise";
-                webhook_configs = [
-                  {
-                    url = "http://127.0.0.1:${toString c.services.apprise.port}/notify/prometheus-alerts";
-                    send_resolved = true;
-                    payload = {
-                      body = ''{{ range .Alerts }}{{ if eq .Status "resolved" }}✅{{ else }}🔥{{ end }} {{ .Labels.alertname }} [{{ .Labels.severity }}] - {{ .Annotations.summary }}
-{{ end }}'';
-                      type = ''{{ if eq .Status "resolved" }}success{{ else }}failure{{ end }}'';
-                      tag = "prometheus-alerts";
-                    };
-                  }
-                ];
-              }
-            ];
-          };
-        };
-
-        rules = [
-          (builtins.toJSON {
-            groups = [
-              {
-                name = "system";
-                rules = [
-                  {
-                    alert = "HighCPUUsage";
-                    expr = "100 - (avg by(instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100) > 85";
-                    "for" = "5m";
-                    labels.severity = "warning";
-                    annotations.summary = "High CPU usage on {{ $labels.instance }}";
-                  }
-                  {
-                    alert = "HighMemoryUsage";
-                    expr = "(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 90";
-                    "for" = "5m";
-                    labels.severity = "warning";
-                    annotations.summary = "High memory usage on {{ $labels.instance }}";
-                  }
-                  {
-                    alert = "DiskSpaceLow";
-                    expr = "(1 - node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"}) * 100 > 85";
-                    "for" = "5m";
-                    labels.severity = "critical";
-                    annotations.summary = "Disk space low on {{ $labels.instance }}";
-                  }
-                  {
-                    alert = "SystemdUnitFailed";
-                    expr = "node_systemd_unit_state{state=\"failed\"} == 1";
-                    "for" = "1m";
-                    labels.severity = "critical";
-                    annotations.summary = "Systemd unit {{ $labels.name }} has failed";
-                  }
-                ];
-              }
-            ];
-          })
-        ];
       };
 
-      # PostgreSQL monitoring user (read-only, no superuser)
+      # PostgreSQL monitoring user (read-only via pg_monitor)
       services.postgresql.ensureUsers = [
         {
           name = "prometheus_exporter";
         }
+      ];
+
+      services.postgresql.ensureDatabases = [
+        "prometheus_exporter"
       ];
 
       services.peesequel.grantRoles = {
@@ -183,7 +108,6 @@ in
 
       services.failure-notifs.attachServices = [
         "prometheus"
-        "alertmanager"
         "prometheus-node-exporter"
       ];
     };

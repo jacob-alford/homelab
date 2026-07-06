@@ -78,6 +78,10 @@ in
             check_for_updates = false;
             check_for_plugin_updates = false;
           };
+
+          unified_alerting = {
+            enabled = true;
+          };
         };
 
         provision = {
@@ -87,6 +91,7 @@ in
             {
               name = "Prometheus";
               type = "prometheus";
+              uid = "prometheus";
               url = "http://127.0.0.1:${toString promSvc.port}";
               isDefault = true;
               access = "proxy";
@@ -94,6 +99,7 @@ in
             {
               name = "Loki";
               type = "loki";
+              uid = "loki";
               url = "http://127.0.0.1:${toString lokiSvc.port}";
               access = "proxy";
             }
@@ -110,11 +116,6 @@ in
                   settings = {
                     url = "http://127.0.0.1:${toString c.services.apprise.port}/notify/grafana-alerts";
                     httpMethod = "POST";
-                    body = builtins.toJSON {
-                      body = "{{ template \"default.message\" . }}";
-                      type = "warning";
-                      tag = "grafana-alerts";
-                    };
                   };
                 }
               ];
@@ -125,6 +126,9 @@ in
             {
               orgId = 1;
               receiver = "Apprise";
+              group_wait = "30s";
+              group_interval = "5m";
+              repeat_interval = "4h";
             }
           ];
         };
