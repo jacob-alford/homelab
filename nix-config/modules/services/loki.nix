@@ -27,6 +27,7 @@ in
           common = {
             path_prefix = svc.stateDir;
             replication_factor = 1;
+            instance_addr = "127.0.0.1";
             ring = {
               kvstore.store = "inmemory";
               instance_addr = "127.0.0.1";
