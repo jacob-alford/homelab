@@ -118,7 +118,11 @@ in
                   settings = {
                     url = "http://127.0.0.1:${toString c.services.apprise.port}/notify/grafana-alerts";
                     httpMethod = "POST";
-                    custom_payload = ''{"body": "{{ .Status }}: {{ .CommonLabels.alertname }} - {{ .CommonAnnotations.summary }}", "type": "{{ if eq .Status "resolved" }}success{{ else }}failure{{ end }}", "tag": "grafana-alerts"}'';
+                    payload = {
+                      tag = "grafana-alerts";
+                      type = ''{{ if eq .Status "resolved" }}success{{ else }}failure{{ end }}'';
+                      body = ''{{ template "default.message" . }}'';
+                    };
                   };
                 }
               ];
@@ -145,7 +149,10 @@ in
                         intervalMs = 15000;
                         maxDataPoints = 43200;
                       };
-                      relativeTimeRange = { from = 300; to = 0; };
+                      relativeTimeRange = {
+                        from = 300;
+                        to = 0;
+                      };
                     }
                     {
                       refId = "B";
@@ -155,7 +162,10 @@ in
                         expression = "A";
                         reducer = "last";
                       };
-                      relativeTimeRange = { from = 0; to = 0; };
+                      relativeTimeRange = {
+                        from = 0;
+                        to = 0;
+                      };
                     }
                     {
                       refId = "C";
@@ -165,16 +175,26 @@ in
                         expression = "B";
                         conditions = [
                           {
-                            evaluator = { type = "gt"; params = [ 85 ]; };
+                            evaluator = {
+                              type = "gt";
+                              params = [ 85 ];
+                            };
                           }
                         ];
                       };
-                      relativeTimeRange = { from = 0; to = 0; };
+                      relativeTimeRange = {
+                        from = 0;
+                        to = 0;
+                      };
                     }
                   ];
                   "for" = "5m";
-                  labels = { severity = "warning"; };
-                  annotations = { summary = "CPU usage has exceeded 85% for 5 minutes"; };
+                  labels = {
+                    severity = "warning";
+                  };
+                  annotations = {
+                    summary = "CPU usage has exceeded 85% for 5 minutes";
+                  };
                 }
                 {
                   uid = "high-memory-usage";
@@ -185,11 +205,14 @@ in
                       refId = "A";
                       datasourceUid = "prometheus";
                       model = {
-                        expr = ''(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100'';
+                        expr = "(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100";
                         intervalMs = 15000;
                         maxDataPoints = 43200;
                       };
-                      relativeTimeRange = { from = 300; to = 0; };
+                      relativeTimeRange = {
+                        from = 300;
+                        to = 0;
+                      };
                     }
                     {
                       refId = "B";
@@ -199,7 +222,10 @@ in
                         expression = "A";
                         reducer = "last";
                       };
-                      relativeTimeRange = { from = 0; to = 0; };
+                      relativeTimeRange = {
+                        from = 0;
+                        to = 0;
+                      };
                     }
                     {
                       refId = "C";
@@ -209,16 +235,26 @@ in
                         expression = "B";
                         conditions = [
                           {
-                            evaluator = { type = "gt"; params = [ 90 ]; };
+                            evaluator = {
+                              type = "gt";
+                              params = [ 90 ];
+                            };
                           }
                         ];
                       };
-                      relativeTimeRange = { from = 0; to = 0; };
+                      relativeTimeRange = {
+                        from = 0;
+                        to = 0;
+                      };
                     }
                   ];
                   "for" = "5m";
-                  labels = { severity = "warning"; };
-                  annotations = { summary = "Memory usage has exceeded 90% for 5 minutes"; };
+                  labels = {
+                    severity = "warning";
+                  };
+                  annotations = {
+                    summary = "Memory usage has exceeded 90% for 5 minutes";
+                  };
                 }
                 {
                   uid = "disk-space-low";
@@ -233,7 +269,10 @@ in
                         intervalMs = 15000;
                         maxDataPoints = 43200;
                       };
-                      relativeTimeRange = { from = 300; to = 0; };
+                      relativeTimeRange = {
+                        from = 300;
+                        to = 0;
+                      };
                     }
                     {
                       refId = "B";
@@ -243,7 +282,10 @@ in
                         expression = "A";
                         reducer = "last";
                       };
-                      relativeTimeRange = { from = 0; to = 0; };
+                      relativeTimeRange = {
+                        from = 0;
+                        to = 0;
+                      };
                     }
                     {
                       refId = "C";
@@ -253,16 +295,26 @@ in
                         expression = "B";
                         conditions = [
                           {
-                            evaluator = { type = "gt"; params = [ 85 ]; };
+                            evaluator = {
+                              type = "gt";
+                              params = [ 85 ];
+                            };
                           }
                         ];
                       };
-                      relativeTimeRange = { from = 0; to = 0; };
+                      relativeTimeRange = {
+                        from = 0;
+                        to = 0;
+                      };
                     }
                   ];
                   "for" = "5m";
-                  labels = { severity = "critical"; };
-                  annotations = { summary = "Root filesystem usage has exceeded 85% for 5 minutes"; };
+                  labels = {
+                    severity = "critical";
+                  };
+                  annotations = {
+                    summary = "Root filesystem usage has exceeded 85% for 5 minutes";
+                  };
                 }
                 {
                   uid = "systemd-unit-failed";
@@ -277,7 +329,10 @@ in
                         intervalMs = 15000;
                         maxDataPoints = 43200;
                       };
-                      relativeTimeRange = { from = 60; to = 0; };
+                      relativeTimeRange = {
+                        from = 60;
+                        to = 0;
+                      };
                     }
                     {
                       refId = "B";
@@ -287,7 +342,10 @@ in
                         expression = "A";
                         reducer = "last";
                       };
-                      relativeTimeRange = { from = 0; to = 0; };
+                      relativeTimeRange = {
+                        from = 0;
+                        to = 0;
+                      };
                     }
                     {
                       refId = "C";
@@ -297,16 +355,26 @@ in
                         expression = "B";
                         conditions = [
                           {
-                            evaluator = { type = "gt"; params = [ 0 ]; };
+                            evaluator = {
+                              type = "gt";
+                              params = [ 0 ];
+                            };
                           }
                         ];
                       };
-                      relativeTimeRange = { from = 0; to = 0; };
+                      relativeTimeRange = {
+                        from = 0;
+                        to = 0;
+                      };
                     }
                   ];
                   "for" = "1m";
-                  labels = { severity = "critical"; };
-                  annotations = { summary = "A systemd unit has entered failed state"; };
+                  labels = {
+                    severity = "critical";
+                  };
+                  annotations = {
+                    summary = "A systemd unit has entered failed state";
+                  };
                 }
               ];
             }
@@ -316,8 +384,14 @@ in
 
       # Ensure Grafana starts after its datasource backends
       systemd.services.grafana = {
-        after = [ "prometheus.service" "loki.service" ];
-        requires = [ "prometheus.service" "loki.service" ];
+        after = [
+          "prometheus.service"
+          "loki.service"
+        ];
+        requires = [
+          "prometheus.service"
+          "loki.service"
+        ];
       };
 
       # Caddy reverse proxy (OIDC handles auth)
