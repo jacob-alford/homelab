@@ -193,6 +193,13 @@ in
                 "radius.access_servers"
               ];
             };
+            "grafana-mini" = {
+              displayName = "mini";
+              mailAddresses = [ "grafana-mini@a.plato-splunk.media" ];
+              groups = [
+                "grafana.access"
+              ];
+            };
           };
         };
       };
