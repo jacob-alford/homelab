@@ -79,6 +79,11 @@ in
         SupplementaryGroups = [ "systemd-journal" "cicero-observability" ];
       };
 
+      systemd.tmpfiles.rules = [
+        "d /var/lib/alloy 0750 alloy alloy -"
+        "Z /var/lib/alloy - alloy alloy -"
+      ];
+
       users.users.alloy = {
         isSystemUser = true;
         group = "alloy";
