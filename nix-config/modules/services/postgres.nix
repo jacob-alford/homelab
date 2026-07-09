@@ -5,7 +5,12 @@ let
 in
 {
   flake.modules.nixos.postgres =
-    { config, lib, pkgs, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
     let
       cfg = config.services.peesequel;
       inherit (cfg) package dataDir;
@@ -177,25 +182,27 @@ in
           '';
         };
 
-        systemd.services.postgresql-provision-passwords = lib.mkIf (cfg.enable && cfg.provisionPasswords != { }) {
-          description = "Provision PostgreSQL user passwords";
-          after = [ "postgresql.service" ];
-          wantedBy = [ "multi-user.target" ];
-          requires = [ "postgresql.service" ];
-          partOf = [ "postgresql.service" ];
+        systemd.services.postgresql-provision-passwords =
+          lib.mkIf (cfg.enable && cfg.provisionPasswords != { })
+            {
+              description = "Provision PostgreSQL user passwords";
+              after = [ "postgresql.service" ];
+              wantedBy = [ "multi-user.target" ];
+              requires = [ "postgresql.service" ];
+              partOf = [ "postgresql.service" ];
 
-          serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
-            User = "postgres";
-          };
+              serviceConfig = {
+                Type = "oneshot";
+                RemainAfterExit = true;
+                User = "postgres";
+              };
 
-          script = lib.concatStringsSep "\n" (lib.mapAttrsToList
-            (user: passwordFile: ''
-              ${config.services.postgresql.package}/bin/psql -v "ON_ERROR_STOP=1" -c "ALTER USER $(${pkgs.coreutils}/bin/printf '%s' ${lib.escapeShellArg user} | ${pkgs.gnused}/bin/sed 's/[^a-zA-Z0-9_-]//g') WITH PASSWORD \$\$$(${pkgs.coreutils}/bin/cat ${lib.escapeShellArg passwordFile})\$\$;"
-            '')
-            cfg.provisionPasswords);
-        };
+              script = lib.concatStringsSep "\n" (
+                lib.mapAttrsToList (user: passwordFile: ''
+                  ${config.services.postgresql.package}/bin/psql -v "ON_ERROR_STOP=1" -c "ALTER USER $(${pkgs.coreutils}/bin/printf '%s' ${lib.escapeShellArg user} | ${pkgs.gnused}/bin/sed 's/[^a-zA-Z0-9_-]//g') WITH PASSWORD \$\$$(${pkgs.coreutils}/bin/cat ${lib.escapeShellArg passwordFile})\$\$;"
+                '') cfg.provisionPasswords
+              );
+            };
 
         systemd.services.postgresql-grant-roles = lib.mkIf (cfg.enable && cfg.grantRoles != { }) {
           description = "Grant PostgreSQL roles to users";
@@ -210,13 +217,16 @@ in
             User = "postgres";
           };
 
-          script = lib.concatStringsSep "\n" (lib.mapAttrsToList
-            (user: roles: lib.concatStringsSep "\n" (map
-              (role: ''
-                ${config.services.postgresql.package}/bin/psql -v "ON_ERROR_STOP=1" -c "GRANT ${role} TO ${user};"
-              '')
-              roles))
-            cfg.grantRoles);
+          script = lib.concatStringsSep "\n" (
+            lib.mapAttrsToList (
+              user: roles:
+              lib.concatStringsSep "\n" (
+                map (role: ''
+                  ${config.services.postgresql.package}/bin/psql -v "ON_ERROR_STOP=1" -c "GRANT ${role} TO ${user};"
+                '') roles
+              )
+            ) cfg.grantRoles
+          );
         };
 
         systemd.services.postgresql-update-certs = lib.mkIf cfg.enable {
@@ -252,7 +262,7 @@ in
         security.acme.certs."${domain}" = lib.mkIf cfg.enable {
           inherit domain;
           listenHTTP = "127.0.0.1:${builtins.toString acmePort}";
-          server = c.ca.acmeDirectory;
+          server = c.ca.acmeDirectoryHttp;
           group = "postgres-certs";
           postRun = "${pkgs.systemd}/bin/systemctl start postgresql-update-certs.service";
         };

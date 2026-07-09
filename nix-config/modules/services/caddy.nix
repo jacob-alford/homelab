@@ -4,7 +4,12 @@ let
 in
 {
   flake.modules.nixos.caddy =
-    { pkgs-unstable, lib, config, ... }:
+    {
+      pkgs-unstable,
+      lib,
+      config,
+      ...
+    }:
     {
       options.services.caddy.useInternalCA = lib.mkEnableOption "Use internal step-ca for ACME";
 
@@ -13,7 +18,7 @@ in
           package = pkgs-unstable.caddy;
           enable = true;
           email = lib.mkIf config.services.caddy.useInternalCA c.acme.email;
-          acmeCA = lib.mkIf config.services.caddy.useInternalCA c.ca.acmeDirectory;
+          acmeCA = lib.mkIf config.services.caddy.useInternalCA c.ca.acmeDirectoryHttp;
         };
       };
     };

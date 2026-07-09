@@ -24,6 +24,8 @@ in
       domain = mkDomain "ca";
       url = mkUrl "ca";
       acmeDirectory = "https://${mkDomain "ca"}/acme/acme/directory";
+      acmeDirectoryHttp = "https://${mkDomain "ca"}/acme/http/directory";
+      acmeDirectoryClients = "https://${mkDomain "ca"}/acme/eap/directory";
       rootCert = certsDir + "/alford-root.crt";
       rootCertDer = certsDir + "/alford-root.der";
       rootTrustStore = certsDir + "/alford-root-truststore.p12";

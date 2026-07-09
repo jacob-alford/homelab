@@ -50,7 +50,7 @@ in
       security.acme.certs."${svc.domain}" = {
         domain = svc.domain;
         group = "radiusd";
-        server = c.ca.acmeDirectory;
+        server = c.ca.acmeDirectoryHttp;
         listenHTTP = "127.0.0.1:${builtins.toString svc.acmePort}";
         reloadServices = [ "podman-${containerName}.service" ];
       };
