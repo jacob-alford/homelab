@@ -18,12 +18,12 @@ in
         domain = ciceroMetrics.domain;
         listenHTTP = "127.0.0.1:${builtins.toString ciceroMetrics.acmePort}";
         server = c.ca.acmeDirectoryHttp;
-        group = "alloy";
+        group = "cicero-observability";
         reloadServices = [
           "alloy.service"
         ];
       };
 
-      users.groups.alloy = { };
+      users.groups.cicero-observability = { };
     };
 }

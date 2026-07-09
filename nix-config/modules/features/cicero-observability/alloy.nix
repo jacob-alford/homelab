@@ -71,10 +71,20 @@ in
         }
       '';
 
-      # Alloy needs journal access + cert access
+      # Override DynamicUser so we can use a static user with group-based cert access
       systemd.services.alloy.serviceConfig = {
-        SupplementaryGroups = [ "systemd-journal" "alloy" ];
+        DynamicUser = lib.mkForce false;
+        User = "alloy";
+        Group = "alloy";
+        SupplementaryGroups = [ "systemd-journal" "cicero-observability" ];
       };
+
+      users.users.alloy = {
+        isSystemUser = true;
+        group = "alloy";
+      };
+
+      users.groups.alloy = { };
 
       # Ensure Alloy starts after cert is available
       systemd.services.alloy.after = [ "acme-${ciceroMetrics.domain}.service" ];
