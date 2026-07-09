@@ -130,6 +130,10 @@ in
                 challenges = [
                   "http-01"
                 ];
+                claims = {
+                  "maxTLSCertDuration" = "73h";
+                  "defaultTLSCertDuration" = "48h";
+                };
               }
               {
                 type = "ACME";
