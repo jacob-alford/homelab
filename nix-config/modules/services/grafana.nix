@@ -120,13 +120,9 @@ in
                     httpMethod = "POST";
                     payload = {
                       template = ''
-                        {{ $type := "failure" }}
-                        {{ if eq .Status "resolved" }}
-                          {{ $type = "success" }}
-                        {{ end }}
                         {{ coll.Dict
                           "tag" "grafana-alerts"
-                          "type" $type
+                          "type" (tmpl.Inline "{{ if eq .Status `resolved` }}success{{ else }}failure{{ end }}" .)
                           "body" (tmpl.Exec "default.message" .)
                         | data.ToJSONPretty " "}}
                       '';
