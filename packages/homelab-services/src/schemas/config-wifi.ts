@@ -72,6 +72,7 @@ export const EthernetConfigSchema = GenericPayloadSchema.pipe(
       SetupModes: Schema.Array(Schema.String),
       AuthenticationMethod: Schema.String,
       EAPClientConfiguration: EnterpriseClientConfiguration,
+      Interface: Schema.Literal("GlobalEthernet"),
     }),
   ),
 )

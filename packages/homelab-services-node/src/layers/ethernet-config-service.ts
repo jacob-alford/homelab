@@ -24,6 +24,7 @@ class EthernetConfigServiceImpl implements Services.EthernetConfigService.Ethern
       AutoJoin: true,
       SetupModes: ["System"],
       AuthenticationMethod: "",
+      Interface: "GlobalEthernet",
       EAPClientConfiguration: eapClientConfiguration,
       PayloadDescription: "Configures 802.1X Ethernet settings",
       PayloadDisplayName: "Ethernet",
