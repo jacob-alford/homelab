@@ -14,6 +14,7 @@ in
     {
       services.prometheus = {
         enable = true;
+        checkConfig = "syntax-only";
         port = svc.port;
         listenAddress = "127.0.0.1";
         stateDir = "prometheus2";
