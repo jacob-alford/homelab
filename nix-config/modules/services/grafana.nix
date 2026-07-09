@@ -119,9 +119,13 @@ in
                     url = "http://127.0.0.1:${toString c.services.apprise.port}/notify/grafana-alerts";
                     httpMethod = "POST";
                     payload = {
-                      tag = "grafana-alerts";
-                      type = ''{{ if eq .Status "resolved" }}success{{ else }}failure{{ end }}'';
-                      body = ''{{ template "default.message" . }}'';
+                      template = ''
+                        {{ coll.Dict
+                          "tag" "grafana-alerts"
+                          "type" (tmpl.Inline "{{ if eq .Status "resolved" }}success{{ else }}failure{{ end }}" .)
+                          "body" (tmpl.Exec "default.message" .)
+                        | data.ToJSONPretty " "}}
+                      '';
                     };
                   };
                 }
