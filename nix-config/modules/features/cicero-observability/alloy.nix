@@ -73,7 +73,7 @@ in
 
       # Alloy needs journal access + cert access
       systemd.services.alloy.serviceConfig = {
-        SupplementaryGroups = [ "systemd-journal" "caddy" ];
+        SupplementaryGroups = [ "systemd-journal" "alloy" ];
       };
 
       # Ensure Alloy starts after cert is available

@@ -6,19 +6,19 @@ in
 {
   flake.modules.nixos.cicero-observability-caddy =
     { config, lib, ... }:
-    let
-      inherit (config.security.acme.certs."${ciceroMetrics.domain}") directory;
-    in
     {
       services.caddy = {
         enable = true;
         globalConfig = ''
           https_port 8443
         '';
+        # Use internal step-ca for Caddy's own server certs
+        email = c.acme.email;
+        acmeCA = c.ca.acmeDirectoryHttp;
       };
 
       # HTTP vhost on port 80 to serve ACME http-01 challenges
-      # step-ca connects to http://<domain>:80/.well-known/acme-challenge/...
+      # (for both Caddy's own certs AND the NixOS ACME client cert for Alloy)
       services.caddy.virtualHosts."http://${ciceroMetrics.domain}" = {
         extraConfig = ''
           reverse_proxy localhost:${builtins.toString ciceroMetrics.acmePort}
@@ -26,9 +26,10 @@ in
       };
 
       # mTLS-guarded metrics endpoint (node_exporter)
+      # Caddy obtains its own server cert via built-in ACME from step-ca
       services.caddy.virtualHosts."https://${ciceroMetrics.domain}:${toString ciceroMetrics.port}" = {
         extraConfig = ''
-          tls ${directory}/fullchain.pem ${directory}/key.pem {
+          tls {
             client_auth {
               mode require_and_verify
               trust_pool file {
