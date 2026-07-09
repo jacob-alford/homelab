@@ -11,7 +11,10 @@
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   networking.hosts = {
-    "127.0.0.1" = [ "ca.plato-splunk.media" ];
+    "127.0.0.1" = [
+      "ca.plato-splunk.media"
+      "cicero-metrics.plato-splunk.media"
+    ];
   };
 
   networking.networkmanager.enable = true;

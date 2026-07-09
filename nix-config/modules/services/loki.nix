@@ -78,6 +78,21 @@ in
 
       users.groups.loki = { };
 
+      # External push ingestion endpoint (mTLS-guarded, for remote Alloy instances)
+      services.caddy.virtualHosts."${c.services.loki-push.url}" = {
+        extraConfig = ''
+          tls {
+            client_auth {
+              mode require_and_verify
+              trust_pool file {
+                pem_file ${c.ca.rootCert}
+              }
+            }
+          }
+          reverse_proxy 127.0.0.1:${builtins.toString svc.port}
+        '';
+      };
+
       services.failure-notifs.attachServices = [ "loki" ];
     };
 }

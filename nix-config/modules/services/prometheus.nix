@@ -56,6 +56,25 @@ in
               { targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.postgres.port}" ]; }
             ];
           }
+          {
+            job_name = "cicero-node";
+            scheme = "https";
+            tls_config = {
+              ca_file = toString c.ca.rootCert;
+              cert_file = "${config.security.acme.certs."${c.services.prometheus-client.domain}".directory}/fullchain.pem";
+              key_file = "${config.security.acme.certs."${c.services.prometheus-client.domain}".directory}/key.pem";
+              server_name = c.services.cicero-metrics.domain;
+            };
+            static_configs = [
+              {
+                targets = [ "${c.services.cicero-metrics.domain}:${toString c.services.cicero-metrics.port}" ];
+                labels = {
+                  instance = "cicero";
+                };
+              }
+            ];
+            metrics_path = "/metrics";
+          }
         ];
 
         exporters.node = {
@@ -97,6 +116,21 @@ in
 
       services.peesequel.grantRoles = {
         prometheus_exporter = [ "pg_monitor" ];
+      };
+
+      # Client certificate for Prometheus to scrape mTLS-guarded remote targets
+      security.acme.certs."${c.services.prometheus-client.domain}" = {
+        domain = c.services.prometheus-client.domain;
+        listenHTTP = "127.0.0.1:${builtins.toString c.services.prometheus-client.acmePort}";
+        server = c.ca.acmeDirectoryHttp;
+        group = "prometheus";
+        reloadServices = [ "prometheus.service" ];
+      };
+
+      services.caddy.virtualHosts."http://${c.services.prometheus-client.domain}" = {
+        extraConfig = ''
+          reverse_proxy localhost:${builtins.toString c.services.prometheus-client.acmePort}
+        '';
       };
 
       # Caddy reverse proxy with mTLS (Prometheus has no OIDC)

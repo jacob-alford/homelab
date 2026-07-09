@@ -1,0 +1,83 @@
+{ config, ... }:
+let
+  c = config.constants;
+  alloySvc = c.services.alloy;
+  lokiPush = c.services.loki-push;
+  ciceroMetrics = c.services.cicero-metrics;
+in
+{
+  flake.modules.nixos.cicero-observability-alloy =
+    { config, lib, ... }:
+    let
+      inherit (config.security.acme.certs."${ciceroMetrics.domain}") directory;
+    in
+    {
+      services.alloy = {
+        enable = true;
+        extraFlags = [
+          "--server.http.listen-addr=127.0.0.1:${toString alloySvc.port}"
+        ];
+      };
+
+      environment.etc."alloy/config.alloy".text = ''
+        // Discover all systemd journal entries
+        loki.source.journal "systemd" {
+          relabel_rules = loki.relabel.journal.rules
+          forward_to    = [loki.write.remote.receiver]
+          max_age       = "12h"
+        }
+
+        // Relabel rules to extract useful metadata
+        loki.relabel "journal" {
+          forward_to = []
+
+          rule {
+            source_labels = ["__journal__systemd_unit"]
+            target_label  = "unit"
+          }
+
+          rule {
+            source_labels = ["__journal__hostname"]
+            target_label  = "hostname"
+          }
+
+          rule {
+            source_labels = ["__journal_priority_keyword"]
+            target_label  = "level"
+          }
+
+          rule {
+            source_labels = ["__journal_container_name"]
+            target_label  = "container"
+          }
+
+          rule {
+            source_labels = ["__journal__transport"]
+            target_label  = "transport"
+          }
+        }
+
+        // Push logs to Augustus' Loki via mTLS
+        loki.write "remote" {
+          endpoint {
+            url = "${lokiPush.url}/loki/api/v1/push"
+
+            tls_config {
+              ca_file     = "${c.ca.rootCert}"
+              cert_file   = "${directory}/fullchain.pem"
+              key_file    = "${directory}/key.pem"
+            }
+          }
+        }
+      '';
+
+      # Alloy needs journal access + cert access
+      systemd.services.alloy.serviceConfig = {
+        SupplementaryGroups = [ "systemd-journal" "caddy" ];
+      };
+
+      # Ensure Alloy starts after cert is available
+      systemd.services.alloy.after = [ "acme-${ciceroMetrics.domain}.service" ];
+      systemd.services.alloy.wants = [ "acme-${ciceroMetrics.domain}.service" ];
+    };
+}

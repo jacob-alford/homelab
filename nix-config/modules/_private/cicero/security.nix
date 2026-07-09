@@ -27,7 +27,9 @@
       tailscale0 = {
         allowedTCPPorts = [
           22
+          80
           443
+          8443
         ];
       };
     };

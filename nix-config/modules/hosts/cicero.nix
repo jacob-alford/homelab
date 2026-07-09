@@ -19,6 +19,7 @@ in
 
       nixos.system-base
       nixos.step-ca
+      nixos.cicero-observability
 
       ./../_private/cicero/hardware.nix
       ./../_private/cicero/security.nix

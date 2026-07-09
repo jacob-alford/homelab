@@ -164,6 +164,26 @@ in
         stateDir = "/var/lib/grafana";
       };
 
+      loki-push = {
+        subdomain = "loki-push";
+        domain = mkDomain "loki-push";
+        url = mkUrl "loki-push";
+      };
+
+      cicero-metrics = {
+        subdomain = "cicero-metrics";
+        domain = mkDomain "cicero-metrics";
+        url = mkUrl "cicero-metrics";
+        port = 8443;
+        acmePort = 22479;
+      };
+
+      prometheus-client = {
+        subdomain = "prometheus-client";
+        domain = mkDomain "prometheus-client";
+        acmePort = 22480;
+      };
+
       minecraft = {
         port = 25565;
         backupRepository = "/mnt/backups/minecraft-backup";
