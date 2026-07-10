@@ -30,6 +30,12 @@ export const WifiMobileConfigDownload = HttpApiEndpoint.get(
     HttpApiError.HttpApiDecodeError,
   )
   .addError(
+    ApiErrors.HttpApiEncodeError,
+  )
+  .addError(
+    ApiErrors.AuthenticationError,
+  )
+  .addError(
     ApiErrors.AuthorizationError,
   ).setHeaders(
     Schemas.Token.TokenHeaders,

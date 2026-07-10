@@ -1,5 +1,5 @@
 import { HttpApp, HttpServerResponse } from "@effect/platform"
-import { Console, Effect, flow, Match } from "effect"
+import { Effect, flow, Match } from "effect"
 import type { Homelab } from "homelab-api"
 import { ApiErrors, Middleware, Services } from "homelab-services"
 
@@ -19,7 +19,7 @@ export const handleToken = Effect.fn("handleToken")(
 
     return { access_token: accessToken, token_type: "DPoP" as const }
   },
-  Effect.tapError(Console.error),
+  Effect.tapError(Effect.logError),
   Effect.mapError(
     flow(
       Match.value,

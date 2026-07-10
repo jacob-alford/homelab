@@ -1,4 +1,4 @@
-import { Console, Effect, flow, Match, Option } from "effect"
+import { Effect, flow, Match, Option } from "effect"
 import type { Homelab } from "homelab-api"
 import { ApiErrors, Middleware, Services } from "homelab-services"
 import { match } from "ts-pattern"
@@ -33,7 +33,7 @@ export const handleDns = Effect.fn("handleDns")(
 
     return yield* xmlPrintingService.printXml(profile)
   },
-  Effect.tapError(Console.error),
+  Effect.tapError(Effect.logError),
   Effect.mapError(
     flow(
       Match.value,

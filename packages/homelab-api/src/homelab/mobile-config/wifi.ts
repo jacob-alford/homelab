@@ -90,7 +90,13 @@ export const WifiMobileConfig = HttpApiEndpoint.put("wifi")`/wifi/${SSIDParam}/$
     HttpApiError.HttpApiDecodeError,
   )
   .addError(
+    ApiErrors.HttpApiEncodeError,
+  )
+  .addError(
     ApiErrors.AuthorizationError,
+  )
+  .addError(
+    ApiErrors.AuthenticationError,
   )
   .setHeaders(
     Schemas.Token.TokenHeaders,

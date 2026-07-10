@@ -1,4 +1,4 @@
-import { Console, Effect } from "effect"
+import { Effect } from "effect"
 import type { Homelab } from "homelab-api"
 import { Middleware, Services } from "homelab-services"
 
@@ -12,5 +12,5 @@ export const handleClaimCheck = Effect.fn("handleClaimCheck")(
 
     return { claim_check: claimCheck }
   },
-  Effect.tapError(Console.error),
+  Effect.tapError(Effect.log),
 )

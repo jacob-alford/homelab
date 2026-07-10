@@ -13,6 +13,9 @@ export const HealthEndpoint = HttpApiEndpoint.get("health")`/health`
   .addError(
     ApiErrors.AuthorizationError,
   )
+  .addError(
+    ApiErrors.AuthenticationError,
+  )
   .setHeaders(
     Schemas.Token.TokenHeaders,
   )

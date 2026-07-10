@@ -1,4 +1,4 @@
-import { Console, Effect, flow, Match, Option, pipe } from "effect"
+import { Effect, flow, Match, Option, pipe } from "effect"
 import type { Homelab } from "homelab-api"
 import { ApiErrors, Config, Middleware, Operation, Services } from "homelab-services"
 import { match, P } from "ts-pattern"
@@ -75,7 +75,7 @@ export const generateWifiProfile = Effect.fn("generateWifiProfile")(
       profile,
     )
   },
-  Effect.tapError(Console.error),
+  Effect.tapError(Effect.logError),
   Effect.mapError(
     flow(
       Match.value,
@@ -90,7 +90,7 @@ export const generateWifiProfile = Effect.fn("generateWifiProfile")(
             case "ssid-not-found":
               return new ApiErrors.NotFound({
                 reason: err.reason,
-                message: err.message,
+                message: err.error,
               })
             default:
               return new ApiErrors.InternalServerError({
@@ -111,4 +111,5 @@ export const handleWifi = Effect.fn("handleWifi")(
 
     return yield* generateWifiProfile(args)
   },
+  Effect.tapError(Effect.logError),
 )

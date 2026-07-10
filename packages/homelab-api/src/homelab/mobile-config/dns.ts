@@ -20,7 +20,13 @@ export const Dns = HttpApiEndpoint.get("dns")`/dns/${DnsProfileParam}`
   .addError(ApiErrors.InternalServerError)
   .addError(ApiErrors.BadRequest)
   .addError(ApiErrors.AuthorizationError)
+  .addError(
+    ApiErrors.AuthenticationError,
+  )
   .addError(HttpApiError.HttpApiDecodeError)
+  .addError(
+    ApiErrors.HttpApiEncodeError,
+  )
   .setHeaders(Schemas.Token.TokenHeaders)
   .setUrlParams(DnsQueryParams)
 

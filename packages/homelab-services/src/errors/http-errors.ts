@@ -76,7 +76,7 @@ export const AuthenticationErrorReasonsSchema = Schema.Literal(
 )
 
 export class AuthenticationError extends Schema.TaggedError<AuthenticationError>()(
-  "AuthorizationError",
+  "AuthenticationError",
   {
     ...BaseHttpErrorSchema.fields,
     endpoint: OptionalString,
@@ -117,7 +117,7 @@ export class AuthorizationError extends Schema.TaggedError<AuthorizationError>()
 }
 
 export class HttpApiEncodeError extends Schema.TaggedError<HttpApiEncodeError>()(
-  "HttpApiDecodeError",
+  "HttpApiEncodeError",
   {
     issues: Schema.Array(HttpApiError.Issue),
     message: Schema.String,

@@ -8,6 +8,9 @@ export type URI = typeof URI
 export const SelfEndpoint = HttpApiEndpoint.get("self")`/self`
   .addSuccess(Schemas.StatusSelf.StatusSelfResponseSchema)
   .addError(ApiErrors.AuthorizationError)
+  .addError(
+    ApiErrors.AuthenticationError,
+  )
   .addError(ApiErrors.InternalServerError)
   .setHeaders(Schemas.Token.TokenHeaders)
 

@@ -1,4 +1,4 @@
-import { Console, Effect, flow, Match } from "effect"
+import { Effect, flow, Match } from "effect"
 import type { Homelab } from "homelab-api"
 import { ApiErrors, Middleware, Services } from "homelab-services"
 
@@ -14,7 +14,7 @@ export const handleCerts = Effect.fn("handleCerts")(
       yield* certProfileGenerator.certProfile,
     )
   },
-  Effect.tapError(Console.error),
+  Effect.tapError(Effect.logError),
   Effect.mapError(
     flow(
       Match.value,

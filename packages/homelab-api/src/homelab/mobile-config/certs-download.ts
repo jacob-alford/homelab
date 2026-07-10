@@ -9,7 +9,11 @@ export const CertsDownload = HttpApiEndpoint.get("certs-download")`/certs/_downl
   .addError(ApiErrors.BadRequest)
   .addError(ApiErrors.NotFound)
   .addError(HttpApiError.HttpApiDecodeError)
+  .addError(ApiErrors.HttpApiEncodeError)
   .addError(ApiErrors.AuthorizationError)
+  .addError(
+    ApiErrors.AuthenticationError,
+  )
   .setHeaders(Schemas.Token.TokenHeaders)
   .setUrlParams(
     Schemas.Token.AuthQueryParams,

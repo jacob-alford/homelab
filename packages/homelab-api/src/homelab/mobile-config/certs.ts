@@ -23,7 +23,13 @@ export const Certs = HttpApiEndpoint.get("certs")`/certs`
     HttpApiError.HttpApiDecodeError,
   )
   .addError(
+    ApiErrors.HttpApiEncodeError,
+  )
+  .addError(
     ApiErrors.AuthorizationError,
+  )
+  .addError(
+    ApiErrors.AuthenticationError,
   )
   .setHeaders(
     Schemas.Token.TokenHeaders,
