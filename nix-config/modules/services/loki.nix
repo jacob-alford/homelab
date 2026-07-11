@@ -53,6 +53,24 @@ in
             retention_period = "30d";
             allow_structured_metadata = true;
             volume_enabled = true;
+            discover_log_levels = true;
+            log_level_fields = [
+              "level"
+              "LEVEL"
+              "Level"
+              "log.level"
+              "severity"
+              "SEVERITY"
+              "Severity"
+              "SeverityText"
+              "lvl"
+              "LVL"
+              "Lvl"
+              "severity_text"
+              "Severity_Text"
+              "SEVERITY_TEXT"
+            ];
+            log_level_from_json_max_depth = 2;
           };
 
           compactor = {

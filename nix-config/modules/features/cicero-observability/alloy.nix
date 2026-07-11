@@ -44,7 +44,7 @@ in
 
           rule {
             source_labels = ["__journal_priority_keyword"]
-            target_label  = "level"
+            target_label  = "syslevel"
           }
 
           rule {
