@@ -72,7 +72,7 @@ export const jsonLogger = Logger.make<unknown, unknown>(
 
 export const jsonConsoleLogger = jsonLogger.pipe(
   Logger.map(Inspectable.stringifyCircular),
-  Logger.withConsoleLog,
+  Logger.withLeveledConsole,
 )
 
 export const LoggerLive = Layer.unwrapEffect(
