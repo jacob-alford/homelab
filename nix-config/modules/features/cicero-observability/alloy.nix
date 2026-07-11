@@ -16,6 +16,7 @@ in
         enable = true;
         extraFlags = [
           "--server.http.listen-addr=127.0.0.1:${toString alloySvc.port}"
+          "--disable-reporting"
         ];
       };
 
@@ -76,7 +77,10 @@ in
         DynamicUser = lib.mkForce false;
         User = "alloy";
         Group = "alloy";
-        SupplementaryGroups = [ "systemd-journal" "cicero-observability" ];
+        SupplementaryGroups = [
+          "systemd-journal"
+          "cicero-observability"
+        ];
       };
 
       systemd.tmpfiles.rules = [

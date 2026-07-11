@@ -17,6 +17,7 @@ in
         enable = true;
         extraFlags = [
           "--server.http.listen-addr=127.0.0.1:${toString svc.port}"
+          "--disable-reporting"
         ];
       };
 
