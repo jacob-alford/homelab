@@ -2,6 +2,7 @@
 let
   c = config.constants;
   ciceroMetrics = c.services.cicero-metrics;
+  stepCa = c.ca;
 in
 {
   flake.modules.nixos.cicero-observability-caddy =
@@ -38,6 +39,22 @@ in
             }
           }
           reverse_proxy 127.0.0.1:9100
+        '';
+      };
+
+      # mTLS-guarded metrics endpoint (step-ca)
+      # Caddy obtains its own server cert via built-in ACME from step-ca
+      services.caddy.virtualHosts."https://${stepCa.metricsDomain}:${toString stepCa.metricsPort}" = {
+        extraConfig = ''
+          tls {
+            client_auth {
+              mode require_and_verify
+              trust_pool file {
+                pem_file ${c.ca.rootCert}
+              }
+            }
+          }
+          reverse_proxy 127.0.0.1:${builtins.toString stepCa.metricsPortInternal}
         '';
       };
     };

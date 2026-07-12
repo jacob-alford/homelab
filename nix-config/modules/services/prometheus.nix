@@ -52,6 +52,24 @@ in
             metrics_path = "/metrics";
           }
           {
+            job_name = "step-ca";
+            static_configs = [
+              { targets = [ c.ca.metricsBaseUrl ]; }
+            ];
+            scheme = "https";
+            tls_config = {
+              ca_file = toString c.ca.rootCert;
+              cert_file = "${
+                config.security.acme.certs."${c.services.prometheus-client.domain}".directory
+              }/fullchain.pem";
+              key_file = "${
+                config.security.acme.certs."${c.services.prometheus-client.domain}".directory
+              }/key.pem";
+              server_name = c.ca.metricsBaseUrl;
+            };
+            metrics_path = "/metrics";
+          }
+          {
             job_name = "postgres";
             static_configs = [
               { targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.postgres.port}" ]; }
@@ -62,8 +80,12 @@ in
             scheme = "https";
             tls_config = {
               ca_file = toString c.ca.rootCert;
-              cert_file = "${config.security.acme.certs."${c.services.prometheus-client.domain}".directory}/fullchain.pem";
-              key_file = "${config.security.acme.certs."${c.services.prometheus-client.domain}".directory}/key.pem";
+              cert_file = "${
+                config.security.acme.certs."${c.services.prometheus-client.domain}".directory
+              }/fullchain.pem";
+              key_file = "${
+                config.security.acme.certs."${c.services.prometheus-client.domain}".directory
+              }/key.pem";
               server_name = c.services.cicero-metrics.domain;
             };
             static_configs = [

@@ -23,6 +23,11 @@ in
     ca = {
       domain = mkDomain "ca";
       url = mkUrl "ca";
+      metricsPort = 8443;
+      metricsPortInternal = 43379;
+      metricsDomain = mkDomain "ca-monitoring";
+      metricsBaseUrl = "https://${mkDomain "ca-monitoring"}:8443";
+      metricsUrl = "https://${mkDomain "ca-monitoring"}:8443/metrics";
       acmeDirectory = "https://${mkDomain "ca"}/acme/acme/directory";
       acmeDirectoryHttp = "https://${mkDomain "ca"}/acme/http/directory";
       acmeDirectoryClients = "https://${mkDomain "ca"}/acme/eap/directory";

@@ -27,6 +27,8 @@ in
           crt = c.ca.intermediateCert;
           key = "yubikey:slot-id=9c";
 
+          metricsAddress = "http://localhost:${builtins.toString c.ca.metricsPortInternal}";
+
           insecureAddress = "";
 
           dnsNames = [ svc.domain ];
