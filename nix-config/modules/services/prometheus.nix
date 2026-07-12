@@ -65,7 +65,7 @@ in
               key_file = "${
                 config.security.acme.certs."${c.services.prometheus-client.domain}".directory
               }/key.pem";
-              server_name = c.ca.metricsBaseUrl;
+              server_name = c.ca.metricsDomain;
             };
             metrics_path = "/metrics";
           }
