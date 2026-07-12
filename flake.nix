@@ -133,6 +133,11 @@
                   command = "nixos-rebuild --target-host jacob@cicero.plato-splunk.media switch --flake .#cicero --sudo --ask-sudo-password";
                 }
                 {
+                  name = "rollback-cicero";
+                  help = "Rellback Cicero one generation over ssh";
+                  command = "nixos-rebuild --target-host jacob@cicero.plato-splunk.media switch --rollback --flake .#cicero --sudo --ask-sudo-password";
+                }
+                {
                   name = "remote-build-augustus";
                   help = "Rebuild Augustus over ssh";
                   command = "nixos-rebuild --target-host jacob@augustus.plato-splunk.media switch --flake .#augustus --sudo --ask-sudo-password";
