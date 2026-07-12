@@ -39,7 +39,7 @@ in
           };
 
           logger = {
-            format = "text";
+            format = "json";
           };
 
           db = {
