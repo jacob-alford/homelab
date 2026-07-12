@@ -133,9 +133,14 @@
                   command = "nixos-rebuild --target-host jacob@cicero.plato-splunk.media switch --flake .#cicero --sudo --ask-sudo-password";
                 }
                 {
+                  name = "remote-build-cicero-backup";
+                  help = "Rebuild Cicero over ssh";
+                  command = "nixos-rebuild --target-host jacob@cicero.neko-bicolor.ts.net switch --flake .#cicero --sudo --ask-sudo-password";
+                }
+                {
                   name = "rollback-cicero";
                   help = "Rellback Cicero one generation over ssh";
-                  command = "nixos-rebuild --target-host jacob@cicero.plato-splunk.media switch --rollback --flake .#cicero --sudo --ask-sudo-password";
+                  command = "nixos-rebuild --target-host jacob@cicero.neko-bicolor.ts.net switch --rollback --flake .#cicero --sudo --ask-sudo-password";
                 }
                 {
                   name = "remote-build-augustus";
