@@ -27,7 +27,7 @@ in
           crt = c.ca.intermediateCert;
           key = "yubikey:slot-id=9c";
 
-          metricsAddress = "http://localhost:${builtins.toString c.ca.metricsPortInternal}";
+          metricsAddress = "127.0.0.1:${builtins.toString c.ca.metricsPortInternal}";
 
           insecureAddress = "";
 

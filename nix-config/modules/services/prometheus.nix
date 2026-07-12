@@ -54,7 +54,7 @@ in
           {
             job_name = "step-ca";
             static_configs = [
-              { targets = [ c.ca.metricsBaseUrl ]; }
+              { targets = [ "${c.ca.metricsDomain}:${toString c.ca.metricsPort}" ]; }
             ];
             scheme = "https";
             tls_config = {

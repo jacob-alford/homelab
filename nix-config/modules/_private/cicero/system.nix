@@ -14,6 +14,7 @@
     "127.0.0.1" = [
       "ca.plato-splunk.media"
       "cicero-metrics.plato-splunk.media"
+      "ca-monitoring.plato-splunk.media"
     ];
   };
 
