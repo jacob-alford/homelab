@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, inputs, ... }:
 let
   c = config.constants;
   ciceroMetrics = c.services.cicero-metrics;
@@ -8,14 +8,16 @@ in
   flake.modules.nixos.cicero-observability-caddy =
     { config, lib, ... }:
     {
+      imports = [
+        inputs.self.modules.nixos.caddy
+      ];
+
       services.caddy = {
         enable = true;
         globalConfig = ''
           https_port 8443
         '';
-        # Use internal step-ca for Caddy's own server certs
-        email = c.acme.email;
-        acmeCA = c.ca.acmeDirectoryHttp;
+        useInternalCA = true;
       };
 
       # HTTP vhost on port 80 to serve ACME http-01 challenges
