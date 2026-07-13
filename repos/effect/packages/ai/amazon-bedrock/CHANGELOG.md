@@ -1,5 +1,26 @@
 # @effect/ai-amazon-bedrock
 
+## 0.17.0
+
+### Patch Changes
+
+- Updated dependencies [[`fffdee0`](https://github.com/Effect-TS/effect/commit/fffdee0cc55bf72bd233fdf3e6894cdae7e29560)]:
+  - effect@3.22.0
+  - @effect/ai@0.37.0
+  - @effect/ai-anthropic@0.27.0
+  - @effect/experimental@0.61.0
+  - @effect/platform@0.97.0
+
+## 0.16.1
+
+### Patch Changes
+
+- [#6272](https://github.com/Effect-TS/effect/pull/6272) [`1876254`](https://github.com/Effect-TS/effect/commit/18762540d77a79006a1cf88a78ef92c7e072b8e2) Thanks @tsushanth! - Fix `@effect/ai-amazon-bedrock` streaming so the terminal `"finish"` part carries real token counts. The Bedrock Converse stream sends `metadata` (with the populated `usage` block) **after** `messageStop`, but the SDK was emitting `"finish"` synchronously on `messageStop`, capturing the still-empty `usage` defaults. Buffer the finish reason on `messageStop` and emit `"finish"` from the `metadata` case once `inputTokens` / `outputTokens` / `totalTokens` are filled in.
+
+- Updated dependencies [[`8222963`](https://github.com/Effect-TS/effect/commit/8222963e76b80e62f27d0301bc4cdac73e73bdfc), [`7e00169`](https://github.com/Effect-TS/effect/commit/7e00169ae0a98d0619dc75857ce0a771e7c83da6)]:
+  - effect@3.21.4
+  - @effect/platform@0.96.2
+
 ## 0.16.0
 
 ### Patch Changes
