@@ -157,9 +157,9 @@ const CORE_NAV_SECTIONS: NavSection[] = [
 				href: "/docs/core/components/radio-group",
 			},
 			{
-				title: "Rating Group",
-				href: "/docs/core/components/rating-group",
-				status: "unreleased",
+				title: "Rating",
+				href: "/docs/core/components/rating",
+				status: "new",
 			},
 			{
 				title: "Search",
@@ -200,7 +200,7 @@ const CORE_NAV_SECTIONS: NavSection[] = [
 			{
 				title: "Time Field",
 				href: "/docs/core/components/time-field",
-				status: "unreleased",
+				status: "new",
 			},
 			{
 				title: "Toast",
