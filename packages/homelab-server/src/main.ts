@@ -5,6 +5,7 @@ import { Layers, Shell } from "homelab-services-node"
 import { ApiLive } from "./api.js"
 import { EnvLive } from "./env.js"
 import { LoggerLive } from "./logger.js"
+import { OtelLive } from "./otel.js"
 import { HttpServerLive } from "./server.js"
 import { ProfileUuidConfigLive } from "./uuids.js"
 
@@ -12,6 +13,7 @@ const Server = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(HttpApiSwagger.layer()),
   Layer.provide(HttpApiBuilder.middlewareOpenApi()),
   Layer.provide(LoggerLive),
+  Layer.provide(OtelLive),
   Layer.provide(ApiLive),
   Layer.provide(Shell.Authentication.Aggregate),
   Layer.provide(Shell.Authorization.Aggregate),

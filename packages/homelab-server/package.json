@@ -6,7 +6,7 @@
   "description": "Effect-ts Bun HTTP Server implementation for homelab services",
   "scripts": {
     "circular": "yarn madge --circular ./src/api.ts",
-    "dev": "tsx --env-file=.env-local --watch src/main.ts",
+    "dev": "HOMELAB_COMMIT_HASH=$(git rev-parse HEAD) tsx --env-file=.env-local --watch src/main.ts",
     "build": "rolldown -c",
     "serve": "dotenvx run -f .env-local -- node ./dist/main.js",
     "lint": "eslint src",
