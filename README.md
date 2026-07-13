@@ -7,7 +7,7 @@ A tiny state manager for **React**, **React Native**, **Preact**, **Vue**,
 **Svelte**, **Solid**, **Lit**, **Angular**, and vanilla JS.
 It uses **many atomic stores** and direct manipulation.
 
-- **Small.** Between 294 and 831 bytes (minified and brotlied).
+- **Small.** Between 340 and 864 bytes (minified and brotlied).
   Zero dependencies. It uses [Size Limit] to control size.
 - **Fast.** With small atomic and derived stores, you do not need to call
   the selector function for all components on every store change.
@@ -72,6 +72,7 @@ export const Admins = () => {
   - [Lazy Stores](#lazy-stores)
   - [Computed Stores](#computed-stores)
   - [Effects](#effects)
+  - [Batching](#batching)
   - [Map Creator](#map-creator)
   - [Tasks](#tasks)
   - [Store Events](#store-events)
@@ -106,6 +107,9 @@ npm install nanostores
   to fetch data or create chains of async operations.
 - [Persistent](https://github.com/nanostores/persistent) store to save data
   to `localStorage` and synchronize changes between browser tabs.
+- [Storage](https://github.com/vp-tw/nanostores-storage) stores for advanced
+  storage use cases with `localStorage`, `sessionStorage`, memory, and custom
+  adapters.
 - [Router](https://github.com/nanostores/router) store to parse URL
   and implements SPA navigation.
 - [Media Query](https://github.com/nanostores/media-query) store sync value
@@ -118,6 +122,8 @@ npm install nanostores
   remote data fetching.
 - [SQL](https://github.com/nanostores/sql) reactive store for `SELECT` from
   SQLite for browser or React Native.
+- [dataLayer](https://github.com/vp-tw/nanostores-data-layer) store to sync
+  Google Tag Manager `dataLayer` pushes with Nano Stores.
 - [Logux Client](https://github.com/logux/client): stores with WebSocket
   sync and CRDT conflict resolution.
 - [Immer](https://github.com/illuxiza/nanostores-immer) plugin to
@@ -250,6 +256,15 @@ You can also listen for specific keys of the store being changed, using
 ```ts
 listenKeys($profile, ['name'], (value, oldValue, changed) => {
   console.log(`$profile.Name new value ${value.name}`)
+})
+```
+
+Nested mutations can be listened to using a base key. For example, listening to `user` will trigger on `user.name` mutations:
+
+```ts
+// Mutating user.name triggers the listener
+listenKeys($state, ['user'], (value, oldValue, changed) => {
+  console.log(`user changed: ${changed}`)
 })
 ```
 
@@ -390,6 +405,32 @@ const cancelPing = effect([$enabled, $interval], (enabled, interval) => {
   }
 })
 ```
+
+### Batching
+
+`batch` groups multiple store writes into a single transaction. Listeners and
+effects fire at most once when the outermost `batch` returns, observing the
+final values. Batches can be nested; only the outermost flush triggers the
+notifications.
+
+```js
+import { atom, batch } from 'nanostores'
+
+const $firstName = atom('')
+const $lastName = atom('')
+
+batch(() => {
+  $firstName.set('Ada')
+  $lastName.set('Lovelace')
+})
+// effects depending on either atom run once, with both new values visible
+```
+
+Inside a `batch`, `Map#setKey` writes are coalesced too. The listener fires
+once and its `changed` argument is `undefined` (the batch touched multiple
+keys), so `listenKeys` subscribers fire once regardless of which key they
+watch. Outside a `batch`, each `setKey` still notifies with its own `changed`
+key as before.
 
 ### Map Creator
 
@@ -816,18 +857,3 @@ to subscribe to store changes and always render the actual data.
 - const { userId } = $profile.get()
 + const { userId } = useStore($profile)
 ```
-
-## Known Issues
-
-### ESM
-
-Nano Stores use ESM-only package. You need to use ES modules
-in your application to import Nano Stores.
-
-In Next.js ≥11.1 you can alternatively use the [`esmExternals`] config option.
-
-For old Next.js you need to use [`next-transpile-modules`] to fix
-lack of ESM support in Next.js.
-
-[`next-transpile-modules`]: https://www.npmjs.com/package/next-transpile-modules
-[`esmExternals`]: https://nextjs.org/blog/next-11-1#es-modules-support
