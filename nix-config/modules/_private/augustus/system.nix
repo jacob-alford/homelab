@@ -51,6 +51,12 @@
 
   services.caddy.useInternalCA = true;
 
+  # Caddy OpenTelemetry tracing (Augustus-only, exports to local Tempo)
+  systemd.services.caddy.environment = {
+    OTEL_EXPORTER_OTLP_TRACES_ENDPOINT = "http://127.0.0.1:4317";
+    OTEL_SERVICE_NAME = "caddy";
+  };
+
   services.tailscale.enable = true;
 
   environment.etc."sysctl.d/99-tailscale.conf".text = ''

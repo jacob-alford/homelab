@@ -39,6 +39,7 @@ in
       nixos.prometheus
       nixos.loki
       nixos.alloy
+      nixos.tempo
       nixos.grafana
       nixos.homelab-api
       nixos.homelab-kanidm

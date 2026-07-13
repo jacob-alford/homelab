@@ -207,6 +207,9 @@ in
       services.caddy.virtualHosts."https://${svc.domain}" = {
         extraConfig = ''
           tls "${directory}/fullchain.pem" "${directory}/key.pem"
+          tracing {
+            span kanidm
+          }
           reverse_proxy ${config.services.kanidm.provision.instanceUrl} {
             header_up HOST {host}
             transport http {
@@ -257,6 +260,10 @@ in
         package = pkgs.writeShellScriptBin "restic" ''
           exec /run/wrappers/bin/restic "$@"
         '';
+      };
+
+      systemd.services.kanidm.environment = {
+        KANIDM_OTEL_GRPC_URL = "http://127.0.0.1:${toString c.services.tempo.grpcPort}";
       };
 
       services.failure-notifs.attachServices = [

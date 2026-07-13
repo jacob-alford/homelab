@@ -1,20 +1,28 @@
 { config, ... }:
 let
-  svc = config.constants.services.homelab;
+  c = config.constants;
+  svc = c.services.homelab;
 in
 {
   flake.modules.nixos.homelab-api-caddy =
-    { config, ... }:
+    { config, lib, ... }:
+    let
+      tracingBlock = lib.optionalString config.services.tempo.enable ''
+        tracing {
+          span homelab-api
+        }
+      '';
+    in
     {
       services.caddy.virtualHosts."${svc.url}" = {
         extraConfig = ''
-          reverse_proxy 127.0.0.1:${builtins.toString svc.port}
+          ${tracingBlock}reverse_proxy 127.0.0.1:${builtins.toString svc.port}
         '';
       };
 
       services.caddy.virtualHosts."${svc.insecureUrl}" = {
         extraConfig = ''
-          reverse_proxy 127.0.0.1:${builtins.toString svc.port}
+          ${tracingBlock}reverse_proxy 127.0.0.1:${builtins.toString svc.port}
         '';
       };
     };

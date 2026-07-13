@@ -4,6 +4,7 @@ let
   svc = c.services.grafana;
   promSvc = c.services.prometheus;
   lokiSvc = c.services.loki;
+  tempoSvc = c.services.tempo;
 in
 {
   flake.modules.nixos.grafana =
@@ -104,6 +105,39 @@ in
               url = "http://127.0.0.1:${toString lokiSvc.port}";
               access = "proxy";
               orgId = 1;
+            }
+            {
+              name = "Tempo";
+              type = "tempo";
+              uid = "tempo";
+              url = "http://127.0.0.1:${toString tempoSvc.port}";
+              access = "proxy";
+              orgId = 1;
+              jsonData = {
+                tracesToLogsV2 = {
+                  datasourceUid = "loki";
+                  filterByTraceID = true;
+                  filterBySpanID = false;
+                  customQuery = false;
+                };
+                tracesToMetrics = {
+                  datasourceUid = "prometheus";
+                };
+                serviceMap = {
+                  datasourceUid = "prometheus";
+                };
+                nodeGraph = {
+                  enabled = true;
+                };
+                search = {
+                  hide = false;
+                };
+                traceQuery = {
+                  timeShiftEnabled = true;
+                  spanStartTimeShift = "-1h";
+                  spanEndTimeShift = "1h";
+                };
+              };
             }
           ];
 
@@ -391,10 +425,12 @@ in
         after = [
           "prometheus.service"
           "loki.service"
+          "tempo.service"
         ];
         requires = [
           "prometheus.service"
           "loki.service"
+          "tempo.service"
         ];
       };
 

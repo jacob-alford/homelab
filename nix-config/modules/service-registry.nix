@@ -160,6 +160,12 @@ in
         port = 12345;
       };
 
+      tempo = {
+        port = 3200;
+        grpcPort = 4317;
+        stateDir = "/var/lib/tempo";
+      };
+
       grafana = {
         subdomain = "grafana";
         domain = mkDomain "grafana";

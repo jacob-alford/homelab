@@ -185,6 +185,7 @@ in
             ACME_KEY_TYPE=ECSECPrimeRandom
             ACME_KEY_SIZE=256
             ${if cfg.serialNumbersFile != null then "SERIAL_NUMBERS_FILE=${cfg.serialNumbersFile}" else ""}
+            ${if config.services.tempo.enable then "OTEL_GRPC_ENDPOINT_URL=http://127.0.0.1:${toString c.services.tempo.grpcPort}" else ""}
           '';
         };
 
