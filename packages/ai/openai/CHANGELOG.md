@@ -1,5 +1,37 @@
 # @effect/ai-openai
 
+## 0.41.0
+
+### Patch Changes
+
+- Updated dependencies [[`fffdee0`](https://github.com/Effect-TS/effect/commit/fffdee0cc55bf72bd233fdf3e6894cdae7e29560)]:
+  - effect@3.22.0
+  - @effect/ai@0.37.0
+  - @effect/experimental@0.61.0
+  - @effect/platform@0.97.0
+
+## 0.40.2
+
+### Patch Changes
+
+- [#6297](https://github.com/Effect-TS/effect/pull/6297) [`3e59443`](https://github.com/Effect-TS/effect/commit/3e59443be029e99d2b457bb43f682feb5ebcd2e0) Thanks @shtse8! - Map the OpenAI Responses `max_output_tokens` finish reason to `length` instead of falling through to `unknown`.
+
+- Updated dependencies [[`307d54a`](https://github.com/Effect-TS/effect/commit/307d54a54beb3407b8bcf50c943523433267e33b), [`d95868a`](https://github.com/Effect-TS/effect/commit/d95868a1c92dc8ea4b203ee56c29ac209e507634), [`95c7d2e`](https://github.com/Effect-TS/effect/commit/95c7d2ed435cf4cc954cf015304952a0fffbebc7), [`d24511f`](https://github.com/Effect-TS/effect/commit/d24511fee929d4cb98ab2a86387de4ea290f11ff), [`99d5575`](https://github.com/Effect-TS/effect/commit/99d5575a1401b375b5a73f87fb5bf7e46c372f2f)]:
+  - effect@3.21.5
+  - @effect/platform@0.96.3
+
+## 0.40.1
+
+### Patch Changes
+
+- [#6281](https://github.com/Effect-TS/effect/pull/6281) [`2e01a9e`](https://github.com/Effect-TS/effect/commit/2e01a9e8cdf3963136dc46c6df69a92b3c5006de) Thanks @mollyegibson! - Skip unrecognized or malformed events in OpenAI streaming responses instead of aborting the whole stream.
+
+  OpenAI emits events that are absent from the generated OpenAPI schema — most visibly `{"type":"keepalive"}` SSE heartbeats during long Responses turns (reasoning, tool calls, web search). These previously failed strict per-event decoding with `MalformedOutput` and tore down the entire in-progress stream. Such frames are now skipped (logged at debug level) and the stream continues; every recognized event is still decoded as before.
+
+- Updated dependencies [[`8222963`](https://github.com/Effect-TS/effect/commit/8222963e76b80e62f27d0301bc4cdac73e73bdfc), [`7e00169`](https://github.com/Effect-TS/effect/commit/7e00169ae0a98d0619dc75857ce0a771e7c83da6)]:
+  - effect@3.21.4
+  - @effect/platform@0.96.2
+
 ## 0.40.0
 
 ### Patch Changes
