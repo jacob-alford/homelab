@@ -1,15 +1,13 @@
 import type { RouteData, SSRResult } from '../../../types/public/internal.js';
+import { isRoute404, isRoute500 } from '../../../core/routing/internal/route-errors.js';
+import { isPropagatingHint } from '../../../core/head-propagation/resolver.js';
 import { renderToAsyncIterable, renderToReadableStream, renderToString } from './astro/render.js';
 import { encoder } from './common.js';
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
-import { markHTMLString } from '../escape.js';
 import { renderCspContent } from './csp.js';
 import type { AstroComponentFactory } from './index.js';
 import { isDeno, isNode } from './util.js';
 import { isAstroComponentFactory } from './astro/factory.js';
-import { buildRenderQueue } from './queue/builder.js';
-import { renderQueue } from './queue/renderer.js';
-import { chunkToString } from './common.js';
 
 export async function renderPage(
 	result: SSRResult,
@@ -20,68 +18,27 @@ export async function renderPage(
 	route?: RouteData,
 ): Promise<Response> {
 	if (!isAstroComponentFactory(componentFactory)) {
-		result._metadata.headInTree =
-			result.componentMetadata.get((componentFactory as any).moduleId)?.containsHead ?? false;
+		const nonAstroMeta = result.componentMetadata.get((componentFactory as any).moduleId);
+		result._metadata.headInTree = nonAstroMeta?.containsHead ?? false;
+		result._metadata.routeHasPropagation = isPropagatingHint(nonAstroMeta?.propagation ?? 'none');
 
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
 
-		let str: string;
-
-		// Check if queue rendering is enabled
-		if (result._experimentalQueuedRendering && result._experimentalQueuedRendering.enabled) {
-			// Queue rendering: Call the component to get the render result,
-			// then process it through the queue system
-
-			// Call the component function to get the vnode tree
-			let vnode = await (componentFactory as any)(pageProps);
-
-			// .html pages return plain strings that are already valid HTML.
-			// Mark them as safe HTML so the queue builder doesn't escape the content.
-			if ((componentFactory as any)['astro:html'] && typeof vnode === 'string') {
-				vnode = markHTMLString(vnode);
-			}
-
-			// Build a render queue from the vnode tree
-			const queue = await buildRenderQueue(
-				vnode,
-				result,
-				result._experimentalQueuedRendering.pool!,
-			);
-
-			// Render the queue to a string
-			let html = '';
-			let renderedFirst = false;
-			const destination = {
-				write(chunk: any) {
-					if (chunk instanceof Response) return;
-
-					// Add doctype if this is the first chunk and it doesn't already have one
-					if (!renderedFirst && !result.partial) {
-						renderedFirst = true;
-						const chunkStr = String(chunk);
-						if (!/<!doctype html/i.test(chunkStr)) {
-							const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
-							html += doctype;
-						}
-					}
-
-					html += chunkToString(result, chunk);
-				},
-			};
-			await renderQueue(queue, destination);
-			str = html;
-		} else {
-			// Standard rendering path (non-MDX or queue rendering disabled)
-			str = await renderComponentToString(
-				result,
-				componentFactory.name,
-				componentFactory,
-				pageProps,
-				{},
-				true,
-				route,
-			);
-		}
+		// Non-Astro page components (MDX, `.html`, and raw framework components
+		// rendered through the Container API) go through `renderComponentToString`,
+		// which dispatches to the correct renderer: the `astro:jsx` renderer for
+		// MDX (which also wraps runtime errors with a helpful hint and streams the
+		// content), the HTML renderer for `.html`, and framework renderers for
+		// components. It also injects the `<head>` for layout-less MDX pages.
+		const str = await renderComponentToString(
+			result,
+			(componentFactory as NonAstroPageComponent).name,
+			componentFactory,
+			pageProps,
+			{},
+			true,
+			route,
+		);
 
 		const bytes = encoder.encode(str);
 		const headers = new Headers([
@@ -103,8 +60,12 @@ export async function renderPage(
 
 	// Mark if this page component contains a <head> within its tree. If it does
 	// We avoid implicit head injection entirely.
-	result._metadata.headInTree =
-		result.componentMetadata.get(componentFactory.moduleId!)?.containsHead ?? false;
+	const pageMeta = result.componentMetadata.get(componentFactory.moduleId!);
+	result._metadata.headInTree = pageMeta?.containsHead ?? false;
+	// Only routes on a propagation path need to await async slot pre-renders
+	// before flushing the head (see `collectPropagatedHeadParts`). Other routes
+	// keep streaming without blocking the head on unrelated markup `await`s.
+	result._metadata.routeHasPropagation = isPropagatingHint(pageMeta?.propagation ?? 'none');
 
 	let body: BodyInit | Response;
 	if (streaming) {
@@ -149,13 +110,13 @@ export async function renderPage(
 	}
 	let status = init.status;
 	let statusText = init.statusText;
-	// Custom 404.astro and 500.astro are particular routes that must return a fixed status code
-	if (route?.route === '/404') {
+	// Custom root 404.astro and 500.astro routes must return fixed status codes.
+	if (route?.route && isRoute404(route.route)) {
 		status = 404;
 		if (statusText === 'OK') {
 			statusText = 'Not Found';
 		}
-	} else if (route?.route === '/500') {
+	} else if (route?.route && isRoute500(route.route)) {
 		status = 500;
 		if (statusText === 'OK') {
 			statusText = 'Internal Server Error';

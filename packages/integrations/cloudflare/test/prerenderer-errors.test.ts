@@ -19,7 +19,7 @@ describe('Cloudflare prerenderer errors', () => {
 	it('includes workerd error details when getStaticPaths fails', async () => {
 		await assert.rejects(
 			async () => {
-				await fixture.build({}, { teardownCompiler: true });
+				await fixture.build({});
 			},
 			(error) => {
 				assert.ok(error instanceof Error);
@@ -28,6 +28,33 @@ describe('Cloudflare prerenderer errors', () => {
 					/Failed to get static paths from the Cloudflare prerender server/,
 				);
 				assert.match(error.message, /getStaticPaths\(\).*required for dynamic routes/);
+				return true;
+			},
+		);
+	});
+});
+
+describe('Cloudflare prerenderer render errors', () => {
+	let fixture: Fixture;
+	before(async () => {
+		fixture = await loadFixture({
+			root: new URL('./fixtures/prerenderer-render-error/', import.meta.url).toString(),
+			adapter: cloudflare(),
+		});
+	});
+
+	after(async () => {
+		await fixture.clean();
+	});
+
+	it('fails the build when a page throws during prerendering', async () => {
+		await assert.rejects(
+			async () => {
+				await fixture.build({});
+			},
+			(error) => {
+				assert.ok(error instanceof Error);
+				assert.match(error.message, /Failed to prerender/);
 				return true;
 			},
 		);

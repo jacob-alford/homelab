@@ -5,6 +5,7 @@ import {
 } from '@astrojs/internal-helpers/path';
 import { matchPattern } from '@astrojs/internal-helpers/remote';
 import { computePathnameFromDomain } from '../i18n/domain.js';
+import { isLocalizedErrorRoute } from '../../i18n/error-routes.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RemotePattern, RouteData } from '../../types/public/index.js';
 import { type Pipeline, PipelineFeatures } from '../base-pipeline.js';
@@ -19,8 +20,8 @@ import type { FetchHandler } from '../fetch/types.js';
 import { appSymbol } from '../constants.js';
 import { DefaultErrorHandler } from '../errors/default-handler.js';
 import type { ErrorHandler } from '../errors/handler.js';
+import { isRoute404, isRoute500 } from '../routing/internal/route-errors.js';
 import { setRenderOptions } from './render-options.js';
-import { MultiLevelEncodingError } from '../util/pathname.js';
 import type { WaitUntilHook } from '../wait-until.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
@@ -118,6 +119,8 @@ type ErrorPagePath =
 	| `${string}/500`
 	| `${string}/404/`
 	| `${string}/500/`
+	| `${string}/404/index.html`
+	| `${string}/500/index.html`
 	| `${string}404.html`
 	| `${string}500.html`;
 
@@ -137,7 +140,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	#errorHandler: ErrorHandler;
 
 	/**
-	 * Whether a custom fetch handler (from `src/app.ts`) has been set
+	 * Whether a custom fetch handler (from `src/fetch.ts`) has been set
 	 * via `setFetchHandler`. When false, the `DefaultFetchHandler` is
 	 * in use and all features are implicitly active.
 	 */
@@ -176,7 +179,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	/**
 	 * Override the fetch handler used to dispatch requests. Entrypoints
 	 * call this with the default export of `virtual:astro:fetchable` to
-	 * plug in a user-authored handler from `src/app.ts`.
+	 * plug in a user-authored handler from `src/fetch.ts`.
 	 */
 	setFetchHandler(handler: { fetch: FetchHandler }): void {
 		this.#fetchHandler = handler;
@@ -407,24 +410,15 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		};
 
 		let response: Response;
-		try {
-			if (this.#fetchHandler instanceof DefaultFetchHandler) {
-				// Fast path: pass options directly, skip Reflect.set/get round-trip
-				Reflect.set(request, appSymbol, this);
-				response = await this.#fetchHandler.renderWithOptions(request, resolvedOptions);
-			} else {
-				// User-provided fetch handler: stamp options + app on the request
-				setRenderOptions(request, resolvedOptions);
-				Reflect.set(request, appSymbol, this);
-				response = await this.#fetchHandler.fetch(request);
-			}
-		} catch (err: any) {
-			// Multi-level encoding (e.g., %2561 → %61) is rejected during URL
-			// normalization in FetchState. Return 400 without rendering an error page.
-			if (err instanceof MultiLevelEncodingError) {
-				return new Response('Bad Request', { status: 400 });
-			}
-			throw err;
+		if (this.#fetchHandler instanceof DefaultFetchHandler) {
+			// Fast path: pass options directly, skip Reflect.set/get round-trip
+			Reflect.set(request, appSymbol, this);
+			response = await this.#fetchHandler.renderWithOptions(request, resolvedOptions);
+		} else {
+			// User-provided fetch handler: stamp options + app on the request
+			setRenderOptions(request, resolvedOptions);
+			Reflect.set(request, appSymbol, this);
+			response = await this.#fetchHandler.fetch(request);
 		}
 		this.#warnMissingFeatures();
 		if (response.headers.get(ASTRO_ERROR_HEADER)) {
@@ -474,7 +468,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	}
 
 	/**
-	 * One-shot check: after the first request with a custom `src/app.ts`,
+	 * One-shot check: after the first request with a custom `src/fetch.ts`,
 	 * compare `usedFeatures` against the manifest and warn about any
 	 * configured features the user's pipeline doesn't call.
 	 */
@@ -512,8 +506,8 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		for (const feature of missing) {
 			this.logger.warn(
 				'router',
-				`Your project uses ${feature}, but your custom src/app.ts does not call the ${feature}() handler. ` +
-					`This feature will not work unless you add it to your app.ts pipeline.`,
+				`Your project uses ${feature}, but your custom src/fetch.ts does not call the ${feature}() handler. ` +
+					`This feature will not work unless you add it to your fetch.ts pipeline.`,
 			);
 		}
 	}
@@ -527,8 +521,13 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			}
 		}
 		const route = removeTrailingForwardSlash(routeData.route);
-		if (route.endsWith('/404')) return 404;
-		if (route.endsWith('/500')) return 500;
+		const locales = this.manifest.i18n?.locales;
+		if (isRoute404(route) || isLocalizedErrorRoute(route, 404, locales)) {
+			return 404;
+		}
+		if (isRoute500(route) || isLocalizedErrorRoute(route, 500, locales)) {
+			return 500;
+		}
 		return 200;
 	}
 

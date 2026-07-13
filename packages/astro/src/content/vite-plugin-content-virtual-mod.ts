@@ -26,9 +26,45 @@ import {
 import { getDataStoreFile } from './content-layer.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
 
+/**
+ * Above this serialized data store size (in bytes), the dev server emits the
+ * store as a JSON string parsed at runtime instead of a JS object literal.
+ *
+ * In dev, Vite's `ssrTransformScript` parses the module via rolldown/oxc-parser
+ * across the NAPI bridge, which fails for very large object literals (the AST is
+ * too big to convert), silently yielding an empty store (#17220). A string literal
+ * keeps the AST tiny regardless of collection size. Normal-sized stores stay on the
+ * object-literal path so dev matches production for the common case.
+ *
+ * Measured in UTF-8 bytes (not `String.length`, which counts UTF-16 code units and
+ * undercounts multi-byte content like CJK), so the trigger tracks the actual data
+ * volume oxc has to parse regardless of the alphabet used.
+ */
+const LARGE_DATA_STORE_THRESHOLD = 5 * 1024 * 1024; // 5 MB
+
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
 	fs: typeof nodeFs;
+}
+
+function invalidateAssetImports(viteServer: ViteDevServer, filePath: string) {
+	const timestamp = Date.now();
+	for (const environment of Object.values(viteServer.environments)) {
+		const modules = environment.moduleGraph.getModulesByFile(filePath);
+		if (modules) {
+			for (const module of modules) {
+				environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
+			}
+		}
+		if (isRunnableDevEnvironment(environment)) {
+			const runnerModules = environment.runner.evaluatedModules.getModulesByFile(filePath);
+			if (runnerModules) {
+				for (const runnerModule of runnerModules) {
+					environment.runner.evaluatedModules.invalidateModule(runnerModule);
+				}
+			}
+		}
+	}
 }
 
 function invalidateDataStore(viteServer: ViteDevServer) {
@@ -68,10 +104,12 @@ export function astroContentVirtualModPlugin({
 	let dataStoreFile: URL;
 	let devServer: ViteDevServer;
 	let liveConfig: string;
+	let isDev = false;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
 		config(_, env) {
+			isDev = env.command === 'serve';
 			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
 			const contentPaths = getContentPaths(
 				settings.config,
@@ -84,10 +122,13 @@ export function astroContentVirtualModPlugin({
 		},
 		buildStart() {
 			if (devServer) {
+				const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
 				// We defer adding the data store file to the watcher until the server is ready
 				devServer.watcher.add(fileURLToPath(dataStoreFile));
+				devServer.watcher.add(assetImportsPath);
 				// Manually invalidate the data store to avoid a race condition in file watching
 				invalidateDataStore(devServer);
+				invalidateAssetImports(devServer, assetImportsPath);
 			}
 		},
 		resolveId: {
@@ -174,10 +215,17 @@ export function astroContentVirtualModPlugin({
 
 					try {
 						const parsed = JSON.parse(jsonData);
+						// For large stores in dev, emit a JSON string parsed at runtime to
+						// avoid a huge object-literal AST that the NAPI bridge can't convert
+						// (#17220). Otherwise keep dataToEsm() so dev matches production.
+						const useRuntimeJsonParse =
+							isDev && Buffer.byteLength(jsonData) > LARGE_DATA_STORE_THRESHOLD;
 						return {
-							code: dataToEsm(parsed, {
-								compact: true,
-							}),
+							code: useRuntimeJsonParse
+								? `export default JSON.parse(${JSON.stringify(jsonData)})`
+								: dataToEsm(parsed, {
+										compact: true,
+									}),
 							map: { mappings: '' },
 						};
 					} catch (err) {
@@ -209,17 +257,21 @@ export function astroContentVirtualModPlugin({
 		configureServer(server) {
 			devServer = server;
 			const dataStorePath = fileURLToPath(dataStoreFile);
-			// If the datastore file changes, invalidate the virtual module
+			const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
 
 			server.watcher.on('add', (addedPath) => {
 				if (addedPath === dataStorePath) {
 					invalidateDataStore(server);
+					invalidateAssetImports(server, assetImportsPath);
 				}
 			});
 
 			server.watcher.on('change', (changedPath) => {
 				if (changedPath === dataStorePath) {
 					invalidateDataStore(server);
+					invalidateAssetImports(server, assetImportsPath);
+				} else if (changedPath === assetImportsPath) {
+					invalidateAssetImports(server, assetImportsPath);
 				}
 			});
 		},

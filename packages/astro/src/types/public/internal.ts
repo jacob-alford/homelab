@@ -8,8 +8,6 @@ import type { Params } from './common.js';
 import type { AstroConfig, RedirectConfig } from './config.js';
 import type { AstroGlobal } from './context.js';
 import type { AstroRenderer } from './integrations.js';
-import type { NodePool } from '../../runtime/server/render/queue/pool.js';
-import type { HTMLStringCache } from '../../runtime/server/html-string-cache.js';
 
 export type { SSRActions, SSRManifest, SSRManifestCSP } from '../../core/app/types.js';
 
@@ -254,20 +252,6 @@ export interface SSRResult {
 	directives: SSRManifestCSP['directives'];
 	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
 	internalFetchHeaders?: Record<string, string>;
-
-	/**
-	 * Experimental: Configuration for queue-based rendering.
-	 * - enabled: Whether to use queue-based rendering (default: true if config is object)
-	 * - poolSize: Maximum number of nodes to keep in the object pool (default: 1000, 0 to disable)
-	 * - cache: Whether to enable HTMLString caching (default: true)
-	 */
-	_experimentalQueuedRendering?: {
-		pool?: NodePool;
-		htmlStringCache?: HTMLStringCache;
-		enabled?: boolean;
-		poolSize?: number;
-		contentCache?: boolean;
-	};
 }
 
 /**
@@ -320,6 +304,20 @@ export interface SSRMetadata {
 	extraStyleHashes: string[];
 	extraScriptHashes: string[];
 	propagators: Set<AstroComponentInstance | ServerIslandComponent>;
+	/**
+	 * `true` when the page being rendered is on a head-propagation path (its
+	 * component metadata hint is `in-tree`/`self`). Only then do we await async
+	 * slot pre-renders before collecting head content, so that propagating
+	 * components hidden behind an `await` in slot markup are discovered in time.
+	 * Pages with no propagation keep streaming without paying that cost.
+	 */
+	routeHasPropagation: boolean;
+	/**
+	 * Promises from async slot pre-renders that may still need to register
+	 * propagating components. Drained by `collectPropagatedHeadParts` before
+	 * head content is flushed. Only populated when `routeHasPropagation` is true.
+	 */
+	pendingSlotEvaluations: Promise<unknown>[];
 	/**
 	 * Tracks nesting depth of HTML `<template>` elements during rendering.
 	 * Scripts rendered inside `<template>` tags should not be deduplicated,
