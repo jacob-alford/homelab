@@ -34,6 +34,13 @@ export interface NetlifyLocals {
 type RemotePattern = AstroConfig['image']['remotePatterns'][number];
 
 /**
+ * Escape regex metacharacters in a literal string so it matches verbatim.
+ */
+function escapeRegex(literal: string): string {
+	return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
  * Convert a remote pattern object to a regex string
  */
 export function remotePatternToRegex(
@@ -53,16 +60,16 @@ export function remotePatternToRegex(
 
 	if (hostname) {
 		if (hostname.startsWith('**.')) {
-			// match any number of subdomains
-			regexStr += '([a-z0-9-]+\\.)*';
+			// match one or more subdomains
+			regexStr += '([a-z0-9-]+\\.)+';
 			hostname = hostname.substring(3);
 		} else if (hostname.startsWith('*.')) {
-			// match one subdomain
-			regexStr += '([a-z0-9-]+\\.)?';
+			// match exactly one subdomain
+			regexStr += '([a-z0-9-]+\\.)';
 			hostname = hostname.substring(2); // Remove '*.' from the beginning
 		}
-		// Escape dots in the hostname
-		regexStr += hostname.replace(/\./g, '\\.');
+		// Escape metacharacters in the literal hostname so they match verbatim.
+		regexStr += escapeRegex(hostname);
 	} else {
 		regexStr += '[a-z0-9.-]+';
 	}
@@ -76,15 +83,15 @@ export function remotePatternToRegex(
 
 	if (pathname) {
 		if (pathname.endsWith('/**')) {
-			// Match any path.
-			regexStr += `(\\${pathname.replace('/**', '')}.*)`;
-		}
-		if (pathname.endsWith('/*')) {
+			// Match any path. Escape the literal prefix so metacharacters
+			// (e.g. `.`) match verbatim instead of acting as wildcards.
+			regexStr += `(${escapeRegex(pathname.replace('/**', ''))}.*)`;
+		} else if (pathname.endsWith('/*')) {
 			// Match one level of path
-			regexStr += `(\\${pathname.replace('/*', '')}\/[^/?#]+)\/?`;
+			regexStr += `(${escapeRegex(pathname.replace('/*', ''))}\/[^/?#]+)\/?`;
 		} else {
 			// Exact match
-			regexStr += `(\\${pathname})`;
+			regexStr += `(${escapeRegex(pathname)})`;
 		}
 	} else {
 		// Default to matching any path
@@ -94,6 +101,8 @@ export function remotePatternToRegex(
 		// Match query, but only if it's not already matched by the pathname
 		regexStr += '([?][^#]*)?';
 	}
+	// Anchor to end of string so .test() can't match a prefix
+	regexStr += '$';
 	try {
 		// nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
 		// This only validates the generated pattern before handing it to Netlify.
@@ -116,7 +125,7 @@ function remoteImagesFromAstroConfig(
 	const remoteImages: string[] = [];
 	// Domains get a simple regex match
 	remoteImages.push(
-		...config.image.domains.map((domain) => `https?:\/\/${domain.replaceAll('.', '\\.')}\/.*`),
+		...config.image.domains.map((domain) => `https?:\/\/${escapeRegex(domain)}\/.*`),
 	);
 	// Remote patterns need to be converted to regexes
 	remoteImages.push(
@@ -280,10 +289,13 @@ export interface NetlifyIntegrationConfig {
 	 *
 	 * - `images`: Enables the Netlify Image CDN in local development. Default: true
 	 * - `environmentVariables`: If your site is linked to a Netlify site, this will automatically load the environment variables from the Netlify site or team. Default: false
+	 * - `edgeFunctions`: Enables emulation of Netlify Edge Functions defined in your project's `netlify/edge-functions` directory. Some npm packages that access the filesystem may not work in the edge function sandbox. If you encounter errors, disable this and use `netlify dev` instead. Default: true
 	 *
-	 * @default {{ environmentVariables: false, images: true }}
+	 * @default {{ environmentVariables: false, images: true, edgeFunctions: true }}
 	 */
-	devFeatures?: { environmentVariables: boolean; images: boolean } | boolean;
+	devFeatures?:
+		| { environmentVariables: boolean; images: boolean; edgeFunctions: boolean }
+		| boolean;
 }
 
 export default function netlifyIntegration(
@@ -630,10 +642,12 @@ export default function netlifyIntegration(
 						? {
 								images: integrationConfig.devFeatures,
 								environmentVariables: integrationConfig.devFeatures,
+								edgeFunctions: integrationConfig.devFeatures,
 							}
 						: {
 								images: integrationConfig?.devFeatures?.images ?? true,
 								environmentVariables: integrationConfig?.devFeatures?.environmentVariables ?? false,
+								edgeFunctions: integrationConfig?.devFeatures?.edgeFunctions ?? true,
 							};
 
 				const vitePluginOptions: NetlifyPluginOptions = {
@@ -647,6 +661,9 @@ export default function netlifyIntegration(
 						// If features is an object, use the `environmentVariables` property
 						// Otherwise, use the boolean value of `features`, defaulting to false
 						enabled: features.environmentVariables,
+					},
+					edgeFunctions: {
+						enabled: features.edgeFunctions,
 					},
 				};
 

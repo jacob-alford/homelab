@@ -130,6 +130,26 @@ export interface AstroGlobal<
 }
 
 /**
+ * A type containing functions for logging messages.
+ *
+ * [Astro reference](https://docs.astro.build/en/reference/api-reference/#logger)
+ */
+export interface AstroRuntimeLogger {
+	/**
+	 * Logs a message with `info` level.
+	 */
+	info: (msg: string) => void;
+	/**
+	 * Logs a message with `warn` level.
+	 */
+	warn: (msg: string) => void;
+	/**
+	 * Logs a message with `error` level.
+	 */
+	error: (msg: string) => void;
+}
+
+/**
  * The `APIContext` is the object made available to endpoints and middleware.
  * It is a subset of the `Astro` global object available in pages.
  *
@@ -138,7 +158,7 @@ export interface AstroGlobal<
 export interface APIContext<
 	Props extends Record<string, any> = Record<string, any>,
 	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
-> extends App.Providers {
+> {
 	/**
 	 * The site provided in the astro config, parsed as an instance of `URL`, without base.
 	 * `undefined` if the site is not provided in the config.
@@ -579,22 +599,7 @@ export interface APIContext<
 	/**
 	 * It exposes utilities for logging messages.
 	 */
-	logger:
-		| {
-				/**
-				 * Logs a message with `info` level.
-				 */
-				info: (msg: string) => void;
-				/**
-				 * Logs a message with `warn` level.
-				 */
-				warn: (msg: string) => void;
-				/**
-				 * Logs a message with `error` level.
-				 */
-				error: (msg: string) => void;
-		  }
-		| undefined;
+	logger: AstroRuntimeLogger;
 
 	/**
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
