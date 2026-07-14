@@ -54,6 +54,7 @@
   };
 
   services.tailscale.enable = true;
+  services.tailscale.extraSetFlags = [ "--webclient" ];
 
   nixpkgs = {
     overlays = [

@@ -62,6 +62,7 @@
   services.getty.autologinUser = "jacob";
 
   services.tailscale.enable = true;
+  services.tailscale.extraSetFlags = [ "--webclient" ];
 
   services.xserver.xkb = {
     layout = "us";

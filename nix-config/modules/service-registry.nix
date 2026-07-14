@@ -205,6 +205,10 @@ in
         port = 11434;
       };
 
+      tailscale-metrics = {
+        port = 5252;
+      };
+
       wyoming = {
         whisperPort = 10300;
         piperPort = 10200;

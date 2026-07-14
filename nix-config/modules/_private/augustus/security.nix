@@ -11,6 +11,7 @@
       tailscale0 = {
         allowedTCPPorts = [
           22
+          5252
           5432
           25565
         ];

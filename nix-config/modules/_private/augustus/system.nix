@@ -59,6 +59,7 @@
   };
 
   services.tailscale.enable = true;
+  services.tailscale.extraSetFlags = [ "--webclient" ];
 
   environment.etc."sysctl.d/99-tailscale.conf".text = ''
     net.ipv4.ip_forward = 1

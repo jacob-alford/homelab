@@ -32,7 +32,7 @@
 
     interfaces = {
       tailscale0 = {
-        allowedTCPPorts = [ 22 ];
+        allowedTCPPorts = [ 22 5252 ];
       };
     };
   };
