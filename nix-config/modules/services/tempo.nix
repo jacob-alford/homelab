@@ -59,6 +59,12 @@ in
             processor = {
               span_metrics = { };
               service_graphs = { };
+              local_blocks = {
+                flush_to_storage = true;
+              };
+            };
+            traces_storage = {
+              path = "${svc.stateDir}/generator/traces";
             };
             storage = {
               path = "${svc.stateDir}/generator/wal";
