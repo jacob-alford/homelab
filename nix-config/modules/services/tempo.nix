@@ -45,7 +45,7 @@ in
 
           compactor = {
             compaction = {
-              block_retention = "72h";
+              block_retention = "2160h"; # 90 days
             };
           };
 
@@ -61,6 +61,7 @@ in
               service_graphs = { };
               local_blocks = {
                 flush_to_storage = true;
+                max_block_duration = "5m";
               };
             };
             traces_storage = {
@@ -68,6 +69,7 @@ in
             };
             storage = {
               path = "${svc.stateDir}/generator/wal";
+              remote_write_flush_deadline = "1m";
               remote_write = [
                 {
                   url = "http://127.0.0.1:${toString c.services.prometheus.port}/api/v1/write";
