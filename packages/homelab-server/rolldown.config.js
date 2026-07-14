@@ -17,7 +17,7 @@ const stubOptionalNative = {
 
 export default defineConfig({
   input: "./src/main.ts",
-  output: { file: "./dist/bundle.js" },
+  output: { dir: "./dist/bundle" },
   platform: "node",
   plugins: [
     stubOptionalNative,

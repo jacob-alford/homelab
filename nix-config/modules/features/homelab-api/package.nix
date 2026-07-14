@@ -6,7 +6,8 @@
   ...
 }:
 let
-  mkHomelabApi = { pkgs }:
+  mkHomelabApi =
+    { pkgs }:
     let
       filter = inputs.nix-filter.lib;
       fetcher = pkgs.yarn-berry_4-fetcher;
@@ -57,11 +58,11 @@ let
         runHook preInstall
         mkdir -p $out/lib $out/bin
 
-        cp packages/homelab-server/dist/bundle.js $out/lib/homelab-api.js
+        cp -r packages/homelab-server/dist/bundle $out/lib/bundle
 
         cat > $out/bin/homelab-api <<EOF
         #!/bin/sh
-        exec ${pkgs.nodejs_26}/bin/node $out/lib/homelab-api.js "\$@"
+        exec ${pkgs.nodejs_26}/bin/node $out/lib/bundle/main.js "\$@"
         EOF
         chmod +x $out/bin/homelab-api
         runHook postInstall
