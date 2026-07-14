@@ -48,6 +48,36 @@ in
               block_retention = "72h";
             };
           };
+
+          metrics_generator = {
+            ring = {
+              instance_addr = "127.0.0.1";
+              kvstore = {
+                store = "inmemory";
+              };
+            };
+            processor = {
+              span_metrics = { };
+              service_graphs = { };
+            };
+            storage = {
+              path = "${svc.stateDir}/generator/wal";
+              remote_write = [
+                {
+                  url = "http://127.0.0.1:${toString c.services.prometheus.port}/api/v1/write";
+                  send_exemplars = true;
+                }
+              ];
+            };
+          };
+
+          overrides = {
+            defaults = {
+              metrics_generator = {
+                processors = [ "span-metrics" "service-graphs" "local-blocks" ];
+              };
+            };
+          };
         };
       };
 
