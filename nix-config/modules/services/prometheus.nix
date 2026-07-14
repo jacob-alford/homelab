@@ -101,26 +101,37 @@ in
           }
           {
             job_name = "tailscale";
+            scheme = "http";
             static_configs = [
               {
                 targets = [ "augustus.neko-bicolor.ts.net:${toString c.services.tailscale-metrics.port}" ];
-                labels = { instance = "augustus"; };
+                labels = {
+                  instance = "augustus";
+                };
               }
               {
                 targets = [ "cicero.neko-bicolor.ts.net:${toString c.services.tailscale-metrics.port}" ];
-                labels = { instance = "cicero"; };
+                labels = {
+                  instance = "cicero";
+                };
               }
               {
                 targets = [ "praeconinus.neko-bicolor.ts.net:${toString c.services.tailscale-metrics.port}" ];
-                labels = { instance = "praeconinus"; };
+                labels = {
+                  instance = "praeconinus";
+                };
               }
               {
                 targets = [ "nixos.neko-bicolor.ts.net:${toString c.services.tailscale-metrics.port}" ];
-                labels = { instance = "nixos"; };
+                labels = {
+                  instance = "nixos";
+                };
               }
               {
                 targets = [ "mini.neko-bicolor.ts.net:${toString c.services.tailscale-metrics.port}" ];
-                labels = { instance = "mini"; };
+                labels = {
+                  instance = "mini";
+                };
               }
             ];
             metrics_path = "/metrics";
