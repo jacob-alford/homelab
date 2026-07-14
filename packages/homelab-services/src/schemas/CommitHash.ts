@@ -25,6 +25,13 @@ export const ShortCommitHash = Hex.pipe(
   Schema.brand("ShortCommitHash"),
 )
 
+/**
+ * Converts a 40 length hex string to a 7 length hex string
+ *
+ * @remarks
+ * used to pass in a full length commit hash and parse it down to the
+ * short hash.  In this app this is used for the version for opentelemetry
+ */
 export const ShortCommitHashFromCommitHash = CommitHash.pipe(
   Schema.transformOrFail(
     ShortCommitHash,
