@@ -199,4 +199,12 @@
   sops.secrets.grafana_secret = {
     owner = "grafana";
   };
+
+  sops.secrets.grafana_pushover_user_key = {
+    owner = "grafana";
+  };
+
+  sops.secrets.grafana_pushover_token = {
+    owner = "grafana";
+  };
 }

@@ -144,23 +144,17 @@ in
           alerting.contactPoints.settings.contactPoints = [
             {
               orgId = 1;
-              name = "Apprise";
+              name = "Pushover";
               receivers = [
                 {
-                  uid = "apprise-webhook";
-                  type = "webhook";
+                  uid = "pushover-direct";
+                  type = "pushover";
                   settings = {
-                    url = "http://127.0.0.1:${toString c.services.apprise.port}/notify/grafana-alerts";
-                    httpMethod = "POST";
-                    payload = {
-                      template = ''
-                        {{ coll.Dict
-                          "tag" "grafana-alerts"
-                          "type" (tmpl.Inline "{{ if eq .Status `resolved` }}success{{ else }}failure{{ end }}" .)
-                          "body" (tmpl.Exec "default.message" .)
-                        | data.ToJSONPretty " "}}
-                      '';
-                    };
+                    userKey = "$__file{${config.sops.secrets.grafana_pushover_user_key.path}}";
+                    apiToken = "$__file{${config.sops.secrets.grafana_pushover_token.path}}";
+                    priority = "0";
+                    retry = "30";
+                    expire = "3600";
                   };
                 }
               ];
