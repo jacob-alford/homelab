@@ -110,25 +110,25 @@ in
                 };
               }
               {
-                targets = [ "cicero.neko-bicolor.ts.net:${toString c.services.tailscale-metrics.port}" ];
+                targets = [ "cicero.plato-splunk.media:${toString c.services.tailscale-metrics.port}" ];
                 labels = {
                   instance = "cicero";
                 };
               }
               {
-                targets = [ "praeconinus.neko-bicolor.ts.net:${toString c.services.tailscale-metrics.port}" ];
+                targets = [ "praeconinus.plato-splunk.media:${toString c.services.tailscale-metrics.port}" ];
                 labels = {
                   instance = "praeconinus";
                 };
               }
               {
-                targets = [ "nixos.neko-bicolor.ts.net:${toString c.services.tailscale-metrics.port}" ];
+                targets = [ "nixos.plato-splunk.media:${toString c.services.tailscale-metrics.port}" ];
                 labels = {
                   instance = "nixos";
                 };
               }
               {
-                targets = [ "mini.neko-bicolor.ts.net:${toString c.services.tailscale-metrics.port}" ];
+                targets = [ "mini.plato-splunk.media:${toString c.services.tailscale-metrics.port}" ];
                 labels = {
                   instance = "mini";
                 };
