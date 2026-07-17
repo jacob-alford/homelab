@@ -104,7 +104,7 @@ in
             scheme = "http";
             static_configs = [
               {
-                targets = [ "augustus.neko-bicolor.ts.net:${toString c.services.tailscale-metrics.port}" ];
+                targets = [ "100.100.100.100" ];
                 labels = {
                   instance = "augustus";
                 };

@@ -1,4 +1,10 @@
-{ inputs, lib, config, pkgs, ... }:
+{
+  inputs,
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 {
   security.sudo.execWheelOnly = true;
 
@@ -9,7 +15,12 @@
 
     interfaces = {
       tailscale0 = {
-        allowedTCPPorts = [ 22 443 5252 ];
+        allowedTCPPorts = [
+          22
+          443
+          5252
+        ];
+        allowedUDPPorts = [ 5252 ];
       };
     };
 
